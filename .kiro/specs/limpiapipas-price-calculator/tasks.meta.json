@@ -1,0 +1,765 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Crear estructura, Bootstrap local y configuración de pruebas": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273152
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569282635
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575530388
+      }
+    ],
+    "2.1 Implementar `src/currency.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273381
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575534796
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576281677
+      }
+    ],
+    "3.1 Implementar `src/calculo.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273525
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575536225
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576282552
+      }
+    ],
+    "4.1 Implementar `src/validation.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273605
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575537103
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576283958
+      }
+    ],
+    "5.1 Implementar `src/models.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273667
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575538081
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576284981
+      }
+    ],
+    "6.1 Implementar `src/storage.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273754
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575539244
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576285923
+      }
+    ],
+    "7.1 Implementar `src/repository.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273809
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576572277
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576885172
+      }
+    ],
+    "8. Checkpoint - Verificar la lógica pura y de persistencia": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273869
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576891459
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788578535718
+      }
+    ],
+    "9.1 Implementar `src/backup.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273928
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576290389
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576554924
+      }
+    ],
+    "10.1 Implementar `src/notifier.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569273994
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576291299
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576554872
+      }
+    ],
+    "11.1 Implementar `src/router.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274040
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576292231
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576554815
+      }
+    ],
+    "12.1 Crear `index.html`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274145
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576293303
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576554741
+      }
+    ],
+    "13.1 Implementar `src/parametros.controller.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274197
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788578540159
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581647153
+      }
+    ],
+    "14.1 Implementar `src/productos.controller.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274258
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788578541150
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581646215
+      }
+    ],
+    "15.1 Implementar `src/basedatos.controller.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274313
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788578542104
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581648150
+      }
+    ],
+    "16.1 Implementar `src/app.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274376
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581652152
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584272150
+      }
+    ],
+    "17.1 Verificar la suite de pruebas y el arranque de la Aplicacion": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274429
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584276165
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584595991
+      }
+    ],
+    "17.2 Checkpoint final": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788569274498
+      },
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584601327
+      }
+    ],
+    "1. Andamiaje del proyecto y configuración de pruebas": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788575530469
+      }
+    ],
+    "2. Lógica pura de formato de moneda": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576281741
+      }
+    ],
+    "3. Lógica pura de cálculo": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576282659
+      }
+    ],
+    "4. Lógica pura de validación": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576284025
+      }
+    ],
+    "5. Fábricas de entidades e identificadores": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576285043
+      }
+    ],
+    "6. Capa de almacenamiento": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576285991
+      }
+    ],
+    "12. Estructura de `index.html`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576554971
+      }
+    ],
+    "11. Enrutador SPA": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576555043
+      }
+    ],
+    "10. Notificaciones de UI": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576555102
+      }
+    ],
+    "9. Lógica pura de respaldo": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576555228
+      }
+    ],
+    "7. Repositorio de dominio": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788576885246
+      }
+    ],
+    "14. Controlador de la Calculadora y lista de Productos": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581646336
+      }
+    ],
+    "13. Controlador del Gestor_De_Parametros": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581647225
+      }
+    ],
+    "15. Controlador de la Pagina_Base_De_Datos": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788581648222
+      }
+    ],
+    "16. Cableado de arranque en `app.js`": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584272230
+      }
+    ],
+    "17. Verificación final de integración": [
+      {
+        "executionId": "8e2d55bd-8363-4c92-8ac8-9e3376ca1031",
+        "chatSessionId": "sess_7128aa15-6014-4c9b-a1d8-6553f5bdbd7f",
+        "timestamp": 1788584601404
+      }
+    ],
+    "1.1 Eliminar configuración de build y pruebas automatizadas": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515330
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671523225
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702704041
+      }
+    ],
+    "2.1 Migrar `src/currency.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515416
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702708455
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702787478
+      }
+    ],
+    "2.2 Migrar `src/calculo.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515482
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702709444
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702788842
+      }
+    ],
+    "2.3 Migrar `src/validation.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515553
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702713659
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702790257
+      }
+    ],
+    "2.4 Migrar `src/models.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515617
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702714838
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702791244
+      }
+    ],
+    "2.5 Migrar `src/backup.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515687
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702715949
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702792601
+      }
+    ],
+    "3.1 Migrar `src/storage.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515814
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702793419
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702839036
+      }
+    ],
+    "3.2 Migrar `src/repository.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515872
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702843153
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702931367
+      }
+    ],
+    "4. Checkpoint - Verificar dominio y persistencia migrados": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671515937
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705962463
+      }
+    ],
+    "5.1 Migrar `src/notifier.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516013
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702844142
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702929114
+      }
+    ],
+    "5.2 Migrar `src/router.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516070
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702845122
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702930447
+      }
+    ],
+    "6.1 Migrar `src/parametros.controller.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516146
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702941531
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705649107
+      }
+    ],
+    "6.2 Migrar `src/productos.controller.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516216
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702942514
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705650416
+      }
+    ],
+    "6.3 Migrar `src/basedatos.controller.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516291
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702943581
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705651307
+      }
+    ],
+    "7.1 Migrar `src/app.js` a `window.LP`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516352
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705655620
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705743359
+      }
+    ],
+    "8.1 Reemplazar la carga por Módulos ES por Scripts_Clasicos ordenados por dependencias": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516481
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705747037
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705794367
+      }
+    ],
+    "9.1 Verificar el arranque bajo `file://` sin Módulos ES": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516553
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705963433
+      }
+    ],
+    "9.2 Checkpoint final": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788671516607
+      },
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705966673
+      }
+    ],
+    "1. Limpieza de artefactos obsoletos de build y pruebas": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702704137
+      }
+    ],
+    "2. Migración del dominio puro al espacio de nombres global": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702792688
+      }
+    ],
+    "5. Migración de la infraestructura de UI al espacio de nombres global": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702930529
+      }
+    ],
+    "3. Migración de la capa de persistencia al espacio de nombres global": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788702931443
+      }
+    ],
+    "6. Migración de los controladores al espacio de nombres global": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705651440
+      }
+    ],
+    "7. Migración del arranque en `src/app.js`": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705743436
+      }
+    ],
+    "8. Actualización de `index.html` a Scripts_Clasicos": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705794447
+      }
+    ],
+    "9. Verificación final de integración (manual)": [
+      {
+        "executionId": "4bdad94b-5544-495b-b002-d36f73b6576a",
+        "chatSessionId": "sess_70d578e4-dbfc-49a6-83ca-2d8d08e2da72",
+        "timestamp": 1788705966818
+      }
+    ]
+  }
+}

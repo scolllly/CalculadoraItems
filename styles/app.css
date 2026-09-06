@@ -1,0 +1,24 @@
+/* Estilos propios de la Aplicacion Limpiapipas.
+   Bootstrap se carga localmente desde vendor/bootstrap/; aqui solo ajustes propios. */
+
+:root {
+  --lp-spacing: 1rem;
+}
+
+body {
+  padding-bottom: 2rem;
+}
+
+/* Espaciado base para las secciones de vista (paginas SPA). */
+.lp-vista {
+  padding-top: var(--lp-spacing);
+}
+
+/* Aviso visible cuando los estilos de Bootstrap no se cargan (Requisito 7.4). */
+.lp-bootstrap-warning {
+  background: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffe69c;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+}
