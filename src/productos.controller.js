@@ -69,8 +69,15 @@
   const calcularProducto = (...args) => window.LP.calculo.calcularProducto(...args);
   const formatearPEN = (...args) => window.LP.currency.formatearPEN(...args);
   const crearProducto = (...args) => window.LP.models.crearProducto(...args);
-  const crearLinea = (...args) => window.LP.models.crearLinea(...args);
   const saveProductos = (...args) => window.LP.repository.saveProductos(...args);
+  const crearEditorDeLineas = (...args) =>
+    window.LP.lineasEditor.crearEditorDeLineas(...args);
+  const productosOps = {
+    NOMBRE_PARAMETRO_AUSENTE: () => window.LP.productosOps.NOMBRE_PARAMETRO_AUSENTE,
+    resolverDetalle: (...args) => window.LP.productosOps.resolverDetalle(...args),
+    editarProducto: (...args) => window.LP.productosOps.editarProducto(...args),
+    eliminarProducto: (...args) => window.LP.productosOps.eliminarProducto(...args),
+  };
   const notifier = {
     info: (...args) => window.LP.notifier.info(...args),
     error: (...args) => window.LP.notifier.error(...args),
@@ -93,7 +100,36 @@
     resultado: "resultado-calculo",
     btnGuardar: "btn-guardar-producto",
     listaProductos: "lista-productos",
+    // Ventana_Detalle (Req 2.x)
+    modalDetalle: "modal-detalle",
+    modalDetalleTitulo: "modal-detalle-titulo",
+    modalDetalleLineas: "modal-detalle-lineas",
+    modalDetalleTotal: "modal-detalle-total",
+    // Ventana_Edicion (Req 3.x)
+    modalEdicion: "modal-edicion",
+    modalEdicionTitulo: "modal-edicion-titulo",
+    modalEdicionNombre: "modal-edicion-nombre",
+    modalEdicionLineas: "modal-edicion-lineas",
+    btnAgregarLineaEdicion: "btn-agregar-linea-edicion",
+    btnCancelarEdicion: "btn-cancelar-edicion",
+    btnGuardarEdicion: "btn-guardar-edicion",
   };
+
+  /**
+   * Mensaje exacto mostrado cuando una edición o eliminación se aplica en la
+   * sesión actual pero no se pudo persistir en el Almacenamiento_Local (Req 4.5,
+   * 5.3).
+   * @type {string}
+   */
+  const MENSAJE_NO_PERSISTENTE =
+    "Los cambios se aplicaron en esta sesión, pero no se pudieron guardar de forma persistente.";
+
+  /**
+   * Mensaje exacto de la confirmación previa a eliminar un Producto (Req 4.1).
+   * @type {string}
+   */
+  const MENSAJE_CONFIRMAR_ELIMINACION =
+    "¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.";
 
   /**
    * Referencia al controlador activo (el último inicializado), usado por las
@@ -101,6 +137,105 @@
    * @type {ProductosController | null}
    */
   let controladorActivo = null;
+
+  // ─────────────────────── Helper de control de modales ───────────────────────
+  //
+  // Controla la apertura y el cierre de un modal de forma reutilizable por la
+  // Ventana_Detalle y la Ventana_Edicion. Cuando la API de Bootstrap está
+  // disponible (`window.bootstrap && window.bootstrap.Modal`) usa
+  // `new bootstrap.Modal(el).show()/.hide()`. En su ausencia (p. ej. el bundle no
+  // cargó bajo file://), recurre a un control manual mínimo: alterna la clase
+  // `d-none` sobre el elemento del modal y gestiona un backdrop propio, en línea
+  // con la degradación segura del diseño. Todos los accesos al DOM se guardan
+  // contra `null`. Mostrar/ocultar no muta ningún dato (Req 2.6).
+
+  /**
+   * Indica si la API de Bootstrap Modal está disponible en el entorno actual.
+   * @returns {boolean}
+   */
+  function hayBootstrapModal() {
+    return (
+      typeof window !== "undefined" &&
+      typeof window.bootstrap !== "undefined" &&
+      !!window.bootstrap.Modal
+    );
+  }
+
+  /** Id del backdrop manual usado por el fallback. */
+  const BACKDROP_MANUAL_ID = "lp-modal-backdrop-manual";
+
+  /**
+   * Muestra un backdrop propio (fallback) si no existe aún.
+   */
+  function mostrarBackdropManual() {
+    if (typeof document === "undefined" || !document.body) return;
+    if (document.getElementById(BACKDROP_MANUAL_ID)) return;
+    const backdrop = document.createElement("div");
+    backdrop.id = BACKDROP_MANUAL_ID;
+    backdrop.className = "modal-backdrop fade show";
+    document.body.appendChild(backdrop);
+  }
+
+  /**
+   * Oculta y elimina el backdrop propio (fallback), si existe.
+   */
+  function ocultarBackdropManual() {
+    if (typeof document === "undefined") return;
+    const backdrop = document.getElementById(BACKDROP_MANUAL_ID);
+    if (backdrop && backdrop.parentNode) {
+      backdrop.parentNode.removeChild(backdrop);
+    }
+  }
+
+  /**
+   * Muestra el modal indicado. Usa la API de Bootstrap cuando está disponible; en
+   * caso contrario, alterna `d-none`/`show` y muestra un backdrop propio.
+   * Degrada de forma segura si `el` es null.
+   * @param {HTMLElement|null} el Elemento raíz del modal (`.modal`).
+   */
+  function mostrarModal(el) {
+    if (!el) return;
+    if (hayBootstrapModal()) {
+      const instancia =
+        window.bootstrap.Modal.getOrCreateInstance
+          ? window.bootstrap.Modal.getOrCreateInstance(el)
+          : new window.bootstrap.Modal(el);
+      instancia.show();
+      return;
+    }
+    // Fallback manual: mostrar el modal alternando d-none + clases de Bootstrap.
+    el.classList.remove("d-none");
+    el.classList.add("show");
+    el.style.display = "block";
+    el.setAttribute("aria-hidden", "false");
+    el.setAttribute("aria-modal", "true");
+    mostrarBackdropManual();
+  }
+
+  /**
+   * Oculta el modal indicado. Usa la API de Bootstrap cuando está disponible; en
+   * caso contrario, alterna `d-none`/`show` y elimina el backdrop propio. No muta
+   * ningún dato (Req 2.6). Degrada de forma segura si `el` es null.
+   * @param {HTMLElement|null} el Elemento raíz del modal (`.modal`).
+   */
+  function ocultarModal(el) {
+    if (!el) return;
+    if (hayBootstrapModal()) {
+      const instancia =
+        window.bootstrap.Modal.getOrCreateInstance
+          ? window.bootstrap.Modal.getOrCreateInstance(el)
+          : new window.bootstrap.Modal(el);
+      instancia.hide();
+      return;
+    }
+    // Fallback manual.
+    el.classList.add("d-none");
+    el.classList.remove("show");
+    el.style.display = "none";
+    el.setAttribute("aria-hidden", "true");
+    el.removeAttribute("aria-modal");
+    ocultarBackdropManual();
+  }
 
   /**
    * @typedef {Object} ProductosController
@@ -134,35 +269,38 @@
       throw new TypeError("setProductos debe ser una función");
     }
 
-    // Estado en edición: las líneas de la Calculadora del producto en edición.
-    // Cada línea usa la forma de models.crearLinea: { parametroId, cantidad, subtotal }.
-    // Aquí `cantidad` puede quedar como string crudo del input o null si está vacía;
-    // se valida/convierte al calcular para conservar lo ingresado (Req 4.4).
-    /** @type {Array<{ parametroId: string|null, cantidad: any, subtotal: number }>} */
-    let lineas = [];
+    // Editor de líneas reutilizable de la Calculadora (window.LP.lineasEditor).
+    // Se crea de forma perezosa en `init()` cuando el DOM está disponible, sobre
+    // #lineas-container y cableado a #btn-agregar-linea. Mantiene el estado de las
+    // líneas en edición (parametroId + cantidad cruda) y expone `getLineas()`.
+    // Req 3.3: la Calculadora reutiliza exactamente el mismo mecanismo de líneas.
+    /** @type {import("./lineas.editor.js").EditorDeLineas | null} */
+    let editorLineas = null;
+
+    // Editor de líneas reutilizable de la Ventana_Edicion. Se instancia de forma
+    // perezosa la primera vez que se abre la edición (`abrirEdicion`), apuntando
+    // a #modal-edicion-lineas y cableado a #btn-agregar-linea-edicion. Mantiene su
+    // propio estado de líneas en edición (deep-copy de las del Producto), aislado
+    // del Producto original hasta que se guarda (Req 3.2, 3.9).
+    /** @type {import("./lineas.editor.js").EditorDeLineas | null} */
+    let editorEdicion = null;
+
+    // Id y nombre originales del Producto_Seleccionado en edición. Se conservan al
+    // guardar (Req 3.5). `null` cuando no hay edición en curso.
+    /** @type {string|null} */
+    let edicionId = null;
 
     /** @returns {HTMLElement|null} */
     const $ = (id) =>
       typeof document !== "undefined" ? document.getElementById(id) : null;
 
     /**
-     * Agrega una nueva línea vacía (parámetro sin seleccionar, cantidad vacía).
-     * Req 4.1.
+     * Devuelve las líneas en edición de la Calculadora leídas del editor de
+     * líneas, o una lista vacía si el editor aún no se ha instanciado.
+     * @returns {Array<{ parametroId: string|null, cantidad: any, subtotal: number }>}
      */
-    function agregarLinea() {
-      lineas.push(crearLinea(null, null));
-      renderLineas();
-    }
-
-    /**
-     * Elimina la línea en el índice indicado del producto en edición. Req 4.5.
-     * @param {number} indice
-     */
-    function eliminarLinea(indice) {
-      if (indice >= 0 && indice < lineas.length) {
-        lineas.splice(indice, 1);
-        renderLineas();
-      }
+    function obtenerLineas() {
+      return editorLineas ? editorLineas.getLineas() : [];
     }
 
     /**
@@ -173,137 +311,6 @@
       if (parametroId == null) return null;
       const params = getParametros() || [];
       return params.find((p) => p && p.id === parametroId) || null;
-    }
-
-    // ─────────────────────────── Render de líneas ───────────────────────────
-
-    /**
-     * Renderiza todas las filas de líneas en #lineas-container, o la indicación
-     * de estado vacío si no hay líneas (Req 4.6).
-     */
-    function renderLineas() {
-      const contenedor = $(IDS.lineasContainer);
-      if (!contenedor) return;
-
-      contenedor.textContent = "";
-
-      if (lineas.length === 0) {
-        const vacio = document.createElement("p");
-        vacio.className = "text-muted lp-lineas-vacias";
-        vacio.textContent = "No hay líneas agregadas.";
-        contenedor.appendChild(vacio);
-        return;
-      }
-
-      lineas.forEach((linea, indice) => {
-        contenedor.appendChild(construirFilaLinea(linea, indice));
-      });
-    }
-
-    /**
-     * Construye la fila del DOM de una línea de cálculo: selector de Parametro,
-     * visualización de la Unidad, input de cantidad y botón de eliminar.
-     * @param {{ parametroId: string|null, cantidad: any, subtotal: number }} linea
-     * @param {number} indice
-     * @returns {HTMLElement}
-     */
-    function construirFilaLinea(linea, indice) {
-      const fila = document.createElement("div");
-      fila.className = "row g-2 align-items-end mb-2 lp-linea";
-      fila.dataset.indice = String(indice);
-
-      // Columna: selector de Parametro (Req 4.2).
-      const colParam = document.createElement("div");
-      colParam.className = "col-12 col-md-5";
-      const select = document.createElement("select");
-      select.className = "form-select lp-linea-parametro";
-      select.setAttribute("aria-label", "Parámetro de la línea");
-
-      const optVacia = document.createElement("option");
-      optVacia.value = "";
-      optVacia.textContent = "Seleccione un parámetro";
-      select.appendChild(optVacia);
-
-      const params = getParametros() || [];
-      params.forEach((p) => {
-        if (!p) return;
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = p.nombre;
-        if (linea.parametroId === p.id) opt.selected = true;
-        select.appendChild(opt);
-      });
-      // Si el parámetro referenciado ya no existe, el select cae en la opción vacía.
-      select.value = linea.parametroId != null && buscarParametro(linea.parametroId)
-        ? linea.parametroId
-        : "";
-
-      select.addEventListener("change", () => {
-        linea.parametroId = select.value === "" ? null : select.value;
-        actualizarUnidad(fila, linea);
-      });
-      colParam.appendChild(select);
-      fila.appendChild(colParam);
-
-      // Columna: cantidad.
-      const colCant = document.createElement("div");
-      colCant.className = "col-8 col-md-4";
-      const inputCant = document.createElement("input");
-      inputCant.type = "number";
-      inputCant.className = "form-control lp-linea-cantidad";
-      inputCant.min = "0.01";
-      inputCant.max = "999999999.99";
-      inputCant.step = "0.01";
-      inputCant.placeholder = "Cantidad";
-      inputCant.setAttribute("aria-label", "Cantidad de la línea");
-      if (linea.cantidad != null && linea.cantidad !== "") {
-        inputCant.value = String(linea.cantidad);
-      }
-      inputCant.addEventListener("input", () => {
-        linea.cantidad = inputCant.value;
-      });
-      colCant.appendChild(inputCant);
-      fila.appendChild(colCant);
-
-      // Columna: visualización de la Unidad del Parametro seleccionado (Req 4.7).
-      const colUnidad = document.createElement("div");
-      colUnidad.className = "col-4 col-md-2";
-      const unidadSpan = document.createElement("span");
-      unidadSpan.className = "form-text lp-linea-unidad";
-      colUnidad.appendChild(unidadSpan);
-      fila.appendChild(colUnidad);
-
-      // Columna: botón eliminar (Req 4.5).
-      const colBtn = document.createElement("div");
-      colBtn.className = "col-12 col-md-1";
-      const btnEliminar = document.createElement("button");
-      btnEliminar.type = "button";
-      btnEliminar.className = "btn btn-outline-danger btn-sm lp-linea-eliminar";
-      btnEliminar.textContent = "Eliminar";
-      btnEliminar.setAttribute("aria-label", "Eliminar línea");
-      btnEliminar.addEventListener("click", () => {
-        const idx = Number(fila.dataset.indice);
-        eliminarLinea(idx);
-      });
-      colBtn.appendChild(btnEliminar);
-      fila.appendChild(colBtn);
-
-      // Inicializar la unidad mostrada.
-      actualizarUnidad(fila, linea);
-
-      return fila;
-    }
-
-    /**
-     * Actualiza el texto de la Unidad mostrada para una línea según su Parametro.
-     * @param {HTMLElement} fila
-     * @param {{ parametroId: string|null }} linea
-     */
-    function actualizarUnidad(fila, linea) {
-      const span = fila.querySelector(".lp-linea-unidad");
-      if (!span) return;
-      const parametro = buscarParametro(linea.parametroId);
-      span.textContent = parametro ? parametro.unidad : "";
     }
 
     // ─────────────────────────── Cálculo ───────────────────────────
@@ -340,6 +347,8 @@
         notifier.error(vNombre.mensaje || "Nombre de producto inválido.");
         return;
       }
+
+      const lineas = obtenerLineas();
 
       // 2) Debe haber al menos una línea (Req 5.4).
       if (lineas.length === 0) {
@@ -381,15 +390,16 @@
         linea.subtotal = subtotales[i];
       });
 
-      renderResultado(subtotales, total);
+      renderResultado(subtotales, total, lineas);
     }
 
     /**
      * Renderiza los subtotales por línea y el Precio_Total en PEN (Req 5.3).
      * @param {number[]} subtotales
      * @param {number} total
+     * @param {Array<{ parametroId: string|null }>} lineas Líneas en edición usadas para las etiquetas.
      */
-    function renderResultado(subtotales, total) {
+    function renderResultado(subtotales, total, lineas) {
       const contenedor = $(IDS.resultado);
       if (!contenedor) return;
 
@@ -435,6 +445,9 @@
         notifier.error(vNombre.mensaje || "Nombre de producto inválido.");
         return;
       }
+
+      const lineas = obtenerLineas();
+
       if (lineas.length === 0) {
         notifier.error(MENSAJES.SIN_LINEAS);
         return;
@@ -493,8 +506,12 @@
     // ─────────────────────── Lista de Productos guardados ───────────────────────
 
     /**
-     * Renderiza la lista de Productos guardados (nombre + Precio_Total en PEN).
-     * Req 8.7. Muestra indicación de estado vacío si no hay Productos.
+     * Renderiza la lista de Productos guardados. Por cada Producto muestra el
+     * nombre, el Precio_Total en PEN (2 decimales) y tres botones: Ver detalle,
+     * Editar y Eliminar. Cada `<li>` lleva `data-id` con el id del Producto y los
+     * botones se cablean para invocar `abrirDetalle`, `abrirEdicion` y
+     * `confirmarYEliminar` con ese id (Req 1.1, 1.3, 1.4, 1.5). Muestra la
+     * indicación de estado vacío, sin botones, si no hay Productos (Req 1.2).
      */
     function renderListaProductos() {
       const contenedor = $(IDS.listaProductos);
@@ -518,51 +535,377 @@
         const item = document.createElement("li");
         item.className =
           "list-group-item d-flex justify-content-between align-items-center lp-producto";
+        item.setAttribute("data-id", producto.id);
+
+        // Bloque de información: nombre + Precio_Total (Req 1.1).
+        const info = document.createElement("div");
+        info.className = "d-flex align-items-center gap-2";
         const nombreEl = document.createElement("span");
         nombreEl.className = "lp-producto-nombre";
         nombreEl.textContent = producto.nombre;
         const precioEl = document.createElement("span");
         precioEl.className = "badge bg-success rounded-pill lp-producto-precio";
         precioEl.textContent = formatearPEN(producto.precioTotal);
-        item.appendChild(nombreEl);
-        item.appendChild(precioEl);
+        info.appendChild(nombreEl);
+        info.appendChild(precioEl);
+
+        // Bloque de acciones: Ver detalle / Editar / Eliminar (Req 1.1).
+        const acciones = document.createElement("div");
+        acciones.className = "btn-group";
+        acciones.setAttribute("role", "group");
+
+        const btnDetalle = document.createElement("button");
+        btnDetalle.type = "button";
+        btnDetalle.className = "btn btn-outline-secondary btn-sm lp-producto-detalle";
+        btnDetalle.textContent = "Ver detalle";
+
+        const btnEditar = document.createElement("button");
+        btnEditar.type = "button";
+        btnEditar.className = "btn btn-outline-primary btn-sm lp-producto-editar";
+        btnEditar.textContent = "Editar";
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.type = "button";
+        btnEliminar.className = "btn btn-outline-danger btn-sm lp-producto-eliminar";
+        btnEliminar.textContent = "Eliminar";
+
+        // Cablear cada botón usando el id leído del atributo data-id del <li>
+        // (Req 1.3, 1.4, 1.5).
+        btnDetalle.addEventListener("click", () => {
+          abrirDetalle(item.getAttribute("data-id"));
+        });
+        btnEditar.addEventListener("click", () => {
+          abrirEdicion(item.getAttribute("data-id"));
+        });
+        btnEliminar.addEventListener("click", () => {
+          confirmarYEliminar(item.getAttribute("data-id"));
+        });
+
+        acciones.appendChild(btnDetalle);
+        acciones.appendChild(btnEditar);
+        acciones.appendChild(btnEliminar);
+
+        item.appendChild(info);
+        item.appendChild(acciones);
         lista.appendChild(item);
       });
       contenedor.appendChild(lista);
     }
 
+    // ─────────────── Acciones por Producto (Ver detalle / Editar / Eliminar) ───────────────
+    //
+    // Marcadores de posición para las acciones de la Lista_De_Productos. La
+    // implementación completa de las ventanas (Ventana_Detalle, Ventana_Edicion)
+    // y del flujo de eliminación se desarrolla en tareas posteriores (8.x, 9.x,
+    // 10.x). Por ahora se definen como no-ops seguros que reciben el id del
+    // Producto_Seleccionado leído del `data-id`, para que el cableado de los
+    // botones quede operativo sin efectos secundarios.
+
+    /**
+     * Abre la Ventana_Detalle del Producto_Seleccionado en modo de solo lectura
+     * (Req 1.3, 2.1–2.7). Localiza el Producto por `id`, resuelve sus líneas con
+     * `productosOps.resolverDetalle` (mapeo de nombre/unidad del Parametro vigente
+     * y marcado de Parametros ausentes) y renderiza:
+     *   - el nombre del Producto en el título (Req 2.1);
+     *   - cada línea en orden con nombre del Parametro (o texto Nombre_Parametro_
+     *     Ausente y Unidad vacía si `ausente`), Cantidad, Unidad y subtotal en PEN
+     *     (Req 2.2, 2.4);
+     *   - el Precio_Total en PEN (Req 2.3);
+     *   - un mensaje de "sin líneas" cuando el Producto no tiene líneas (Req 2.7).
+     * No incluye controles de edición (Req 2.5). Al cerrar no muta nada (Req 2.6).
+     * Degrada de forma segura si faltan elementos del DOM.
+     * @param {string} id id del Producto_Seleccionado.
+     */
+    function abrirDetalle(id) {
+      if (id == null) return;
+
+      const productos = getProductos() || [];
+      const producto = productos.find((p) => p && p.id === id);
+      if (!producto) return;
+
+      const detalle = productosOps.resolverDetalle(producto, getParametros() || []);
+
+      // Título: nombre del Producto (Req 2.1).
+      const titulo = $(IDS.modalDetalleTitulo);
+      if (titulo) titulo.textContent = detalle.nombre;
+
+      // Cuerpo: líneas de cálculo o mensaje de "sin líneas" (Req 2.2, 2.4, 2.7).
+      const cuerpo = $(IDS.modalDetalleLineas);
+      if (cuerpo) {
+        cuerpo.textContent = "";
+
+        if (detalle.lineas.length === 0) {
+          const vacio = document.createElement("p");
+          vacio.className = "text-muted lp-detalle-vacio";
+          vacio.textContent = "Este producto no tiene líneas de cálculo.";
+          cuerpo.appendChild(vacio);
+        } else {
+          const lista = document.createElement("ul");
+          lista.className = "list-group lp-detalle-lineas";
+          detalle.lineas.forEach((linea) => {
+            const item = document.createElement("li");
+            item.className =
+              "list-group-item d-flex justify-content-between align-items-center lp-detalle-linea";
+
+            const info = document.createElement("span");
+            info.className = "lp-detalle-linea-info";
+            // Nombre del Parametro (o Nombre_Parametro_Ausente si está ausente),
+            // Cantidad y Unidad (vacía si el Parametro está ausente).
+            const unidadTexto = linea.unidad ? " " + linea.unidad : "";
+            info.textContent = `${linea.nombreParametro} · ${linea.cantidad}${unidadTexto}`;
+            if (linea.ausente) {
+              item.classList.add("lp-detalle-linea-ausente");
+            }
+
+            const subtotal = document.createElement("span");
+            subtotal.className = "badge bg-secondary lp-detalle-linea-subtotal";
+            subtotal.textContent = formatearPEN(linea.subtotal);
+
+            item.appendChild(info);
+            item.appendChild(subtotal);
+            lista.appendChild(item);
+          });
+          cuerpo.appendChild(lista);
+        }
+      }
+
+      // Pie: Precio_Total en PEN (Req 2.3).
+      const totalEl = $(IDS.modalDetalleTotal);
+      if (totalEl) totalEl.textContent = formatearPEN(detalle.precioTotal);
+
+      // Cablear (una sola vez) los controles de cierre para el fallback manual,
+      // de modo que "Cerrar" oculte el modal aunque la API de Bootstrap no esté
+      // disponible. Bootstrap ya gestiona el cierre vía data-bs-dismiss.
+      const modal = $(IDS.modalDetalle);
+      if (modal && !modal.dataset.lpCierreCableado) {
+        modal.dataset.lpCierreCableado = "true";
+        const cerradores = modal.querySelectorAll("[data-bs-dismiss='modal']");
+        cerradores.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (!hayBootstrapModal()) ocultarModal(modal);
+          });
+        });
+      }
+
+      // Mostrar el modal (Bootstrap o fallback). No muta datos (Req 2.6).
+      mostrarModal(modal);
+    }
+
+    /**
+     * Abre la Ventana_Edicion del Producto_Seleccionado (Req 1.4, 3.1–3.4).
+     * Localiza el Producto por `id`, guarda su `id` original, muestra el nombre en
+     * solo lectura, crea (o reutiliza) una instancia del editor de líneas sobre
+     * #modal-edicion-lineas cableada a #btn-agregar-linea-edicion y precarga sus
+     * líneas con `setLineas()` (deep-copy, Req 3.2). Cablea (una sola vez) el
+     * botón Guardar a `guardarEdicion` y abre el modal mediante el mismo helper de
+     * control (Bootstrap o fallback). Degrada de forma segura si faltan elementos
+     * del DOM.
+     * @param {string} id id del Producto_Seleccionado.
+     */
+    function abrirEdicion(id) {
+      if (id == null) return;
+
+      const productos = getProductos() || [];
+      const producto = productos.find((p) => p && p.id === id);
+      if (!producto) return;
+
+      // Conservar el identificador original para el guardado (Req 3.5).
+      edicionId = producto.id;
+
+      // Mostrar el nombre del Producto en solo lectura (Req 3.1).
+      const inputNombre = /** @type {HTMLInputElement|null} */ (
+        $(IDS.modalEdicionNombre)
+      );
+      if (inputNombre) inputNombre.value = producto.nombre;
+
+      // Crear (una sola vez) la instancia del editor de líneas de la edición
+      // apuntando al contenedor del modal y cableada a su botón "Agregar línea".
+      if (!editorEdicion) {
+        editorEdicion = crearEditorDeLineas({
+          contenedor: $(IDS.modalEdicionLineas),
+          getParametros,
+          botonAgregar: $(IDS.btnAgregarLineaEdicion),
+        });
+      }
+
+      // Precargar las líneas del Producto con deep-copy (Req 3.2, 3.9).
+      editorEdicion.setLineas(producto.lineas || []);
+
+      // Cablear (una sola vez) el botón Guardar a `guardarEdicion` (Req 3.4).
+      const btnGuardar = $(IDS.btnGuardarEdicion);
+      if (btnGuardar && !btnGuardar.dataset.lpGuardarCableado) {
+        btnGuardar.dataset.lpGuardarCableado = "true";
+        btnGuardar.addEventListener("click", guardarEdicion);
+      }
+
+      // Cablear (una sola vez) los controles de cierre para el fallback manual,
+      // de modo que Cancelar/cerrar oculte el modal aunque la API de Bootstrap no
+      // esté disponible. Cerrar descarta el estado del editor sin mutar datos
+      // (Req 3.9). Bootstrap ya gestiona el cierre vía data-bs-dismiss.
+      const modal = $(IDS.modalEdicion);
+      if (modal && !modal.dataset.lpCierreCableado) {
+        modal.dataset.lpCierreCableado = "true";
+        const cerradores = modal.querySelectorAll("[data-bs-dismiss='modal']");
+        cerradores.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (!hayBootstrapModal()) ocultarModal(modal);
+          });
+        });
+      }
+
+      // Abrir el modal (Bootstrap o fallback).
+      mostrarModal(modal);
+    }
+
+    /**
+     * Guarda los cambios de la Ventana_Edicion. Valida en el mismo orden y con los
+     * mismos MENSAJES que la Calculadora: sin líneas → `SIN_LINEAS` (Req 3.6);
+     * cantidad no numérica o fuera de 0,01–999.999.999,99 → `CANTIDAD_INVALIDA`
+     * (Req 3.7); línea sin Parametro seleccionado/existente → `SIN_PARAMETRO`
+     * (Req 3.8). Ante cualquier rechazo, conserva los datos en edición y no
+     * persiste.
+     *
+     * Si todo es válido: construye `lineasProducto` (parametroId, cantidad
+     * numérica, subtotal), llama `productosOps.editarProducto` (conserva id y
+     * nombre, recalcula subtotales/total — Req 3.5), persiste con
+     * `repository.saveProductos`, aplica `setProductos`, re-renderiza la lista y
+     * cierra el modal. Si la escritura falla (`status === "failed"`), aplica
+     * `setProductos` igualmente y muestra `MENSAJE_NO_PERSISTENTE` (Req 5.3).
+     */
+    function guardarEdicion() {
+      if (edicionId == null || !editorEdicion) return;
+
+      const lineas = editorEdicion.getLineas();
+
+      // 1) Debe haber al menos una línea (Req 3.6).
+      if (lineas.length === 0) {
+        notifier.error(MENSAJES.SIN_LINEAS);
+        return;
+      }
+
+      // 2) Toda cantidad debe ser válida (Req 3.7).
+      for (const linea of lineas) {
+        const cantidad = aNumeroCantidad(linea.cantidad);
+        if (!validarCantidad(cantidad).valido) {
+          notifier.error(MENSAJES.CANTIDAD_INVALIDA);
+          return;
+        }
+      }
+
+      // 3) Toda línea debe tener un Parametro seleccionado y existente (Req 3.8).
+      for (const linea of lineas) {
+        if (!buscarParametro(linea.parametroId)) {
+          notifier.error(MENSAJES.SIN_PARAMETRO);
+          return;
+        }
+      }
+
+      // Resolver subtotales y total con las líneas ya válidas.
+      const lineasResueltas = lineas.map((linea) => {
+        const parametro = buscarParametro(linea.parametroId);
+        return {
+          cantidad: aNumeroCantidad(linea.cantidad),
+          precioUnitario: parametro.precioUnitario,
+        };
+      });
+      const { subtotales } = calcularProducto(lineasResueltas);
+
+      // Construir las Lineas_De_Calculo persistibles (Req 3.5).
+      const lineasProducto = lineas.map((linea, i) => ({
+        parametroId: linea.parametroId,
+        cantidad: aNumeroCantidad(linea.cantidad),
+        subtotal: subtotales[i],
+      }));
+
+      // Editar el Producto conservando id y nombre; recalcula subtotales/total.
+      const nueva = productosOps.editarProducto(
+        getProductos() || [],
+        edicionId,
+        lineasProducto
+      );
+
+      const resultado = saveProductos(nueva);
+      // Aplicar el estado en memoria en todo caso (Req 5.3: conservar en sesión).
+      setProductos(nueva);
+
+      if (resultado && resultado.status === "failed") {
+        notifier.error(MENSAJE_NO_PERSISTENTE);
+      } else {
+        notifier.info("Producto actualizado.");
+      }
+
+      renderListaProductos();
+
+      // Cerrar el modal y limpiar el estado de edición.
+      edicionId = null;
+      ocultarModal($(IDS.modalEdicion));
+    }
+
+    /**
+     * Inicia el flujo de eliminación con confirmación del Producto_Seleccionado
+     * (Req 1.5, 4.1–4.5, 5.2, 5.3).
+     *
+     * Solicita una confirmación explícita mediante
+     * `notifier.confirmar(MENSAJE_CONFIRMAR_ELIMINACION)` antes de eliminar; si el
+     * usuario cancela, no hace nada (Req 4.1, 4.3). Si confirma, calcula la nueva
+     * lista con `productosOps.eliminarProducto` (conserva el resto en orden),
+     * persiste con `repository.saveProductos`, aplica `setProductos` y re-renderiza
+     * la lista, de modo que el Producto deja de mostrarse (Req 4.2, 4.4, 5.2). Si
+     * la escritura falla (`status === "failed"`), aplica `setProductos` igualmente
+     * y muestra `MENSAJE_NO_PERSISTENTE` (Req 4.5, 5.3). Guarda contra id/Producto
+     * ausente para degradar de forma segura.
+     * @param {string} id id del Producto_Seleccionado.
+     */
+    function confirmarYEliminar(id) {
+      if (id == null) return;
+
+      // Solo actuar sobre un Producto existente.
+      const productos = getProductos() || [];
+      const existe = productos.some((p) => p && p.id === id);
+      if (!existe) return;
+
+      // Solicitar confirmación explícita; si cancela, no hacer nada (Req 4.1, 4.3).
+      if (!notifier.confirmar(MENSAJE_CONFIRMAR_ELIMINACION)) return;
+
+      // Calcular la nueva lista sin el Producto (conserva el resto en orden).
+      const nueva = productosOps.eliminarProducto(productos, id);
+
+      const resultado = saveProductos(nueva);
+      // Aplicar el estado en memoria en todo caso (Req 4.5, 5.3: conservar en sesión).
+      setProductos(nueva);
+
+      if (resultado && resultado.status === "failed") {
+        notifier.error(MENSAJE_NO_PERSISTENTE);
+      } else {
+        notifier.info("Producto eliminado.");
+      }
+
+      // Re-renderizar: el Producto deja de mostrarse (Req 4.4).
+      renderListaProductos();
+    }
+
     // ─────────────────────────── API pública ───────────────────────────
 
     /**
-     * Cuenta cuántas líneas en edición referencian el parametroId indicado (Req 2.4).
+     * Cuenta cuántas líneas en edición de la Calculadora referencian el
+     * parametroId indicado (Req 2.4). Delega en el editor de líneas activo.
      * @param {string} parametroId
      * @returns {number}
      */
     function contarLineasQueReferencian(parametroId) {
       if (parametroId == null) return 0;
-      return lineas.reduce(
-        (conteo, linea) => (linea.parametroId === parametroId ? conteo + 1 : conteo),
-        0
-      );
+      return editorLineas ? editorLineas.contarLineasQueReferencian(parametroId) : 0;
     }
 
     /**
-     * Marca como "sin parámetro" (parametroId = null) las líneas en edición que
-     * referenciaban el parametroId indicado; el resto no cambia (Req 2.4).
+     * Marca como "sin parámetro" (parametroId = null) las líneas en edición de la
+     * Calculadora que referenciaban el parametroId indicado; el resto no cambia
+     * (Req 2.4). Delega en el editor de líneas activo.
      * @param {string} parametroId
      */
     function desreferenciarParametro(parametroId) {
       if (parametroId == null) return;
-      let afectadas = false;
-      lineas.forEach((linea) => {
-        if (linea.parametroId === parametroId) {
-          linea.parametroId = null;
-          afectadas = true;
-        }
-      });
-      if (afectadas) {
-        renderLineas();
-      }
+      if (editorLineas) editorLineas.desreferenciarParametro(parametroId);
     }
 
     /**
@@ -570,16 +913,21 @@
      * externos, para que el selector y las unidades reflejen los vigentes).
      */
     function render() {
-      renderLineas();
+      if (editorLineas) editorLineas.render();
       renderListaProductos();
     }
 
     /**
-     * Cablea los controles del DOM y renderiza el estado inicial.
+     * Cablea los controles del DOM y renderiza el estado inicial. Instancia el
+     * editor de líneas reutilizable sobre #lineas-container y lo cablea al botón
+     * #btn-agregar-linea (Req 3.3).
      */
     function init() {
-      const btnAgregar = $(IDS.btnAgregarLinea);
-      if (btnAgregar) btnAgregar.addEventListener("click", agregarLinea);
+      editorLineas = crearEditorDeLineas({
+        contenedor: $(IDS.lineasContainer),
+        getParametros,
+        botonAgregar: $(IDS.btnAgregarLinea),
+      });
 
       const btnCalcular = $(IDS.btnCalcular);
       if (btnCalcular) btnCalcular.addEventListener("click", calcular);
@@ -637,5 +985,7 @@
       crearProductosController,
       contarLineasQueReferencian,
       desreferenciarParametro,
+      mostrarModal,
+      ocultarModal,
     };
 })(window);

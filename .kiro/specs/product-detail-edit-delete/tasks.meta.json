@@ -1,0 +1,522 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Configurar el entorno de pruebas (Vitest + fast-check)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641559
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719656646
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788722196534
+      }
+    ],
+    "2.1 Crear el módulo `src/productos.ops.js` con la constante y `resolverDetalle`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641663
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719657791
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788722197490
+      }
+    ],
+    "2.5 Implementar `editarProducto` y `eliminarProducto` en `src/productos.ops.js`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641728
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788722201873
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724470583
+      }
+    ],
+    "3. Checkpoint - Verificar el dominio puro": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641795
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725976695
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788726036202
+      }
+    ],
+    "4.1 Crear el módulo `src/lineas.editor.js` con `crearEditorDeLineas`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641861
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788722202817
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724469746
+      }
+    ],
+    "5.1 Reemplazar la lógica de líneas interna por una instancia del editor": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719641932
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741086924
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741275266
+      }
+    ],
+    "6.1 Añadir el marcado estático de los modales de Bootstrap y los `<script>`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642061
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741087974
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741276274
+      }
+    ],
+    "7.1 Ampliar `renderListaProductos()` con nombre, Precio_Total y tres botones": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642126
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741284734
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741984588
+      }
+    ],
+    "8.1 Implementar `abrirDetalle(id)` y el helper de control de modales": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642198
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742406347
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742555511
+      }
+    ],
+    "9.1 Implementar `abrirEdicion(id)` con instancia del editor y precarga": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642256
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742561673
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742798955
+      }
+    ],
+    "9.2 Implementar `guardarEdicion` con validación y persistencia": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642321
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742566861
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742799824
+      }
+    ],
+    "10.1 Implementar `confirmarYEliminar(id)`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642378
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743288400
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743373176
+      }
+    ],
+    "11. Checkpoint - Verificar controladores y flujos de UI": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642446
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745197723
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745271232
+      }
+    ],
+    "13. Checkpoint final - Verificar toda la funcionalidad": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788719642511
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745275083
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745373883
+      }
+    ],
+    "4. Implementar el editor de líneas reutilizable (`src/lineas.editor.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724469862
+      }
+    ],
+    "2. Implementar el dominio puro de operaciones sobre Productos (`src/productos.ops.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724470661
+      }
+    ],
+    "2.2 Escribir prueba de propiedad para `resolverDetalle` (orden/nombre/unidad/subtotal)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724494795
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725951763
+      }
+    ],
+    "2.3 Escribir prueba de propiedad para `resolverDetalle` (Precio_Total preservado)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724496170
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725953175
+      }
+    ],
+    "2.4 Escribir prueba de propiedad para `resolverDetalle` (Parametro ausente)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724497475
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725954481
+      }
+    ],
+    "2.6 Escribir prueba de propiedad para `editarProducto` (id y nombre)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724498961
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725955510
+      }
+    ],
+    "2.7 Escribir prueba de propiedad para `editarProducto` (subtotales y total consistentes)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724499976
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725956952
+      }
+    ],
+    "2.8 Escribir prueba de propiedad para `editarProducto` (aislamiento y tamaño)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724506619
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725958222
+      }
+    ],
+    "2.9 Escribir prueba de propiedad para `eliminarProducto`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788724507642
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788725959411
+      }
+    ],
+    "4.2 Escribir prueba de propiedad para `setLineas`/`getLineas` (precarga)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788726046191
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741078880
+      }
+    ],
+    "4.3 Escribir prueba de propiedad para deep-copy (aislamiento del original)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788726047233
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741080006
+      }
+    ],
+    "4.4 Escribir pruebas de ejemplo (jsdom) para el editor de líneas": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788726048600
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741080941
+      }
+    ],
+    "5. Integrar el editor de líneas en la Calculadora (`src/productos.controller.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741275353
+      }
+    ],
+    "6. Añadir el marcado de modales y los scripts nuevos en `index.html`": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741276385
+      }
+    ],
+    "7. Renderizar la Lista_De_Productos con las tres acciones (`src/productos.controller.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741984665
+      }
+    ],
+    "5.2 Escribir pruebas de regresión (jsdom) de la Calculadora": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741993886
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742401237
+      }
+    ],
+    "7.2 Escribir pruebas (jsdom) de la Lista_De_Productos": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788741994901
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742401948
+      }
+    ],
+    "8. Implementar la Ventana_Detalle (`src/productos.controller.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742555606
+      }
+    ],
+    "9. Implementar la Ventana_Edicion (`src/productos.controller.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742799914
+      }
+    ],
+    "8.2 Escribir pruebas (jsdom) de la Ventana_Detalle": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742809695
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743284355
+      }
+    ],
+    "9.3 Escribir pruebas (jsdom) de la Ventana_Edicion": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788742810546
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743283273
+      }
+    ],
+    "10. Implementar la eliminación con confirmación (`src/productos.controller.js`)": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743373254
+      }
+    ],
+    "10.2 Escribir pruebas (jsdom) de la eliminación": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743379356
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745189772
+      }
+    ],
+    "12.1 Escribir prueba de propiedad del round-trip de respaldo": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743380388
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745191603
+      }
+    ],
+    "12.2 Escribir pruebas de integración de persistencia y sesión": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743381738
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745192471
+      }
+    ],
+    "12.3 Escribir pruebas de integración de exportar/importar": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788743382796
+      },
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745193259
+      }
+    ],
+    "12. Pruebas de persistencia, round-trip de respaldo e integración": [
+      {
+        "executionId": "44f200fb-fcc5-4ee6-b3de-dc9dd87a03e1",
+        "chatSessionId": "sess_c57a80a7-c401-41ac-979a-ecb129e9bde1",
+        "timestamp": 1788745191700
+      }
+    ]
+  }
+}

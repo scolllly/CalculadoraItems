@@ -115,6 +115,57 @@
     </section>
   </div>
 
+  <!-- ===================== Modal Ver detalle (solo lectura) - Req 2.x ===================== -->
+  <div class="modal fade" id="modal-detalle" tabindex="-1" aria-labelledby="modal-detalle-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="modal-detalle-titulo">Detalle del producto</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Cuerpo para las lineas de calculo (rellenado por productos.controller.js) -->
+          <div id="modal-detalle-lineas"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <!-- Pie con el Precio_Total (rellenado por productos.controller.js) -->
+          <span class="fw-bold">Precio total:</span>
+          <span id="modal-detalle-total" class="badge bg-success"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Modal Editar (agregar/eliminar lineas) - Req 3.x ===================== -->
+  <div class="modal fade" id="modal-edicion" tabindex="-1" aria-labelledby="modal-edicion-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="modal-edicion-titulo">Editar producto</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Nombre del producto en solo lectura - Req 3.1 -->
+          <div class="mb-3">
+            <label for="modal-edicion-nombre" class="form-label">Nombre del producto</label>
+            <input type="text" id="modal-edicion-nombre" class="form-control" readonly>
+          </div>
+
+          <!-- Seccion de agregar/eliminar lineas de calculo - Req 3.3 -->
+          <fieldset class="mb-3">
+            <legend class="h6">L&iacute;neas de c&aacute;lculo</legend>
+            <div id="modal-edicion-lineas"></div>
+            <button type="button" id="btn-agregar-linea-edicion" class="btn btn-secondary mt-2">Agregar l&iacute;nea</button>
+          </fieldset>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-cancelar-edicion" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btn-guardar-edicion" class="btn btn-success">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS local (sin CDN) - Req 7.1, 7.2 -->
   <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
   <!-- Scripts de la aplicacion (SPA) cargados como scripts clasicos en orden de dependencias - Req 7.1, 7.3, 7.4, 8.1 -->
@@ -123,6 +174,7 @@
   <script src="src/calculo.js"></script>
   <script src="src/validation.js"></script>
   <script src="src/models.js"></script>
+  <script src="src/productos.ops.js"></script>
   <script src="src/backup.js"></script>
   <!-- 2. Persistencia -->
   <script src="src/storage.js"></script>
@@ -130,6 +182,7 @@
   <!-- 3. Infraestructura de UI -->
   <script src="src/notifier.js"></script>
   <script src="src/router.js"></script>
+  <script src="src/lineas.editor.js"></script>
   <!-- 4. Controladores -->
   <script src="src/parametros.controller.js"></script>
   <script src="src/productos.controller.js"></script>
