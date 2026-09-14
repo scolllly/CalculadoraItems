@@ -72,9 +72,25 @@
   const saveProductos = (...args) => window.LP.repository.saveProductos(...args);
   const crearEditorDeLineas = (...args) =>
     window.LP.lineasEditor.crearEditorDeLineas(...args);
+  // Alias a los mensajes exactos de validación (línea de producto, ciclos, etc.).
+  const validationMensajes = () => window.LP.validation.MENSAJES;
+  // Valores de Fuente_De_Componente publicados por models (con fallback seguro).
+  const fuenteComponente = () =>
+    (window.LP.models && window.LP.models.FUENTE_COMPONENTE) || {
+      PARAMETRO: "Parámetro",
+      PRODUCTO: "Producto",
+    };
   const productosOps = {
     NOMBRE_PARAMETRO_AUSENTE: () => window.LP.productosOps.NOMBRE_PARAMETRO_AUSENTE,
     resolverDetalle: (...args) => window.LP.productosOps.resolverDetalle(...args),
+    resolverPrecioUnitario: (...args) =>
+      window.LP.productosOps.resolverPrecioUnitario(...args),
+    calcularContenedor: (...args) =>
+      window.LP.productosOps.calcularContenedor(...args),
+    validarLineasProducto: (...args) =>
+      window.LP.productosOps.validarLineasProducto(...args),
+    detectarCicloComposicion: (...args) =>
+      window.LP.productosOps.detectarCicloComposicion(...args),
     editarProducto: (...args) => window.LP.productosOps.editarProducto(...args),
     eliminarProducto: (...args) => window.LP.productosOps.eliminarProducto(...args),
   };
@@ -313,6 +329,193 @@
       return params.find((p) => p && p.id === parametroId) || null;
     }
 
+    /**
+     * Devuelve el Producto con el id indicado, o null si no existe.
+     * @param {string|null} productoId
+     */
+    function buscarProducto(productoId) {
+      if (productoId == null) return null;
+      const productos = getProductos() || [];
+      return productos.find((p) => p && p.id === productoId) || null;
+    }
+
+    /**
+     * Devuelve el nombre del componente de una línea en edición para las
+     * etiquetas del resultado del cálculo: nombre del Parametro para las
+     * Lineas_De_Parametro, o nombre del Producto_Componente para las
+     * Lineas_De_Producto. Devuelve cadena vacía si no hay componente resoluble.
+     * @param {{ parametroId?: string|null, productoComponenteId?: string|null, fuenteDeComponente?: string }|null} linea
+     * @returns {string}
+     */
+    function nombreComponenteLinea(linea) {
+      if (!linea) return "";
+      if (esLineaDeProducto(linea)) {
+        const componente = buscarProducto(linea.productoComponenteId);
+        return componente ? componente.nombre : "";
+      }
+      const parametro = buscarParametro(linea.parametroId);
+      return parametro ? parametro.nombre : "";
+    }
+
+    /**
+     * ¿La línea en edición es una Linea_De_Producto (Fuente_De_Componente
+     * "Producto")? Una línea sin `fuenteDeComponente` registrada se interpreta
+     * como Linea_De_Parametro (retrocompatibilidad, Req 7.2, 7.3).
+     * @param {{ fuenteDeComponente?: string }} linea
+     * @returns {boolean}
+     */
+    function esLineaDeProducto(linea) {
+      const F = fuenteComponente();
+      return !!linea && linea.fuenteDeComponente === F.PRODUCTO;
+    }
+
+    /**
+     * Valida las líneas en edición combinando la validación de las
+     * Lineas_De_Parametro (comportamiento previo: cantidad y parámetro por línea)
+     * con la validación acumulativa de las Lineas_De_Producto vía
+     * `productosOps.validarLineasProducto` (Req 4.1–4.5), y la detección de
+     * Ciclos_De_Composicion vía `productosOps.detectarCicloComposicion`
+     * (Req 5.1–5.5).
+     *
+     * Devuelve `{ valido: true }` cuando todas las líneas son válidas y no hay
+     * ciclo. En caso contrario, devuelve `{ valido: false, mensaje }` con el
+     * mensaje EXACTO a mostrar vía `notifier.error`, conservando la edición sin
+     * cambios (el llamador retorna temprano y no persiste).
+     *
+     * @param {Array<{ parametroId: string|null, cantidad: any, fuenteDeComponente?: string, productoComponenteId?: string|null }>} lineas
+     * @param {string|null} idContenedor Id del Producto_Contenedor en edición, o
+     *   null al crear uno nuevo (Calculadora / guardado nuevo).
+     * @returns {{ valido: true } | { valido: false, mensaje: string }}
+     */
+    function validarLineasEnEdicion(lineas, idContenedor) {
+      const MENSAJES_VAL = validationMensajes();
+      const productos = getProductos() || [];
+
+      // 1) Validación de las Lineas_De_Parametro (comportamiento previo). Para
+      //    cada línea de parámetro, la cantidad debe ser válida y el parámetro
+      //    debe estar seleccionado y existir. Se muestra el mensaje de la PRIMERA
+      //    condición incumplida, preservando el orden previo (cantidad y luego
+      //    parámetro) por compatibilidad con la Calculadora/Edicion existentes.
+      for (const linea of lineas) {
+        if (esLineaDeProducto(linea)) continue;
+        const cantidad = aNumeroCantidad(linea.cantidad);
+        if (!validarCantidad(cantidad).valido) {
+          return { valido: false, mensaje: MENSAJES.CANTIDAD_INVALIDA };
+        }
+      }
+      for (const linea of lineas) {
+        if (esLineaDeProducto(linea)) continue;
+        if (!buscarParametro(linea.parametroId)) {
+          return { valido: false, mensaje: MENSAJES.SIN_PARAMETRO };
+        }
+      }
+
+      // 2) Validación acumulativa de las Lineas_De_Producto (Req 4.1–4.5, 6.4).
+      const resultado = productosOps.validarLineasProducto(
+        lineas,
+        productos,
+        idContenedor
+      );
+      if (!resultado.valido) {
+        const errores = resultado.errores || [];
+        // Determinar el mensaje según los tipos de error acumulados. Se prioriza
+        // el mensaje de referencia/selección de producto (sin-producto /
+        // producto-inexistente) sobre el de cantidad, pues describe el defecto
+        // estructural de la Linea_De_Producto (Req 4.1, 4.2, 6.4).
+        const hayProblemaProducto = errores.some(
+          (e) => e.tipo === "sin-producto" || e.tipo === "producto-inexistente"
+        );
+        if (hayProblemaProducto) {
+          return { valido: false, mensaje: MENSAJES_VAL.LINEA_SIN_PRODUCTO };
+        }
+        return { valido: false, mensaje: MENSAJES.CANTIDAD_INVALIDA };
+      }
+
+      // 3) Detección de Ciclos_De_Composicion (Req 5.1–5.5). Solo aplica cuando
+      //    hay Lineas_De_Producto; para productos puramente de parámetro no hay
+      //    grafo de composición y `detectarCicloComposicion` devuelve
+      //    `{ hayCiclo: false }`.
+      const hayLineasDeProducto = lineas.some((linea) => esLineaDeProducto(linea));
+      if (hayLineasDeProducto) {
+        // Para un Producto nuevo (sin id aún) no puede existir una auto-referencia
+        // directa, pues ninguna línea puede referenciar un id inexistente; se usa
+        // un id placeholder que no colisiona con ningún Producto guardado para
+        // evaluar los ciclos indirectos (Req 5.2).
+        const idParaCiclos =
+          idContenedor == null ? "__nuevo_producto__" : idContenedor;
+        const ciclo = productosOps.detectarCicloComposicion(
+          idParaCiclos,
+          lineas,
+          productos
+        );
+        if (ciclo && ciclo.hayCiclo) {
+          return { valido: false, mensaje: mensajeDeCiclo(ciclo) };
+        }
+      }
+
+      return { valido: true };
+    }
+
+    /**
+     * Traduce el resultado de `detectarCicloComposicion` al mensaje EXACTO de
+     * `validation.MENSAJES` que corresponde (Req 5.1–5.5).
+     * @param {{ tipo: string, secuencia?: string[], productoId?: string }} ciclo
+     * @returns {string}
+     */
+    function mensajeDeCiclo(ciclo) {
+      const MENSAJES_VAL = validationMensajes();
+      switch (ciclo.tipo) {
+        case "directo":
+          return MENSAJES_VAL.CICLO_DIRECTO;
+        case "indirecto": {
+          const secuencia =
+            Array.isArray(ciclo.secuencia) && ciclo.secuencia.length > 0
+              ? " " + ciclo.secuencia.join(" → ")
+              : "";
+          return MENSAJES_VAL.CICLO_INDIRECTO + secuencia;
+        }
+        case "profundidad":
+        case "tiempo":
+          return MENSAJES_VAL.COMPOSICION_DEMASIADO_PROFUNDA;
+        case "referencia-no-resoluble":
+          return MENSAJES_VAL.REFERENCIA_PRODUCTO_NO_DISPONIBLE;
+        default:
+          return MENSAJES_VAL.REFERENCIA_PRODUCTO_NO_DISPONIBLE;
+      }
+    }
+
+    /**
+     * Construye una Linea_De_Calculo persistible a partir de una línea en edición
+     * y su subtotal recalculado, conservando la Fuente_De_Componente y las
+     * referencias que correspondan (Req 7.1):
+     *  - Siempre incluye `parametroId` (null si no aplica), `cantidad` numérica y
+     *    `subtotal`, preservando la forma retrocompatible de las
+     *    Lineas_De_Parametro.
+     *  - Conserva `fuenteDeComponente` cuando está presente en la línea en edición
+     *    (el editor lo normaliza a "Parámetro"/"Producto").
+     *  - Conserva `productoComponenteId` cuando está presente (null si no aplica),
+     *    para las Lineas_De_Producto.
+     * @param {{ parametroId?: string|null, cantidad: any, fuenteDeComponente?: string, productoComponenteId?: string|null }} linea
+     * @param {number} subtotal
+     * @returns {object}
+     */
+    function construirLineaPersistible(linea, subtotal) {
+      const origen = linea || {};
+      const persistible = {
+        parametroId: origen.parametroId == null ? null : origen.parametroId,
+        cantidad: aNumeroCantidad(origen.cantidad),
+        subtotal,
+      };
+      if (origen.fuenteDeComponente != null) {
+        persistible.fuenteDeComponente = origen.fuenteDeComponente;
+      }
+      if (origen.productoComponenteId !== undefined) {
+        persistible.productoComponenteId =
+          origen.productoComponenteId == null ? null : origen.productoComponenteId;
+      }
+      return persistible;
+    }
+
     // ─────────────────────────── Cálculo ───────────────────────────
 
     /**
@@ -356,34 +559,24 @@
         return;
       }
 
-      // 3) Toda cantidad debe ser válida (Req 5.5).
-      for (const linea of lineas) {
-        const cantidad = aNumeroCantidad(linea.cantidad);
-        if (!validarCantidad(cantidad).valido) {
-          notifier.error(MENSAJES.CANTIDAD_INVALIDA);
-          return;
-        }
+      // 3) Validar Lineas_De_Parametro (cantidad + parámetro) y Lineas_De_Producto
+      //    (sin producto / inexistente / cantidad, Req 4.1–4.5) y detectar
+      //    Ciclos_De_Composicion (Req 5.1–5.5). La Calculadora crea un Producto
+      //    nuevo, por lo que no hay Producto_Contenedor con id (idContenedor null).
+      const validacion = validarLineasEnEdicion(lineas, null);
+      if (!validacion.valido) {
+        notifier.error(validacion.mensaje);
+        return;
       }
 
-      // 4) Toda línea debe tener un parámetro seleccionado y existente (Req 5.6).
-      for (const linea of lineas) {
-        const parametro = buscarParametro(linea.parametroId);
-        if (!parametro) {
-          notifier.error(MENSAJES.SIN_PARAMETRO);
-          return;
-        }
-      }
-
-      // 5) Calcular subtotales y total (Req 5.1, 5.2).
-      const lineasResueltas = lineas.map((linea) => {
-        const parametro = buscarParametro(linea.parametroId);
-        return {
-          cantidad: aNumeroCantidad(linea.cantidad),
-          precioUnitario: parametro.precioUnitario,
-        };
-      });
-
-      const { subtotales, total } = calcularProducto(lineasResueltas);
+      // 4) Calcular subtotales y total resolviendo el precio unitario por fuente
+      //    (Parametro => precioUnitario; Producto => precioTotal vigente). Los
+      //    productos vigentes se usan para resolver las Lineas_De_Producto.
+      const { subtotales, total } = productosOps.calcularContenedor(
+        lineas,
+        getParametros() || [],
+        getProductos() || []
+      );
 
       // Registrar los subtotales en las líneas en edición (para el guardado).
       lineas.forEach((linea, i) => {
@@ -411,9 +604,13 @@
         const item = document.createElement("li");
         item.className =
           "list-group-item d-flex justify-content-between align-items-center lp-subtotal";
-        const parametro = buscarParametro(lineas[i] ? lineas[i].parametroId : null);
+        const lineaActual = lineas[i] || null;
         const etiqueta = document.createElement("span");
-        etiqueta.textContent = `Línea ${i + 1}${parametro ? " · " + parametro.nombre : ""}`;
+        etiqueta.textContent = `Línea ${i + 1}${
+          nombreComponenteLinea(lineaActual)
+            ? " · " + nombreComponenteLinea(lineaActual)
+            : ""
+        }`;
         const valor = document.createElement("span");
         valor.textContent = formatearPEN(subtotal);
         item.appendChild(etiqueta);
@@ -452,37 +649,33 @@
         notifier.error(MENSAJES.SIN_LINEAS);
         return;
       }
-      for (const linea of lineas) {
-        const cantidad = aNumeroCantidad(linea.cantidad);
-        if (!validarCantidad(cantidad).valido) {
-          notifier.error(MENSAJES.CANTIDAD_INVALIDA);
-          return;
-        }
-      }
-      for (const linea of lineas) {
-        if (!buscarParametro(linea.parametroId)) {
-          notifier.error(MENSAJES.SIN_PARAMETRO);
-          return;
-        }
+
+      // Validar Lineas_De_Parametro y Lineas_De_Producto y detectar ciclos
+      // (Req 4.1–4.5, 5.1–5.5). Al guardar un Producto nuevo no hay id de
+      // contenedor todavía (idContenedor null).
+      const validacion = validarLineasEnEdicion(lineas, null);
+      if (!validacion.valido) {
+        notifier.error(validacion.mensaje);
+        return;
       }
 
-      // Resolver subtotales y total.
-      const lineasResueltas = lineas.map((linea) => {
-        const parametro = buscarParametro(linea.parametroId);
-        return {
-          cantidad: aNumeroCantidad(linea.cantidad),
-          precioUnitario: parametro.precioUnitario,
-        };
-      });
-      const { subtotales, total } = calcularProducto(lineasResueltas);
+      // Resolver subtotales y total por fuente (Parametro => precioUnitario;
+      // Producto => precioTotal vigente del Producto_Componente, Req 3.1, 6.3).
+      const { subtotales, total } = productosOps.calcularContenedor(
+        lineas,
+        getParametros() || [],
+        getProductos() || []
+      );
 
-      // Construir las Lineas_De_Calculo persistibles.
-      const lineasProducto = lineas.map((linea, i) => ({
-        parametroId: linea.parametroId,
-        cantidad: aNumeroCantidad(linea.cantidad),
-        subtotal: subtotales[i],
-      }));
+      // Construir las Lineas_De_Calculo persistibles conservando la
+      // Fuente_De_Componente y las referencias (parametroId /
+      // productoComponenteId) según corresponda (Req 7.1).
+      const lineasProducto = lineas.map((linea, i) =>
+        construirLineaPersistible(linea, subtotales[i])
+      );
 
+      // Al crear un Producto nuevo, su Unidad_De_Producto vale "UND"
+      // (crearProducto ya lo fija por defecto, Req 9.1).
       const producto = crearProducto(nombre.trim(), lineasProducto, total);
 
       const productos = (getProductos() || []).slice();
@@ -623,7 +816,11 @@
       const producto = productos.find((p) => p && p.id === id);
       if (!producto) return;
 
-      const detalle = productosOps.resolverDetalle(producto, getParametros() || []);
+      const detalle = productosOps.resolverDetalle(
+        producto,
+        getParametros() || [],
+        getProductos() || []
+      );
 
       // Título: nombre del Producto (Req 2.1).
       const titulo = $(IDS.modalDetalleTitulo);
@@ -724,6 +921,10 @@
         editorEdicion = crearEditorDeLineas({
           contenedor: $(IDS.modalEdicionLineas),
           getParametros,
+          // Accesores para el Selector_De_Linea de tipo Producto (Req 2.1, 2.3):
+          // se excluye del listado al propio Producto_Contenedor en edición.
+          getProductos,
+          getIdEnEdicion: () => edicionId,
           botonAgregar: $(IDS.btnAgregarLineaEdicion),
         });
       }
@@ -783,45 +984,38 @@
         return;
       }
 
-      // 2) Toda cantidad debe ser válida (Req 3.7).
-      for (const linea of lineas) {
-        const cantidad = aNumeroCantidad(linea.cantidad);
-        if (!validarCantidad(cantidad).valido) {
-          notifier.error(MENSAJES.CANTIDAD_INVALIDA);
-          return;
-        }
+      // 2) Validar Lineas_De_Parametro (cantidad + parámetro) y Lineas_De_Producto
+      //    (sin producto / inexistente / cantidad, Req 4.1–4.5, 6.4) y detectar
+      //    Ciclos_De_Composicion respecto del propio Producto_Contenedor en
+      //    edición (Req 5.1–5.5). Ante error se conserva la edición sin cambios.
+      const validacion = validarLineasEnEdicion(lineas, edicionId);
+      if (!validacion.valido) {
+        notifier.error(validacion.mensaje);
+        return;
       }
 
-      // 3) Toda línea debe tener un Parametro seleccionado y existente (Req 3.8).
-      for (const linea of lineas) {
-        if (!buscarParametro(linea.parametroId)) {
-          notifier.error(MENSAJES.SIN_PARAMETRO);
-          return;
-        }
-      }
+      // Resolver subtotales por fuente con las líneas ya válidas (Parametro =>
+      // precioUnitario; Producto => precioTotal vigente del componente, Req 6.3).
+      const { subtotales } = productosOps.calcularContenedor(
+        lineas,
+        getParametros() || [],
+        getProductos() || []
+      );
 
-      // Resolver subtotales y total con las líneas ya válidas.
-      const lineasResueltas = lineas.map((linea) => {
-        const parametro = buscarParametro(linea.parametroId);
-        return {
-          cantidad: aNumeroCantidad(linea.cantidad),
-          precioUnitario: parametro.precioUnitario,
-        };
-      });
-      const { subtotales } = calcularProducto(lineasResueltas);
+      // Construir las Lineas_De_Calculo persistibles conservando la
+      // Fuente_De_Componente y las referencias (Req 3.5, 7.1).
+      const lineasProducto = lineas.map((linea, i) =>
+        construirLineaPersistible(linea, subtotales[i])
+      );
 
-      // Construir las Lineas_De_Calculo persistibles (Req 3.5).
-      const lineasProducto = lineas.map((linea, i) => ({
-        parametroId: linea.parametroId,
-        cantidad: aNumeroCantidad(linea.cantidad),
-        subtotal: subtotales[i],
-      }));
-
-      // Editar el Producto conservando id y nombre; recalcula subtotales/total.
+      // Editar el Producto conservando id, nombre y Unidad_De_Producto previa
+      // (Req 8.1, 9.5); recalcula subtotales/total por fuente vía
+      // `calcularContenedor` dentro de `editarProducto`.
       const nueva = productosOps.editarProducto(
         getProductos() || [],
         edicionId,
-        lineasProducto
+        lineasProducto,
+        getParametros() || []
       );
 
       const resultado = saveProductos(nueva);
@@ -926,6 +1120,10 @@
       editorLineas = crearEditorDeLineas({
         contenedor: $(IDS.lineasContainer),
         getParametros,
+        // Accesores para el Selector_De_Linea de tipo Producto (Req 2.1, 2.3).
+        // La Calculadora crea un Producto nuevo: no hay contenedor que excluir.
+        getProductos,
+        getIdEnEdicion: () => null,
         botonAgregar: $(IDS.btnAgregarLinea),
       });
 

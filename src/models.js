@@ -74,37 +74,89 @@
   }
 
   /**
+   * Valores admitidos de Fuente_De_Componente (Req 1.1).
+   * @type {{ PARAMETRO: "Parámetro", PRODUCTO: "Producto" }}
+   */
+  const FUENTE_COMPONENTE = { PARAMETRO: "Parámetro", PRODUCTO: "Producto" };
+
+  /**
    * Crea un Producto con un id único estable.
    * @param {string} nombre - 1..100 caracteres.
    * @param {Array<{ parametroId: string|null, cantidad: number|null, subtotal: number }>} lineas
    * @param {number} precioTotal - suma de subtotales, redondeada a 2 decimales.
-   * @returns {{ id: string, nombre: string, lineas: Array, precioTotal: number }}
+   * @param {string} [unidad="UND"] - Unidad_De_Producto; al crear un Producto nuevo vale "UND" (Req 9.1).
+   * @returns {{ id: string, nombre: string, lineas: Array, precioTotal: number, unidad: string }}
    */
-  function crearProducto(nombre, lineas, precioTotal) {
+  function crearProducto(nombre, lineas, precioTotal, unidad = "UND") {
     return {
       id: generarId(),
       nombre,
       lineas,
       precioTotal,
+      unidad,
     };
   }
 
   /**
-   * Crea una LineaDeCalculo. Por defecto queda "sin parámetro" (parametroId null),
-   * con la cantidad vacía (null) y subtotal 0.
+   * Crea una LineaDeCalculo. Retrocompatible: por defecto es una Linea_De_Parametro
+   * (fuenteDeComponente = "Parámetro", productoComponenteId = null) (Req 1.2, 7.2).
    * @param {string|null} [parametroId=null] - referencia a Parametro.id; null => "sin parámetro".
    * @param {number|null} [cantidad=null] - 0.01..999999999.99, máx 2 decimales.
-   * @returns {{ parametroId: string|null, cantidad: number|null, subtotal: number }}
+   * @param {"Parámetro"|"Producto"} [fuenteDeComponente="Parámetro"] - Fuente_De_Componente.
+   * @param {string|null} [productoComponenteId=null] - referencia a Producto.id cuando la fuente es "Producto".
+   * @returns {{ parametroId: string|null, cantidad: number|null, subtotal: number, fuenteDeComponente: string, productoComponenteId: string|null }}
    */
-  function crearLinea(parametroId = null, cantidad = null) {
+  function crearLinea(
+    parametroId = null,
+    cantidad = null,
+    fuenteDeComponente = FUENTE_COMPONENTE.PARAMETRO,
+    productoComponenteId = null
+  ) {
     return {
       parametroId,
       cantidad,
       subtotal: 0,
+      fuenteDeComponente,
+      productoComponenteId,
+    };
+  }
+
+  /**
+   * Normaliza una Linea_De_Calculo cargada desde almacenamiento/respaldo,
+   * completando campos ausentes de datos antiguos (Req 7.2, 7.3).
+   * - Si `fuenteDeComponente` está ausente => "Parámetro".
+   * - `productoComponenteId` ausente => null.
+   * Conserva `parametroId`, `cantidad` y `subtotal`. No muta la entrada.
+   * @param {object} linea
+   * @returns {{ parametroId: string|null, cantidad: number|null, subtotal: number, fuenteDeComponente: string, productoComponenteId: string|null }}
+   */
+  function normalizarLinea(linea) {
+    const origen = linea || {};
+    return {
+      parametroId:
+        origen.parametroId === undefined ? null : origen.parametroId,
+      cantidad: origen.cantidad === undefined ? null : origen.cantidad,
+      subtotal: origen.subtotal === undefined ? 0 : origen.subtotal,
+      fuenteDeComponente:
+        origen.fuenteDeComponente === undefined ||
+        origen.fuenteDeComponente === null
+          ? FUENTE_COMPONENTE.PARAMETRO
+          : origen.fuenteDeComponente,
+      productoComponenteId:
+        origen.productoComponenteId === undefined
+          ? null
+          : origen.productoComponenteId,
     };
   }
 
     // Publicación en el espacio de nombres global window.LP (carga vía <script>
     // clásico bajo file://). No se usa sintaxis de módulos ES.
-    LP.models = { generarId, crearParametro, crearProducto, crearLinea };
+    LP.models = {
+      generarId,
+      crearParametro,
+      crearProducto,
+      crearLinea,
+      normalizarLinea,
+      FUENTE_COMPONENTE,
+    };
 })(window);

@@ -381,3 +381,76 @@ describe("Ventana_Detalle — fallback sin la API de Bootstrap", () => {
     expect(document.getElementById("lp-modal-backdrop-manual")).not.toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Regresión: Linea_De_Producto muestra el nombre del Producto_Componente
+// (Req 6.1). Bug: `abrirDetalle` no pasaba la lista de Productos a
+// `resolverDetalle`, por lo que las Lineas_De_Producto se resolvían siempre
+// como Nombre_Producto_Componente_Ausente ("Producto no disponible").
+// ---------------------------------------------------------------------------
+describe("Ventana_Detalle — Linea_De_Producto (regresión Req 6.1)", () => {
+  const FUENTE = { PARAMETRO: "Parámetro", PRODUCTO: "Producto" };
+
+  // Producto base referenciado como componente.
+  const PRODUCTO_BASE = {
+    id: "base-1",
+    nombre: "Producto Base",
+    lineas: [
+      {
+        parametroId: "p1",
+        cantidad: 3,
+        subtotal: 30,
+        fuenteDeComponente: FUENTE.PARAMETRO,
+        productoComponenteId: null,
+      },
+    ],
+    precioTotal: 30,
+    unidad: "UND",
+  };
+
+  // Producto compuesto con una Linea_De_Producto que referencia al base.
+  const PRODUCTO_COMPUESTO = {
+    id: "comp-1",
+    nombre: "Producto Compuesto",
+    lineas: [
+      {
+        parametroId: null,
+        cantidad: 2,
+        subtotal: 60,
+        fuenteDeComponente: FUENTE.PRODUCTO,
+        productoComponenteId: "base-1",
+      },
+    ],
+    precioTotal: 60,
+    unidad: "UND",
+  };
+
+  it("muestra el nombre del Producto_Componente, no 'Producto no disponible'", () => {
+    crearControlador([PRODUCTO_BASE, PRODUCTO_COMPUESTO], PARAMETROS);
+    abrirDetallePorId("comp-1");
+
+    const info = lineasDetalle()
+      .querySelector(".lp-detalle-linea-info")
+      .textContent;
+
+    expect(info).toContain("Producto Base");
+    expect(info).not.toContain(
+      LP.productosOps.NOMBRE_PRODUCTO_COMPONENTE_AUSENTE
+    );
+    // No debe marcarse como línea ausente cuando el componente existe.
+    const item = lineasDetalle().querySelector("li.lp-detalle-linea");
+    expect(item.classList.contains("lp-detalle-linea-ausente")).toBe(false);
+  });
+
+  it("marca la línea como ausente si el Producto_Componente ya no existe", () => {
+    // Solo el compuesto está en la lista: la referencia "base-1" queda colgante.
+    crearControlador([PRODUCTO_COMPUESTO], PARAMETROS);
+    abrirDetallePorId("comp-1");
+
+    const info = lineasDetalle()
+      .querySelector(".lp-detalle-linea-info")
+      .textContent;
+
+    expect(info).toContain(LP.productosOps.NOMBRE_PRODUCTO_COMPONENTE_AUSENTE);
+  });
+});

@@ -37,6 +37,16 @@
       'El nombre del producto supera la longitud máxima permitida.',
     CANTIDAD_INVALIDA:
       'Cada cantidad debe ser un número entre 0,01 y 999.999.999,99.',
+    LINEA_SIN_PRODUCTO:
+      'Cada línea debe tener un producto seleccionado.',
+    CICLO_DIRECTO:
+      'Un producto no puede contenerse a sí mismo.',
+    CICLO_INDIRECTO:
+      'La composición generaría una referencia circular entre productos.',
+    COMPOSICION_DEMASIADO_PROFUNDA:
+      'La composición es demasiado profunda para verificarse.',
+    REFERENCIA_PRODUCTO_NO_DISPONIBLE:
+      'Existe una referencia a un producto no disponible.',
   };
 
   const PRECIO_MAX = 999999999.99;

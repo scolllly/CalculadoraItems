@@ -1,0 +1,336 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "2. Añadir constantes y mensajes de validación en `src/validation.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033146
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259048428
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259371413
+      }
+    ],
+    "3.1 Añadir constantes y `resolverPrecioUnitario`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033240
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259383811
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259533057
+      }
+    ],
+    "3.3 Extender `resolverDetalle(producto, parametros, productos)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033318
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259547599
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789317582584
+      }
+    ],
+    "4.1 Implementar `calcularContenedor(lineas, parametros, productos)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033378
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259548638
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789317583882
+      }
+    ],
+    "4.3 Extender `editarProducto(productos, id, lineasProducto, parametros)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033439
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789317592685
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789319264591
+      }
+    ],
+    "4.4 Extender `eliminarProducto(productos, id)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033487
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789319265519
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789319361768
+      }
+    ],
+    "5.1 Implementar `validarLineasProducto(lineas, productos, idEnEdicion)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033561
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789319360848
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320522282
+      }
+    ],
+    "5.3 Implementar `detectarCicloComposicion(idContenedor, lineas, productos)`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033619
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320523611
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320640253
+      }
+    ],
+    "5.5 Actualizar la publicación de `LP.productosOps`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033683
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320640706
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320646328
+      }
+    ],
+    "6. Checkpoint de dominio puro": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033769
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320650417
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320716689
+      }
+    ],
+    "8.1 Ampliar la firma y el estado del editor": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033847
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320721351
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338472537
+      }
+    ],
+    "8.2 Implementar el control de fuente y el render por fuente": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033910
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320731296
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338473459
+      }
+    ],
+    "8.3 Implementar cambio de fuente y selección de Producto_Componente": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259033983
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320732094
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338474533
+      }
+    ],
+    "9.1 Instanciar el editor con los nuevos accesores": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259034044
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338480709
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338823184
+      }
+    ],
+    "9.2 Integrar validación, detección de ciclos y recálculo en calcular/guardar/editar": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259034105
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338481741
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338824357
+      }
+    ],
+    "10. Checkpoint final": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259034172
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338828077
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789341808550
+      }
+    ],
+    "1. Extender el modelo de dominio en `src/models.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259047547
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259370373
+      }
+    ],
+    "7. Asegurar compatibilidad de respaldo en `src/backup.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259385924
+      },
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789259533826
+      }
+    ],
+    "3. Implementar resolución de precio y detalle en `src/productos.ops.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789317582634
+      }
+    ],
+    "4. Implementar cálculo del contenedor y edición por fuente en `src/productos.ops.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789319361865
+      }
+    ],
+    "5. Implementar validación de líneas y detección de ciclos en `src/productos.ops.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789320646394
+      }
+    ],
+    "8. Extender el editor de líneas en `src/lineas.editor.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338474581
+      }
+    ],
+    "9. Cablear el controlador en `src/productos.controller.js`": [
+      {
+        "executionId": "b3af83a6-6bb6-4f0b-8e3b-f337b532efa1",
+        "chatSessionId": "sess_537caf7c-4fc6-4da3-84c4-7f4da4de06fa",
+        "timestamp": 1789338824415
+      }
+    ]
+  }
+}
