@@ -1,0 +1,128 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Añadir la función privada `reiniciarFormulario()` en `crearProductosController`": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592311
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408600414
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408921543
+      }
+    ],
+    "1.2 Invocar `reiniciarFormulario()` al final de `guardar()`": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592372
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408930193
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408996869
+      }
+    ],
+    "2. Checkpoint - reinicio del formulario": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592427
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409016453
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409020692
+      }
+    ],
+    "3.1 Envolver la Calculadora y la Lista_De_Productos en un `div.row` con dos columnas": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592529
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408601409
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408922605
+      }
+    ],
+    "4.1 Ejecutar la suite completa y confirmar que no hay regresiones": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592575
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409024369
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409376127
+      }
+    ],
+    "5. Checkpoint final - Ensure all tests pass": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408592625
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409379989
+      },
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409384291
+      }
+    ],
+    "3. Aplicar la disposición responsiva de dos columnas en `index.html`": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408922669
+      }
+    ],
+    "1. Implementar el reinicio del formulario en el controlador de productos": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789408996920
+      }
+    ],
+    "4. Verificar regresión de las suites existentes": [
+      {
+        "executionId": "1300a71a-a6fc-465b-8866-fcadaf230d69",
+        "chatSessionId": "sess_0b8d9a7b-8d9c-4191-8560-a748a45a4fc9",
+        "timestamp": 1789409376193
+      }
+    ]
+  }
+}

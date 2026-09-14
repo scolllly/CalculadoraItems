@@ -694,6 +694,33 @@
       }
 
       renderListaProductos();
+
+      // Reiniciar el Formulario_De_Calculadora tras un Guardado_Exitoso
+      // (Req 1.1–1.4, 1.6). Se alcanza solo si no hubo retorno temprano por
+      // Guardado_Rechazado (Req 1.5), cubriendo el éxito normal y la
+      // Persistencia_Fallida, con el Producto ya presente en la lista.
+      reiniciarFormulario();
+    }
+
+    /**
+     * Reinicia el Formulario_De_Calculadora al Estado_Inicial_En_Blanco tras un
+     * Guardado_Exitoso (Req 1.1, 1.2, 1.3):
+     *   (a) fija el campo de nombre (#producto-nombre) en cadena vacía;
+     *   (b) elimina todas las Lineas_De_Calculo en edición vía
+     *       editorLineas.setLineas([]) (deja cero líneas y muestra la indicación
+     *       de estado vacío "No hay líneas agregadas.");
+     *   (c) limpia el Area_De_Resultado (#resultado-calculo) poniendo su
+     *       textContent en "".
+     * Cada acceso al DOM se guarda contra null (degradación segura, file://).
+     */
+    function reiniciarFormulario() {
+      const inputNombre = /** @type {HTMLInputElement|null} */ ($(IDS.nombre));
+      if (inputNombre) inputNombre.value = "";
+
+      if (editorLineas) editorLineas.setLineas([]);
+
+      const resultado = $(IDS.resultado);
+      if (resultado) resultado.textContent = "";
     }
 
     // ─────────────────────── Lista de Productos guardados ───────────────────────

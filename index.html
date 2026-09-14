@@ -35,33 +35,41 @@
     <section id="pagina-productos" class="lp-vista" aria-labelledby="titulo-productos">
       <h1 id="titulo-productos" class="h3">Productos</h1>
 
-      <!-- Calculadora dinamica -->
-      <div id="calculadora" class="card mb-4">
-        <div class="card-header">Calculadora</div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label for="producto-nombre" class="form-label">Nombre del producto</label>
-            <input type="text" id="producto-nombre" class="form-control" maxlength="100" placeholder="Nombre del producto">
+      <!-- Disposicion responsiva: dos columnas en escritorio (>= lg), apiladas en movil / sin Bootstrap - Req 2, 3, 4 -->
+      <div class="row">
+        <!-- Columna izquierda (escritorio) / arriba (movil): Calculadora -->
+        <div class="col-12 col-lg-6">
+          <!-- Calculadora dinamica -->
+          <div id="calculadora" class="card mb-4">
+            <div class="card-header">Calculadora</div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="producto-nombre" class="form-label">Nombre del producto</label>
+                <input type="text" id="producto-nombre" class="form-control" maxlength="100" placeholder="Nombre del producto">
+              </div>
+
+              <fieldset class="mb-3">
+                <legend class="h6">L&iacute;neas de c&aacute;lculo</legend>
+                <div id="lineas-container"></div>
+                <button type="button" id="btn-agregar-linea" class="btn btn-secondary mt-2">Agregar l&iacute;nea</button>
+              </fieldset>
+
+              <div class="d-flex gap-2 mb-3">
+                <button type="button" id="btn-calcular" class="btn btn-primary">Calcular</button>
+                <button type="button" id="btn-guardar-producto" class="btn btn-success">Guardar</button>
+              </div>
+
+              <div id="resultado-calculo" aria-live="polite"></div>
+            </div>
           </div>
+        </div>
 
-          <fieldset class="mb-3">
-            <legend class="h6">L&iacute;neas de c&aacute;lculo</legend>
-            <div id="lineas-container"></div>
-            <button type="button" id="btn-agregar-linea" class="btn btn-secondary mt-2">Agregar l&iacute;nea</button>
-          </fieldset>
-
-          <div class="d-flex gap-2 mb-3">
-            <button type="button" id="btn-calcular" class="btn btn-primary">Calcular</button>
-            <button type="button" id="btn-guardar-producto" class="btn btn-success">Guardar</button>
-          </div>
-
-          <div id="resultado-calculo" aria-live="polite"></div>
+        <!-- Columna derecha (escritorio) / abajo (movil): Lista de Productos guardados - Req 8.7 -->
+        <div class="col-12 col-lg-6">
+          <h2 class="h5">Productos guardados</h2>
+          <div id="lista-productos"></div>
         </div>
       </div>
-
-      <!-- Lista de Productos guardados - Req 8.7 -->
-      <h2 class="h5">Productos guardados</h2>
-      <div id="lista-productos"></div>
     </section>
 
     <!-- ===================== Pagina Parametros ===================== -->
