@@ -91,7 +91,7 @@ function contenedorLista() {
 
 /**
  * Réplica del Precio_Sugerido tal como lo calcula el Controlador_De_Productos:
- * `redondear2(precioTotal / Divisor_De_Sugerido)` con Divisor_De_Sugerido = 0.60
+ * `redondear2(precioTotal / Divisor_De_Sugerido)` con Divisor_De_Sugerido = 0.70
  * (Req 2.2), protegiendo la entrada no finita/negativa como 0 (Req 2.7, 2.8).
  *
  * La función interna `calcularPrecioSugerido` del controlador no se expone en
@@ -102,11 +102,24 @@ function contenedorLista() {
  * @returns {number} Precio_Sugerido finito (>= 0).
  */
 function precioSugeridoEsperado(precioTotal) {
-  const DIVISOR_DE_SUGERIDO = 0.6;
+  const DIVISOR_DE_SUGERIDO = 0.7;
   const base =
     Number.isFinite(precioTotal) && precioTotal >= 0 ? precioTotal : 0;
   const sugerido = LP.calculo.redondear2(base / DIVISOR_DE_SUGERIDO);
   return Number.isFinite(sugerido) ? sugerido : 0;
+}
+
+/**
+ * Calcula el Precio_Redondeado esperado: menor múltiplo de 5 mayor o igual al
+ * Precio_Sugerido (`ceil(Precio_Sugerido / 5) * 5`) (Req 2.3, 2.4).
+ *
+ * @param {number} precioSugerido Precio_Sugerido del Producto.
+ * @returns {number} Precio_Redondeado finito (>= 0), múltiplo de 5.
+ */
+function precioRedondeadoEsperado(precioSugerido) {
+  if (!Number.isFinite(precioSugerido) || precioSugerido < 0) return 0;
+  const redondeado = Math.ceil(LP.calculo.redondear2(precioSugerido / 5)) * 5;
+  return Number.isFinite(redondeado) ? redondeado : 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,23 +227,29 @@ describe("Lista_De_Productos — lista no vacía (Req 1.1)", () => {
     });
   });
 
-  it("muestra el Precio_Sugerido en PEN junto al Precio_Total (Req 2.1, 2.3)", () => {
+  it("muestra el Precio_Sugerido y el Precio_Redondeado en PEN junto al Precio_Total (Req 2.1, 2.3, 2.7)", () => {
     crearControlador(PRODUCTOS, PARAMETROS);
 
     const sugeridos = Array.from(
       contenedorLista().querySelectorAll(".lp-producto-sugerido")
     ).map((el) => el.textContent);
 
-    // Valor esperado = formatearPEN(redondear2(precioTotal / 0.60)) (Req 2.2, 2.3).
-    expect(sugeridos).toEqual([
-      LP.currency.formatearPEN(precioSugeridoEsperado(20)),
-      LP.currency.formatearPEN(precioSugeridoEsperado(50)),
-    ]);
-    // Coherencia con el formato PEN (prefijo S/ y 2 decimales), análoga a la del
-    // Precio_Total; se admite signo negativo en el patrón por robustez del
-    // formateo, aunque el Precio_Sugerido nunca es negativo (Req 2.8).
+    // Valor esperado: Precio_Sugerido formateado + " -> " + Precio_Redondeado
+    // formateado (Req 2.2, 2.3, 2.7).
+    const textoEsperado = (precioTotal) => {
+      const sugerido = precioSugeridoEsperado(precioTotal);
+      const redondeado = precioRedondeadoEsperado(sugerido);
+      return (
+        LP.currency.formatearPEN(sugerido) +
+        " -> " +
+        LP.currency.formatearPEN(redondeado)
+      );
+    };
+    expect(sugeridos).toEqual([textoEsperado(20), textoEsperado(50)]);
+    // Coherencia con el formato del Badge_Sugerido: dos montos PEN (prefijo S/ y
+    // 2 decimales) separados por " -> " (Req 2.7).
     sugeridos.forEach((texto) => {
-      expect(texto).toMatch(/^S\/ -?\d+\.\d{2}$/);
+      expect(texto).toMatch(/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/);
     });
   });
 

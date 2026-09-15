@@ -20,6 +20,15 @@ finalmente los estilos y la actualización de la suite existente. Se usa
 Los cambios tocan únicamente: `src/productos.controller.js`, `index.html`,
 `styles/app.css` y archivos de prueba bajo `tests/`.
 
+**Cambios incrementales (delta) sobre el Precio_Sugerido ya implementado:** El grupo de
+tareas original (1–14) está completo. Se añade el grupo 15 ("Cambios: Divisor 0.70 y
+formato del Badge_Sugerido") que cubre únicamente dos cambios sobre la funcionalidad del
+Precio_Sugerido: (a) el `Divisor_De_Sugerido` pasa de `0.6` a `0.7`; (b) se agrega el
+helper puro `calcularPrecioRedondeado` (menor múltiplo de 5 mayor o igual al
+Precio_Sugerido, inclusivo) y el `Badge_Sugerido` pasa a mostrar el texto compuesto
+`"S/ <sugerido> -> S/ <redondeado>"`. La clase y los colores del badge (lila/blanco) no
+cambian, por lo que **no hay tarea de CSS**.
+
 ## Tasks
 
 - [x] 1. Preparar el entorno de pruebas
@@ -193,14 +202,93 @@ Los cambios tocan únicamente: `src/productos.controller.js`, `index.html`,
 - [x] 14. Checkpoint final - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
+- [x] 15. Cambios: Divisor 0.70 y formato del Badge_Sugerido
+  - [x] 15.1 Cambiar el Divisor_De_Sugerido de 0.6 a 0.7
+    - En `src/productos.controller.js`, dentro del IIFE, cambiar
+      `const DIVISOR_DE_SUGERIDO = 0.6;` por `const DIVISOR_DE_SUGERIDO = 0.7;`
+    - `calcularPrecioSugerido` no cambia en lo demás: sigue normalizando la base a `0`
+      cuando `!Number.isFinite(precioTotal) || precioTotal < 0` y protegiendo el resultado
+      de `redondear2` contra `NaN` (-> `0`)
+    - _Requirements: 2.2_
+
+  - [x] 15.2 Implementar el helper puro `calcularPrecioRedondeado(precioSugerido)`
+    - En `src/productos.controller.js`, dentro del IIFE, declarar
+      `const MULTIPLO_DE_REDONDEO = 5;`
+    - Implementar `calcularPrecioRedondeado(precioSugerido)` que devuelva el menor múltiplo
+      de 5 mayor o IGUAL al Precio_Sugerido: `Math.ceil(redondear2(precioSugerido / 5)) * 5`
+    - Inclusivo: si `precioSugerido` ya es múltiplo exacto de 5 (p. ej. `15.00`) devuelve
+      ese mismo valor (`15.00`), NO `20.00`. Usar `redondear2` sobre el cociente antes de
+      `Math.ceil` neutraliza el error de punto flotante
+    - Proteger la entrada: si `precioSugerido` no es finito o es negativo, devolver `0`
+      (`0` es múltiplo de 5)
+    - _Requirements: 2.3, 2.4_
+
+  - [ ]* 15.3 Actualizar la prueba de propiedad del cálculo del Precio_Sugerido (divisor 0.70)
+    - Archivo `tests/precio.sugerido.property.test.js`
+    - **Property 7: `calcularPrecioSugerido(pt) === redondear2(pt / 0.70)` para `pt` finito `>= 0`**
+    - **Validates: Requirements 2.2**
+    - Actualizar el oráculo de `redondear2(pt / 0.60)` a `redondear2(pt / 0.70)`; mantener el
+      generador de `fc.double` finito `>= 0` (incluye `0`) y `numRuns: 100`
+
+  - [ ]* 15.4 Escribir prueba de propiedad de `calcularPrecioRedondeado`
+    - Archivo `tests/precio.sugerido.property.test.js`
+    - **Property 11: `calcularPrecioRedondeado(ps)` es múltiplo de 5, `>= ps`, `(res - 5) < ps`; inclusivo si `ps` es múltiplo de 5**
+    - **Validates: Requirements 2.3, 2.4**
+    - Etiqueta: `// Feature: product-list-sort-and-suggested-price, Property 11: ...`
+    - `fc.assert(..., { numRuns: 100 })`; verificar `res % 5 === 0`, `res >= ps` y `res - 5 < ps`
+    - Incluir un generador de múltiplos exactos de 5 (`fc.nat().map((k) => 5 * k)`) para
+      ejercitar el caso inclusivo / de punto flotante (`ps` múltiplo de 5 -> `res === ps`)
+
+  - [x] 15.5 Componer el texto del Badge_Sugerido con el Precio_Redondeado en renderListaProductos()
+    - En `renderListaProductos()` de `src/productos.controller.js`, cambiar el
+      `sugeridoEl.textContent` de `formatearPEN(calcularPrecioSugerido(producto.precioTotal))`
+      al texto compuesto: calcular
+      `const precioSugerido = calcularPrecioSugerido(producto.precioTotal);` y
+      `const precioRedondeado = calcularPrecioRedondeado(precioSugerido);`, y asignar
+      `sugeridoEl.textContent = formatearPEN(precioSugerido) + " -> " + formatearPEN(precioRedondeado);`
+      (p. ej. `"S/ 14.30 -> S/ 15.00"`)
+    - La clase del span NO cambia: sigue siendo exactamente `"badge rounded-pill lp-producto-sugerido"`
+      (el CSS en `styles/app.css` permanece igual, colores lila/blanco intactos)
+    - _Requirements: 2.5, 2.6, 2.7, 2.11, 2.12_
+
+  - [ ]* 15.6 Actualizar la prueba de propiedad del formato compuesto del Badge_Sugerido
+    - Archivo `tests/precio.sugerido.dom.property.test.js` (jsdom + controlador)
+    - **Property 8: El texto del Badge_Sugerido = texto compuesto y coincide con `/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/`; el monto derecho es múltiplo de 5**
+    - **Validates: Requirements 2.5, 2.6, 2.7, 2.11, 2.12**
+    - Actualizar la aserción del patrón de `/^S\/ -?\d+\.\d{2}$/` al patrón compuesto
+      `/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/`; verificar que el monto de la derecha es
+      múltiplo de 5 y que los casos de `precioTotal` `0`/no finito/negativo muestran
+      `"S/ 0.00 -> S/ 0.00"`; nunca `"S/ NaN"`
+
+  - [ ]* 15.7 Actualizar las pruebas DOM de ejemplo del Badge_Sugerido (formato compuesto)
+    - Archivo `tests/orden.suggerido.dom.test.js`
+    - Actualizar las aserciones de `.lp-producto-sugerido` al nuevo formato compuesto:
+      caso no múltiplo (`Precio_Sugerido = 14.30` -> `"S/ 14.30 -> S/ 15.00"`), caso ya
+      múltiplo (`Precio_Sugerido = 15.00` -> `"S/ 15.00 -> S/ 15.00"`, no `"... -> S/ 20.00"`)
+      y caso cero/inválido (`precioTotal` `0`/no finito/negativo -> `"S/ 0.00 -> S/ 0.00"`)
+    - _Requirements: 2.5, 2.6, 2.7, 2.11, 2.12_
+
+  - [ ]* 15.8 Actualizar la suite existente de la Lista_De_Productos (formato compuesto)
+    - Archivo `tests/lista.productos.test.js`
+    - Actualizar las aserciones de `.lp-producto-sugerido` para esperar el nuevo formato
+      compuesto: patrón `/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/` y valor
+      `formatearPEN(calcularPrecioSugerido(...)) + " -> " + formatearPEN(calcularPrecioRedondeado(...))`;
+      incluir el caso no múltiplo (`14.30 -> 15.00`), el caso ya múltiplo (`15.00 -> 15.00`)
+      y el caso cero (`"S/ 0.00 -> S/ 0.00"`)
+    - _Requirements: 2.5, 2.6, 2.7, 2.11, 2.12_
+
+  - [x] 15.9 Checkpoint - Ensure all tests pass
+    - Ensure all tests pass, ask the user if questions arise.
+
 ## Notes
 
 - Las sub-tareas marcadas con `*` son opcionales (pruebas) y pueden omitirse para un MVP más rápido; el modelo NO las implementa automáticamente.
 - Cada tarea referencia criterios de aceptación y/o propiedades de corrección específicas para trazabilidad.
-- Las 10 propiedades de corrección del diseño se implementan cada una en una única prueba basada en propiedades (fast-check, mínimo 100 iteraciones, etiquetadas con `// Feature: product-list-sort-and-suggested-price, Property {n}: {texto}`).
+- Las 11 propiedades de corrección del diseño se implementan cada una en una única prueba basada en propiedades (fast-check, mínimo 100 iteraciones, etiquetadas con `// Feature: product-list-sort-and-suggested-price, Property {n}: {texto}`).
 - Las pruebas de ejemplo/DOM complementan las propiedades con escenarios observables concretos.
 - Los checkpoints aseguran validación incremental (funciones puras primero, luego DOM/estilos, luego suite existente).
 - El ordenamiento opera sobre una copia (`getProductos().slice()`), por lo que no altera el estado compartido ni el orden de persistencia.
+- El grupo 15 es un cambio incremental sobre el Precio_Sugerido ya implementado (grupos 1–14, completos): cambia el `Divisor_De_Sugerido` a `0.7`, agrega el helper `calcularPrecioRedondeado` (Property 11) y compone el texto del `Badge_Sugerido` como `"S/ <sugerido> -> S/ <redondeado>"`. El CSS del badge no cambia (colores lila/blanco preservados), por lo que no hay tarea de CSS. El divisor (15.1), el nuevo helper (15.2) y el cambio del render (15.5) editan el mismo archivo (`src/productos.controller.js`), por lo que se secuencian en oleadas separadas (15.1 -> 15.2 -> 15.5); después las actualizaciones de pruebas (15.3, 15.4, 15.6, 15.7, 15.8) en paralelo y, por último, el checkpoint final (15.9).
 
 ## Task Dependency Graph
 
@@ -212,7 +300,11 @@ Los cambios tocan únicamente: `src/productos.controller.js`, `index.html`,
     { "id": 2, "tasks": ["3.2", "3.3", "3.4", "3.5", "3.6", "6.1"] },
     { "id": 3, "tasks": ["7.1", "8.1"] },
     { "id": 4, "tasks": ["9.1"] },
-    { "id": 5, "tasks": ["9.2", "12.1", "12.2", "12.3", "13.1"] }
+    { "id": 5, "tasks": ["9.2", "12.1", "12.2", "12.3", "13.1"] },
+    { "id": 6, "tasks": ["15.1"] },
+    { "id": 7, "tasks": ["15.2"] },
+    { "id": 8, "tasks": ["15.5"] },
+    { "id": 9, "tasks": ["15.3", "15.4", "15.6", "15.7", "15.8"] }
   ]
 }
 ```

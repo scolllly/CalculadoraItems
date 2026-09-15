@@ -151,10 +151,10 @@
     "¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.";
 
   // Divisor_De_Sugerido: constante (Req 2.2).
-  const DIVISOR_DE_SUGERIDO = 0.6;
+  const DIVISOR_DE_SUGERIDO = 0.7;
 
   /**
-   * Calcula el Precio_Sugerido como redondear2(precioTotal / 0.60) (Req 2.2).
+   * Calcula el Precio_Sugerido como redondear2(precioTotal / 0.70) (Req 2.2).
    * Protege la entrada: si precioTotal no es finito o es negativo, se trata como 0
    * (Req 2.7, 2.8), de modo que el resultado sea 0 y formatearPEN no produzca
    * "S/ NaN". Devuelve un número finito listo para formatearPEN.
@@ -167,6 +167,35 @@
       Number.isFinite(precioTotal) && precioTotal >= 0 ? precioTotal : 0;
     const sugerido = redondear2(base / DIVISOR_DE_SUGERIDO);
     return Number.isFinite(sugerido) ? sugerido : 0;
+  }
+
+  // Multiplo_De_Redondeo: constante (Req 2.3).
+  const MULTIPLO_DE_REDONDEO = 5;
+
+  /**
+   * Calcula el Precio_Redondeado como el menor múltiplo de 5 mayor o IGUAL al
+   * Precio_Sugerido: Math.ceil(precioSugerido / 5) * 5 (Req 2.3). Es inclusivo: si
+   * precioSugerido ya es múltiplo de 5, el resultado es ese mismo valor (Req 2.4).
+   *
+   * Punto flotante: precioSugerido proviene de redondear2 (2 decimales); la división
+   * ps / 5 puede introducir un error mínimo (p. ej. 15 / 5 -> 3.0000000001) que
+   * empujaría Math.ceil al siguiente entero (4 -> 20). Para robustez, se redondea el
+   * cociente a 2 decimales antes de Math.ceil (equivalente a usar una épsilon), de
+   * modo que un múltiplo exacto como 15.00 NO se desplace a 20.00.
+   *
+   * Protege la entrada: si precioSugerido no es finito o es negativo, devuelve 0
+   * (0 es múltiplo de 5), evitando que formatearPEN produzca "S/ NaN" (Req 2.12).
+   *
+   * @param {number} precioSugerido
+   * @returns {number} Precio_Redondeado finito (>= 0), múltiplo de 5
+   */
+  function calcularPrecioRedondeado(precioSugerido) {
+    if (!Number.isFinite(precioSugerido) || precioSugerido < 0) return 0;
+    // redondear2 del cociente neutraliza el error de punto flotante antes de ceil.
+    return (
+      Math.ceil(redondear2(precioSugerido / MULTIPLO_DE_REDONDEO)) *
+      MULTIPLO_DE_REDONDEO
+    );
   }
 
   /**
@@ -902,9 +931,10 @@
         // Badge_Sugerido: Precio_Sugerido a la derecha del badge verde (Req 2.1, 2.3, 2.4, 2.5, 2.7, 2.8).
         const sugeridoEl = document.createElement("span");
         sugeridoEl.className = "badge rounded-pill lp-producto-sugerido";
-        sugeridoEl.textContent = formatearPEN(
-          calcularPrecioSugerido(producto.precioTotal)
-        );
+        const precioSugerido = calcularPrecioSugerido(producto.precioTotal);
+        const precioRedondeado = calcularPrecioRedondeado(precioSugerido);
+        sugeridoEl.textContent =
+          formatearPEN(precioSugerido) + " -> " + formatearPEN(precioRedondeado);
         info.appendChild(nombreEl);
         info.appendChild(precioEl);
         info.appendChild(sugeridoEl);

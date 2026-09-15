@@ -15,14 +15,18 @@ Requisitos 1 y 2:
    nombre vacío al inicio (ascendente) o al final (descendente).
 
 2. **Precio sugerido (Req 2):** junto al badge verde del `Precio_Total` existente, se
-   renderiza un `Badge_Sugerido` lila con texto blanco que muestra el `Precio_Sugerido`,
-   calculado como `redondear2(precioTotal / 0.60)` y formateado con `formatearPEN`. Se
-   protege contra `Precio_Total` no finito o negativo tratándolo como `0`.
+   renderiza un `Badge_Sugerido` lila con texto blanco que muestra dos montos
+   formateados en PEN separados por el literal ` -> `: a la izquierda el
+   `Precio_Sugerido`, calculado como `redondear2(precioTotal / 0.70)`, y a la derecha el
+   `Precio_Redondeado`, el menor múltiplo de 5 mayor o igual al `Precio_Sugerido`
+   (`Math.ceil(Precio_Sugerido / 5) * 5`). Ejemplo: `"S/ 14.30 -> S/ 15.00"`. Se protege
+   contra `Precio_Total` no finito o negativo tratándolo como `0` (badge `"S/ 0.00 -> S/ 0.00"`).
 
 Ambas capacidades reutilizan la infraestructura existente sin sintaxis de Módulos ES:
 el IIFE publicado en `window.LP.productosController`, el formateo de moneda
 `window.LP.currency.formatearPEN` y el redondeo half-up `window.LP.calculo.redondear2`.
-No se introducen nuevas dependencias externas: `Intl.Collator` es parte de la plataforma.
+El `Precio_Redondeado` se calcula con `Math.ceil`, parte de la plataforma. No se
+introducen nuevas dependencias externas: `Intl.Collator` es parte de la plataforma.
 
 ### Restricciones del entorno (confirmadas en el código)
 
@@ -35,7 +39,7 @@ No se introducen nuevas dependencias externas: `Intl.Collator` es parte de la pl
 - **`formatearPEN` con entrada no finita:** para entradas no finitas produciría
   `"S/ NaN"` (usa `Math.round(n * 100)` internamente). Por eso el diseño **debe** proteger
   el `Precio_Total` no finito/negativo antes de calcular y formatear el `Precio_Sugerido`
-  (Req 2.8).
+  (Req 2.12).
 - **`redondear2` con entrada no finita:** devuelve `NaN` (`Number.isFinite` guard). El
   cálculo del sugerido protege la entrada antes de dividir.
 
@@ -55,18 +59,19 @@ flowchart TD
         D["renderListaProductos()<br/>ordena COPIA + agrega Badge_Sugerido"]
         E["ordenarProductos(productos, direccion)<br/>partición vacíos + Comparador_De_Nombres"]
         F["calcularPrecioSugerido(precioTotal)<br/>guard no finito/negativo -> 0"]
+        M["calcularPrecioRedondeado(precioSugerido)<br/>Math.ceil(ps/5)*5, guard -> 0"]
         G["actualizarNombreAccesibleOrden()<br/>aria-label/title = Direccion_De_Orden_Siguiente"]
         B --> C
         B --> D
         D --> E
         D --> F
+        D --> M
         B --> G
     end
 
     E --> H["window.LP.calculo? (no)"]
     F --> I["window.LP.calculo.redondear2"]
-    F --> J["window.LP.currency.formatearPEN"]
-    D --> J
+    D --> J["window.LP.currency.formatearPEN"]
     E --> K["Intl.Collator('es', {sensitivity:'base'})"]
 
     L["styles/app.css<br/>.lp-producto-sugerido (lila, texto blanco)"] --> A
@@ -87,9 +92,12 @@ flowchart TD
 ### Flujo de precio sugerido
 
 Dentro del bucle de render de cada `<li>`, tras crear el badge verde del `Precio_Total`
-existente (sin cambios), se calcula `calcularPrecioSugerido(producto.precioTotal)` y se
-inserta un `span.badge.rounded-pill.lp-producto-sugerido` a la derecha del badge verde,
-dentro del mismo bloque de información.
+existente (sin cambios), se calcula `calcularPrecioSugerido(producto.precioTotal)` y, a
+partir de él, `calcularPrecioRedondeado(...)`. Se inserta un
+`span.badge.rounded-pill.lp-producto-sugerido` a la derecha del badge verde, dentro del
+mismo bloque de información, cuyo texto compone ambos montos formateados en PEN separados
+por el literal ` -> ` (a la izquierda el `Precio_Sugerido`, a la derecha el
+`Precio_Redondeado`), p. ej. `"S/ 14.30 -> S/ 15.00"`.
 
 ### Decisiones de diseño
 
@@ -105,8 +113,21 @@ dentro del mismo bloque de información.
 - **Color lila del `Badge_Sugerido`:** se introduce una clase propia
   `.lp-producto-sugerido` en `styles/app.css` (no existe clase lila en Bootstrap). Se
   propone el morado de Bootstrap `#6f42c1` como fondo con texto blanco, reutilizando las
-  utilidades `badge rounded-pill` para la forma de píldora (Req 2.5). El valor exacto es
-  una decisión de diseño ajustable.
+  utilidades `badge rounded-pill` para la forma de píldora (Req 2.9). El valor exacto es
+  una decisión de diseño ajustable. **El CSS no cambia con este cambio de funcionalidad:**
+  el nuevo formato del texto (dos montos separados por ` -> `) solo afecta al
+  `textContent` del span; la clase y los colores (fondo lila, texto blanco vía
+  `.lp-producto-sugerido`) permanecen idénticos.
+- **Cálculo del `Precio_Redondeado` y punto flotante:** el `Precio_Redondeado` es el menor
+  múltiplo de 5 mayor o igual al `Precio_Sugerido` (`Math.ceil(ps / 5) * 5`), inclusivo:
+  si el `Precio_Sugerido` ya es múltiplo de 5 (p. ej. `15.00`), el `Precio_Redondeado` es
+  ese mismo valor (`15.00`), no `20.00` (Req 2.3, 2.4). Como `precioSugerido` proviene de
+  `redondear2` (2 decimales), la división `ps / 5` puede arrastrar error de punto flotante
+  (p. ej. `15 / 5` podría representarse como `3.0000000001`), lo que empujaría
+  `Math.ceil` a `4` y el resultado a `20`. Para evitarlo, `calcularPrecioRedondeado`
+  redondea el cociente antes de aplicar `Math.ceil` (p. ej. `Math.ceil(redondear2(ps / 5))`,
+  equivalente a usar una pequeña épsilon), de modo que un múltiplo exacto como `15.00` no
+  se desplace a `20`.
 - **Partición de nombres vacíos:** el `Comparador_De_Nombres` (collator) por sí solo
   ordenaría la cadena vacía siempre antes que cualquier otra cadena. Para cumplir Req 1.10
   y 1.11 (vacíos al inicio en ascendente, al final en descendente) se aplica una
@@ -228,12 +249,12 @@ implementación de `Array.prototype.sort`, cubriendo Req 1.12.
 
 ```js
 // Divisor_De_Sugerido: constante (Req 2.2).
-const DIVISOR_DE_SUGERIDO = 0.6;
+const DIVISOR_DE_SUGERIDO = 0.7;
 
 /**
- * Calcula el Precio_Sugerido como redondear2(precioTotal / 0.60) (Req 2.2).
+ * Calcula el Precio_Sugerido como redondear2(precioTotal / 0.70) (Req 2.2).
  * Protege la entrada: si precioTotal no es finito o es negativo, se trata como 0
- * (Req 2.7, 2.8), de modo que el resultado sea 0 y formatearPEN no produzca
+ * (Req 2.11, 2.12), de modo que el resultado sea 0 y formatearPEN no produzca
  * "S/ NaN". Devuelve un número finito listo para formatearPEN.
  *
  * @param {number} precioTotal
@@ -248,7 +269,41 @@ function calcularPrecioSugerido(precioTotal) {
 
 `redondear2` es el alias existente a `window.LP.calculo.redondear2` (ya declarado en el
 módulo). Para `base = 0`, `redondear2(0)` es `0` y `formatearPEN(0)` es `"S/ 0.00"`
-(Req 2.7).
+(Req 2.11).
+
+### 5b. `calcularPrecioRedondeado(precioSugerido)`
+
+```js
+// Multiplo_De_Redondeo: constante (Req 2.3).
+const MULTIPLO_DE_REDONDEO = 5;
+
+/**
+ * Calcula el Precio_Redondeado como el menor múltiplo de 5 mayor o IGUAL al
+ * Precio_Sugerido: Math.ceil(precioSugerido / 5) * 5 (Req 2.3). Es inclusivo: si
+ * precioSugerido ya es múltiplo de 5, el resultado es ese mismo valor (Req 2.4).
+ *
+ * Punto flotante: precioSugerido proviene de redondear2 (2 decimales); la división
+ * ps / 5 puede introducir un error mínimo (p. ej. 15 / 5 -> 3.0000000001) que
+ * empujaría Math.ceil al siguiente entero (4 -> 20). Para robustez, se redondea el
+ * cociente a 2 decimales antes de Math.ceil (equivalente a usar una épsilon), de
+ * modo que un múltiplo exacto como 15.00 NO se desplace a 20.00.
+ *
+ * Protege la entrada: si precioSugerido no es finito o es negativo, devuelve 0
+ * (0 es múltiplo de 5), evitando que formatearPEN produzca "S/ NaN" (Req 2.12).
+ *
+ * @param {number} precioSugerido
+ * @returns {number} Precio_Redondeado finito (>= 0), múltiplo de 5
+ */
+function calcularPrecioRedondeado(precioSugerido) {
+  if (!Number.isFinite(precioSugerido) || precioSugerido < 0) return 0;
+  // redondear2 del cociente neutraliza el error de punto flotante antes de ceil.
+  return Math.ceil(redondear2(precioSugerido / MULTIPLO_DE_REDONDEO)) * MULTIPLO_DE_REDONDEO;
+}
+```
+
+Para `precioSugerido = 0`, `Math.ceil(0) * 5` es `0` y `formatearPEN(0)` es `"S/ 0.00"`
+(Req 2.11). Para un múltiplo exacto como `15.00`, `redondear2(15 / 5)` es `3` y
+`Math.ceil(3) * 5` es `15`, no `20` (Req 2.4).
 
 ### 6. `actualizarNombreAccesibleOrden()`
 
@@ -298,11 +353,16 @@ existente (que **no cambia**):
 ```js
 const precioEl = document.createElement("span");
 precioEl.className = "badge bg-success rounded-pill lp-producto-precio";
-precioEl.textContent = formatearPEN(producto.precioTotal); // sin cambios (Req 2.6)
+precioEl.textContent = formatearPEN(producto.precioTotal); // sin cambios (Req 2.10)
 
 const sugeridoEl = document.createElement("span");
+// La clase NO cambia: colores (fondo lila, texto blanco) definidos en styles/app.css.
 sugeridoEl.className = "badge rounded-pill lp-producto-sugerido";
-sugeridoEl.textContent = formatearPEN(calcularPrecioSugerido(producto.precioTotal));
+const precioSugerido = calcularPrecioSugerido(producto.precioTotal);
+const precioRedondeado = calcularPrecioRedondeado(precioSugerido);
+// Texto compuesto: Precio_Sugerido -> Precio_Redondeado, ambos en PEN (Req 2.5, 2.6, 2.7).
+sugeridoEl.textContent =
+  formatearPEN(precioSugerido) + " -> " + formatearPEN(precioRedondeado);
 
 info.appendChild(nombreEl);
 info.appendChild(precioEl);
@@ -354,9 +414,12 @@ El texto visible "Ordenar por nombre" identifica el control (Req 1.1); el
 
 ### 10. Cambios en `styles/app.css`
 
+El CSS **no cambia** respecto al diseño previo del sugerido: el nuevo formato de texto
+(dos montos separados por ` -> `) solo afecta al `textContent`, no a la clase ni al color.
+
 ```css
 /* Badge_Sugerido: píldora lila con texto blanco, misma forma que el badge del
-   Precio_Total pero con color lila (Req 2.4, 2.5). Bootstrap no incluye una
+   Precio_Total pero con color lila (Req 2.8, 2.9). Bootstrap no incluye una
    clase lila, por lo que se define aquí. Valor de color: decisión de diseño. */
 .lp-producto-sugerido {
   background-color: #6f42c1; /* morado/lila (Bootstrap purple) */
@@ -374,9 +437,12 @@ Esta funcionalidad no introduce entidades persistidas nuevas ni cambia el esquem
 - **Direccion_De_Orden** (estado en memoria, no persistido): unión de cadenas
   `'ascendente' | 'descendente'`. Vive en el closure del controlador; se reinicia a
   `'ascendente'` cada vez que se crea el controlador (Req 1.2).
-- **Divisor_De_Sugerido** (constante): `0.60`.
+- **Divisor_De_Sugerido** (constante): `0.70`.
 - **Precio_Sugerido** (valor derivado, no persistido): `number` finito `>= 0`, calculado
-  por render a partir de `precioTotal`.
+  por render a partir de `precioTotal` como `redondear2(precioTotal / 0.70)`.
+- **Precio_Redondeado** (valor derivado, no persistido): `number` finito `>= 0` y
+  múltiplo de 5, calculado por render a partir del `Precio_Sugerido` como el menor
+  múltiplo de 5 mayor o igual a este (`Math.ceil(precioSugerido / 5) * 5`, inclusivo).
 
 Ninguno de estos valores se guarda en `localStorage` ni altera el arreglo devuelto por
 `getProductos()` (el ordenamiento opera sobre una copia).
@@ -400,9 +466,14 @@ funciones puras `ordenarProductos`, `normalizarNombre` (vía el `Comparador_De_N
   mantienen separadas porque afirman relaciones opuestas sobre la porción no vacía.
 - La **colocación de vacíos** (Propiedad 5) se unifica en una sola propiedad parametrizada
   por dirección (cubre Req 1.10 y 1.11), en lugar de dos propiedades casi idénticas.
-- El **formato PEN** (Propiedad 8) subsume la verificación de formato de los casos límite
-  de precio (0, no finito, negativo): al cumplirse para todo producto generado, cubre
-  también las salidas de Req 2.7 y 2.8.
+- El **formato compuesto del Badge_Sugerido** (Propiedad 8) subsume la verificación de
+  `formatearPEN` de ambos montos (Req 2.5, 2.6) y de su composición con ` -> ` (Req 2.7),
+  incluyendo los casos límite de precio (0, no finito, negativo): al cumplirse para todo
+  producto generado, cubre también las salidas de Req 2.11 y 2.12.
+- El **cálculo del Precio_Redondeado** (Propiedad 11) unifica Req 2.3 (menor múltiplo de 5
+  mayor o igual al `Precio_Sugerido`) y Req 2.4 (caso inclusivo: si el `Precio_Sugerido` ya
+  es múltiplo de 5, el resultado es ese mismo valor), ya que la caracterización universal
+  "múltiplo de 5, `>= ps` y `(resultado - 5) < ps`" implica el caso inclusivo.
 - La **alternancia** del botón (Propiedad 9) expresa la combinación de Req 1.3 y 1.4 como
   una propiedad de paridad, en vez de duplicar ejemplos.
 
@@ -461,18 +532,20 @@ relativo que tenían en la entrada, en ambas direcciones.
 ### Property 7: Cálculo del Precio_Sugerido
 
 *Para todo* `Precio_Total` finito y no negativo, `calcularPrecioSugerido(precioTotal)` es
-igual a `redondear2(precioTotal / 0.60)`.
+igual a `redondear2(precioTotal / 0.70)`.
 
 **Validates: Requirements 2.2**
 
-### Property 8: Invariante de formato PEN del Precio_Sugerido
+### Property 8: Invariante de formato compuesto del Badge_Sugerido
 
 *Para todo* Producto renderizado (con cualquier `Precio_Total`, incluido `0`, no finito o
 negativo), el texto del `Badge_Sugerido` es igual a
-`formatearPEN(calcularPrecioSugerido(precioTotal))` y coincide con el patrón
-`/^S\/ -?\d+\.\d{2}$/` (prefijo `S/ ` y exactamente 2 decimales; nunca `"S/ NaN"`).
+`formatearPEN(calcularPrecioSugerido(precioTotal)) + " -> " + formatearPEN(calcularPrecioRedondeado(calcularPrecioSugerido(precioTotal)))`,
+coincide con el patrón `/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/` (dos montos en PEN con
+prefijo `S/ ` y exactamente 2 decimales, separados por ` -> `; nunca `"S/ NaN"`), y el
+monto de la derecha (el `Precio_Redondeado`) es siempre un múltiplo de 5.
 
-**Validates: Requirements 2.3, 2.7, 2.8**
+**Validates: Requirements 2.5, 2.6, 2.7, 2.11, 2.12**
 
 ### Property 9: Alternancia de la Direccion_De_Orden
 
@@ -485,20 +558,36 @@ la `Direccion_De_Orden` en su valor inicial (`ascendente`) y un número impar la
 ### Property 10: Entrada inválida de Precio_Total produce 0 sin interrumpir el render
 
 *Para todo* `Precio_Total` no finito (`NaN`, `Infinity`, `-Infinity`, no numérico) o
-negativo, `calcularPrecioSugerido` devuelve `0` (por lo que el `Badge_Sugerido` muestra
-`formatearPEN(0)` = `"S/ 0.00"`) y `renderListaProductos` completa el renderizado de todos
-los Productos sin lanzar.
+negativo, `calcularPrecioSugerido` devuelve `0` y `calcularPrecioRedondeado(0)` devuelve
+`0` (por lo que el `Badge_Sugerido` muestra `"S/ 0.00 -> S/ 0.00"`) y
+`renderListaProductos` completa el renderizado de todos los Productos sin lanzar.
 
-**Validates: Requirements 2.8**
+**Validates: Requirements 2.12**
+
+### Property 11: Cálculo del Precio_Redondeado (menor múltiplo de 5 mayor o igual)
+
+*Para todo* `Precio_Sugerido` finito y no negativo `ps`, `calcularPrecioRedondeado(ps)`
+devuelve un número que (a) es múltiplo de 5 (`resultado % 5 === 0`), (b) es mayor o igual
+a `ps` (`resultado >= ps`), y (c) es el menor tal múltiplo (`resultado - 5 < ps`).
+Además, cuando `ps` ya es un múltiplo exacto de 5, el resultado es igual a `ps` (caso
+inclusivo, robusto frente al error de punto flotante).
+
+**Validates: Requirements 2.3, 2.4**
 
 ## Error Handling
 
-- **Precio_Total no finito o negativo (Req 2.8):** `calcularPrecioSugerido` normaliza la
+- **Precio_Total no finito o negativo (Req 2.12):** `calcularPrecioSugerido` normaliza la
   base a `0` cuando `!Number.isFinite(precioTotal) || precioTotal < 0`, y vuelve a proteger
-  el resultado de `redondear2`. Así nunca se pasa un valor no finito a `formatearPEN` (que
-  produciría `"S/ NaN"`), y el bucle de render no se interrumpe: cada `<li>` se genera con
-  su `Badge_Sugerido` en `"S/ 0.00"`. El badge verde del `Precio_Total` conserva su
-  comportamiento actual (fuera del alcance de este cambio).
+  el resultado de `redondear2`. `calcularPrecioRedondeado` a su vez devuelve `0` para
+  entradas no finitas o negativas (`0` es múltiplo de 5). Así nunca se pasa un valor no
+  finito a `formatearPEN` (que produciría `"S/ NaN"`), y el bucle de render no se
+  interrumpe: cada `<li>` se genera con su `Badge_Sugerido` en `"S/ 0.00 -> S/ 0.00"`. El
+  badge verde del `Precio_Total` conserva su comportamiento actual (fuera del alcance de
+  este cambio).
+- **Error de punto flotante en el Precio_Redondeado:** `calcularPrecioRedondeado` redondea
+  el cociente `precioSugerido / 5` con `redondear2` antes de aplicar `Math.ceil`, evitando
+  que un múltiplo exacto (p. ej. `15.00`) se desplace al siguiente múltiplo (`20.00`) por
+  representación en punto flotante (Req 2.4).
 - **`Nombre_Mostrado` nulo o ausente (Req 1.9):** `normalizarNombre` convierte
   `null`/`undefined` a `""`; el `Comparador_De_Nombres` nunca recibe valores no cadena, y
   esos Productos entran al grupo de vacíos (colocados según la dirección).
@@ -544,7 +633,10 @@ propiedades.
   (para poder rastrear la permutación y la estabilidad por identidad).
 - **Precios:** para el sugerido, `fc.oneof` de `fc.double` finito `>= 0` (incluye `0`),
   y por separado un generador de valores inválidos: `NaN`, `Infinity`, `-Infinity`,
-  negativos y no numéricos (para Propiedad 10).
+  negativos y no numéricos (para Propiedad 10). Para el `Precio_Redondeado` (Propiedad 11),
+  además del `Precio_Sugerido` finito `>= 0` genérico, incluir deliberadamente múltiplos
+  exactos de 5 (`fc.nat().map((k) => 5 * k)`) para ejercitar el caso inclusivo (Req 2.4) y
+  el riesgo de punto flotante.
 
 ### Pruebas basadas en propiedades (Requisitos)
 
@@ -556,10 +648,11 @@ propiedades.
 | 4 | Comparador insensible a caso y diacríticos (`compare === 0`) | 1.7 |
 | 5 | Vacíos al inicio (asc) / al final (desc); `null`/`undefined` como `""` | 1.9, 1.10, 1.11 |
 | 6 | Estabilidad: claves equivalentes conservan orden relativo | 1.12 |
-| 7 | `calcularPrecioSugerido(pt) === redondear2(pt / 0.60)` para `pt` finito `>= 0` | 2.2 |
-| 8 | Texto del `Badge_Sugerido` = `formatearPEN(...)` y patrón `S/ -?d+.dd` | 2.3, 2.7, 2.8 |
+| 7 | `calcularPrecioSugerido(pt) === redondear2(pt / 0.70)` para `pt` finito `>= 0` | 2.2 |
+| 8 | Texto del `Badge_Sugerido` = texto compuesto, patrón `S/ -?d+.dd -> S/ -?d+.dd`, monto derecho múltiplo de 5 | 2.5, 2.6, 2.7, 2.11, 2.12 |
 | 9 | Alternancia por paridad de pulsaciones (DOM) | 1.3, 1.4 |
-| 10 | `Precio_Total` inválido → `0` y render sin lanzar | 2.8 |
+| 10 | `Precio_Total` inválido → `0`/`0` y render sin lanzar (`"S/ 0.00 -> S/ 0.00"`) | 2.12 |
+| 11 | `calcularPrecioRedondeado(ps)`: múltiplo de 5, `>= ps`, `(res-5) < ps`; inclusivo si `ps` es múltiplo de 5 | 2.3, 2.4 |
 
 ### Pruebas unitarias / DOM basadas en ejemplos
 
@@ -574,12 +667,17 @@ propiedades.
   (comportamiento existente preservado).
 - **Req 1.14:** `aria-label`/`title` describen la `Direccion_De_Orden_Siguiente` antes y
   después de un clic.
-- **Req 2.1 / 2.4 / 2.5:** el `span.lp-producto-sugerido` existe, lleva
-  `badge rounded-pill lp-producto-sugerido` y aparece **después** de
-  `.lp-producto-precio` dentro del bloque `info`; el badge verde conserva
+- **Req 2.1 / 2.8 / 2.9:** el `span.lp-producto-sugerido` existe, lleva exactamente
+  `badge rounded-pill lp-producto-sugerido` (clase y colores sin cambios) y aparece
+  **después** de `.lp-producto-precio` dentro del bloque `info`; el badge verde conserva
   `badge bg-success rounded-pill`.
-- **Req 2.6:** el badge verde mantiene su clase y `textContent === formatearPEN(precioTotal)`.
-- **Req 2.7:** producto con `precioTotal` 0 → `Badge_Sugerido` = `"S/ 0.00"`.
+- **Req 2.5 / 2.6 / 2.7:** el `textContent` de `.lp-producto-sugerido` tiene el formato
+  compuesto `"<sugerido> -> <redondeado>"`. Ejemplos concretos:
+  - `precioTotal` tal que el `Precio_Sugerido` es un no múltiplo de 5 (p. ej. `Precio_Sugerido = 14.30` → `Precio_Redondeado = 15.00`) → `"S/ 14.30 -> S/ 15.00"`.
+  - `precioTotal` tal que el `Precio_Sugerido` ya es múltiplo de 5 (p. ej. `Precio_Sugerido = 15.00`) → `"S/ 15.00 -> S/ 15.00"` (no `"... -> S/ 20.00"`, caso inclusivo Req 2.4).
+- **Req 2.10:** el badge verde mantiene su clase y `textContent === formatearPEN(precioTotal)`.
+- **Req 2.11:** producto con `precioTotal` 0 → `Badge_Sugerido` = `"S/ 0.00 -> S/ 0.00"`.
+- **Req 2.12:** producto con `precioTotal` no finito o negativo → `Badge_Sugerido` = `"S/ 0.00 -> S/ 0.00"` y el render completa sin lanzar.
 
 ### Impacto en las pruebas existentes (`tests/lista.productos.test.js`)
 
@@ -598,8 +696,9 @@ arreglo de entrada (`["prod-1","prod-2"]`) y compara `.lp-producto-precio` con
   cambia de orden; las aserciones que comparan `estado.productos` con su copia previa
   siguen siendo válidas.
 - **Aserciones de precio:** la comprobación de `.lp-producto-precio` con el patrón
-  `/^S\/ \d+\.\d{2}$/` sigue siendo válida; se recomienda añadir aserciones análogas para
-  `.lp-producto-sugerido`.
+  `/^S\/ \d+\.\d{2}$/` sigue siendo válida; se recomienda añadir aserciones para
+  `.lp-producto-sugerido` que verifiquen el nuevo formato compuesto con el patrón
+  `/^S\/ -?\d+\.\d{2} -> S\/ -?\d+\.\d{2}$/` y que el monto de la derecha es múltiplo de 5.
 
 ### Configuración
 
