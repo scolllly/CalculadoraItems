@@ -92,6 +92,34 @@
     return (ops && ops.UNIDAD_DE_REEMPLAZO) || "UND";
   }
 
+  // Nombre de la acción del Boton_Eliminar_Linea (una sola fuente de verdad).
+  const ACCION_ELIMINAR_LINEA = "Eliminar línea";
+
+  /**
+   * Convierte el botón de eliminar en un Boton_Eliminar_Linea con icono:
+   * vacía su texto directo, añade el Icono_Papelera (aria-hidden) y una
+   * Etiqueta_De_Texto_Fallback visualmente oculta, y fija el Nombre_Accesible
+   * exacto en aria-label y title (Req 1.1–1.4, 3.1–3.4). Usa document.createElement
+   * y setAttribute/textContent (sin innerHTML).
+   * @param {HTMLButtonElement} boton Botón ya con sus clases/colores aplicados.
+   */
+  function convertirEnBotonEliminarIcono(boton) {
+    boton.textContent = ""; // sin texto directo (Req 1.3)
+    boton.setAttribute("aria-label", ACCION_ELIMINAR_LINEA); // Nombre_Accesible (Req 3.1)
+    boton.setAttribute("title", ACCION_ELIMINAR_LINEA); // idéntico a aria-label (Req 3.2)
+
+    const glifo = document.createElement("i");
+    glifo.className = "bi bi-trash"; // Icono_Papelera (Req 1.1)
+    glifo.setAttribute("aria-hidden", "true"); // excluido del nombre (Req 1.2, 3.3)
+
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "visually-hidden lp-accion-texto"; // fallback (Req 1.4, 4.5)
+    etiqueta.textContent = ACCION_ELIMINAR_LINEA;
+
+    boton.appendChild(glifo);
+    boton.appendChild(etiqueta);
+  }
+
   /**
    * @typedef {Object} EditorDeLineas
    * @property {() => void} render
@@ -313,8 +341,7 @@
       const btnEliminar = document.createElement("button");
       btnEliminar.type = "button";
       btnEliminar.className = "btn btn-outline-danger btn-sm lp-linea-eliminar";
-      btnEliminar.textContent = "Eliminar";
-      btnEliminar.setAttribute("aria-label", "Eliminar línea");
+      convertirEnBotonEliminarIcono(btnEliminar);
       btnEliminar.addEventListener("click", () => {
         const idx = Number(fila.dataset.indice);
         eliminarLinea(idx);
