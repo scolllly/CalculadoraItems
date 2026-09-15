@@ -46,3 +46,10 @@ body {
 .lp-sin-iconos .bi {
   display: none;
 }
+
+/* Badge_Sugerido: badge lila con texto blanco para el Precio_Sugerido,
+   mostrado a la derecha del badge verde del Precio_Total (Req 2.4, 2.5). */
+.lp-producto-sugerido {
+  background-color: #6f42c1;
+  color: #fff;
+}

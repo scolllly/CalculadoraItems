@@ -68,6 +68,7 @@
   const validarCantidad = (...args) => window.LP.validation.validarCantidad(...args);
   const calcularProducto = (...args) => window.LP.calculo.calcularProducto(...args);
   const formatearPEN = (...args) => window.LP.currency.formatearPEN(...args);
+  const redondear2 = (...args) => window.LP.calculo.redondear2(...args);
   const crearProducto = (...args) => window.LP.models.crearProducto(...args);
   const saveProductos = (...args) => window.LP.repository.saveProductos(...args);
   const crearEditorDeLineas = (...args) =>
@@ -116,6 +117,8 @@
     resultado: "resultado-calculo",
     btnGuardar: "btn-guardar-producto",
     listaProductos: "lista-productos",
+    // Boton_De_Orden de la Lista_De_Productos (Req 1.1).
+    btnOrdenar: "btn-ordenar-productos",
     // Ventana_Detalle (Req 2.x)
     modalDetalle: "modal-detalle",
     modalDetalleTitulo: "modal-detalle-titulo",
@@ -147,6 +150,25 @@
   const MENSAJE_CONFIRMAR_ELIMINACION =
     "¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.";
 
+  // Divisor_De_Sugerido: constante (Req 2.2).
+  const DIVISOR_DE_SUGERIDO = 0.6;
+
+  /**
+   * Calcula el Precio_Sugerido como redondear2(precioTotal / 0.60) (Req 2.2).
+   * Protege la entrada: si precioTotal no es finito o es negativo, se trata como 0
+   * (Req 2.7, 2.8), de modo que el resultado sea 0 y formatearPEN no produzca
+   * "S/ NaN". Devuelve un número finito listo para formatearPEN.
+   *
+   * @param {number} precioTotal
+   * @returns {number} Precio_Sugerido finito (>= 0)
+   */
+  function calcularPrecioSugerido(precioTotal) {
+    const base =
+      Number.isFinite(precioTotal) && precioTotal >= 0 ? precioTotal : 0;
+    const sugerido = redondear2(base / DIVISOR_DE_SUGERIDO);
+    return Number.isFinite(sugerido) ? sugerido : 0;
+  }
+
   /**
    * Convierte un botón en un Boton_De_Icono: vacía su texto directo, fija el
    * Nombre_Accesible exacto en `aria-label` y `title`, y le añade un glifo `<i>`
@@ -176,6 +198,74 @@
 
     boton.appendChild(glifo);
     boton.appendChild(etiqueta);
+  }
+
+  // ─────────────────── Comparador_De_Nombres (Req 1.7, 1.8) ───────────────────
+  //
+  // Comparador_De_Nombres: locale 'es', sensibilidad base (ignora
+  // mayúsculas/minúsculas y diacríticos), ordena `ñ` y las vocales acentuadas
+  // según el alfabeto español (Req 1.7, 1.8). Se crea una sola vez a nivel de
+  // módulo. `Intl.Collator` es parte de la plataforma (no requiere dependencias).
+  const colacionNombres = new Intl.Collator("es", { sensitivity: "base" });
+
+  /**
+   * Normaliza el Nombre_Mostrado a efectos de comparación: devuelve `""` para
+   * `null`/`undefined` (Req 1.9) y `String(nombre)` en cualquier otro caso. No
+   * recorta espacios: la especificación define "vacío" respecto al valor del
+   * nombre, y el tratamiento de `null`/ausente es explícito.
+   * @param {string|null|undefined} nombre
+   * @returns {string}
+   */
+  function normalizarNombre(nombre) {
+    return nombre == null ? "" : String(nombre);
+  }
+
+  /**
+   * Devuelve una NUEVA lista de Productos ordenada por Nombre_Mostrado según la
+   * Direccion_De_Orden, sin mutar la lista de entrada (Req 1.5, 1.6).
+   *
+   * Reglas:
+   *  - Los Productos con Nombre_Mostrado normalizado igual a "" van al inicio en
+   *    `ascendente` (Req 1.10) y al final en `descendente` (Req 1.11),
+   *    conservando su orden relativo original (estabilidad, Req 1.12).
+   *  - Los no vacíos se ordenan con el Comparador_De_Nombres; en `descendente` se
+   *    invierte el sentido. Los empates (`compare === 0`) conservan el orden
+   *    previo gracias a la desempate por índice original (Req 1.9, 1.12).
+   *
+   * @param {Array<{nombre?: string|null}>} productos
+   * @param {"ascendente"|"descendente"} direccion
+   * @returns {Array} nueva lista ordenada (copia)
+   */
+  function ordenarProductos(productos, direccion) {
+    const lista = (productos || []).slice(); // copia defensiva (no mutar entrada)
+    const esDescendente = direccion === "descendente";
+
+    // Partición conservando el orden original dentro de cada grupo (Req 1.12).
+    const vacios = [];
+    const noVacios = [];
+    lista.forEach((producto, indice) => {
+      const nombre = normalizarNombre(producto && producto.nombre);
+      if (nombre === "") vacios.push({ producto, indice });
+      else noVacios.push({ producto, indice });
+    });
+
+    noVacios.sort((a, b) => {
+      const cmp = colacionNombres.compare(
+        normalizarNombre(a.producto.nombre),
+        normalizarNombre(b.producto.nombre)
+      );
+      if (cmp !== 0) return esDescendente ? -cmp : cmp;
+      // Empate: preservar el orden previo (estabilidad, Req 1.12).
+      return a.indice - b.indice;
+    });
+
+    const ordenados = noVacios.map((e) => e.producto);
+    const vaciosProductos = vacios.map((e) => e.producto);
+
+    // Vacíos al inicio (ascendente) o al final (descendente) (Req 1.10, 1.11).
+    return esDescendente
+      ? ordenados.concat(vaciosProductos)
+      : vaciosProductos.concat(ordenados);
   }
 
   /**
@@ -336,6 +426,11 @@
     // guardar (Req 3.5). `null` cuando no hay edición en curso.
     /** @type {string|null} */
     let edicionId = null;
+
+    // Estado de la Direccion_De_Orden de la Lista_De_Productos (Req 1.2).
+    // Valores válidos: 'ascendente' | 'descendente'. Inicial: 'ascendente'.
+    /** @type {"ascendente"|"descendente"} */
+    let direccionDeOrden = "ascendente";
 
     /** @returns {HTMLElement|null} */
     const $ = (id) =>
@@ -770,14 +865,21 @@
 
       contenedor.textContent = "";
 
-      const productos = getProductos() || [];
-      if (productos.length === 0) {
+      // Estado vacío evaluado ANTES de ordenar, sobre la lista original
+      // (Req 1.13); conserva el marcado existente sin invocar el ordenamiento.
+      const productosOriginales = getProductos() || [];
+      if (productosOriginales.length === 0) {
         const vacio = document.createElement("p");
         vacio.className = "text-muted lp-productos-vacios";
         vacio.textContent = "No hay productos guardados.";
         contenedor.appendChild(vacio);
         return;
       }
+
+      // Renderizar desde una copia ordenada por Nombre_Mostrado según la
+      // Direccion_De_Orden actual, sin mutar el arreglo devuelto por
+      // getProductos() (Req 1.5, 1.6).
+      const productos = ordenarProductos(getProductos().slice(), direccionDeOrden);
 
       const lista = document.createElement("ul");
       lista.className = "list-group";
@@ -797,8 +899,15 @@
         const precioEl = document.createElement("span");
         precioEl.className = "badge bg-success rounded-pill lp-producto-precio";
         precioEl.textContent = formatearPEN(producto.precioTotal);
+        // Badge_Sugerido: Precio_Sugerido a la derecha del badge verde (Req 2.1, 2.3, 2.4, 2.5, 2.7, 2.8).
+        const sugeridoEl = document.createElement("span");
+        sugeridoEl.className = "badge rounded-pill lp-producto-sugerido";
+        sugeridoEl.textContent = formatearPEN(
+          calcularPrecioSugerido(producto.precioTotal)
+        );
         info.appendChild(nombreEl);
         info.appendChild(precioEl);
+        info.appendChild(sugeridoEl);
 
         // Bloque de acciones: Ver detalle / Editar / Eliminar (Req 1.1).
         const acciones = document.createElement("div");
@@ -1161,6 +1270,22 @@
     }
 
     /**
+     * Fija el Nombre_Accesible del Boton_De_Orden para que describa la
+     * Direccion_De_Orden_Siguiente (el valor opuesto al actual), tanto en
+     * `aria-label` como en `title` (Req 1.14). Degrada de forma segura si el
+     * botón no existe en el DOM (guarda contra `null`).
+     */
+    function actualizarNombreAccesibleOrden() {
+      const boton = $(IDS.btnOrdenar);
+      if (!boton) return;
+      const siguiente =
+        direccionDeOrden === "ascendente" ? "descendente" : "ascendente";
+      const etiqueta = `Ordenar productos por nombre en orden ${siguiente}`;
+      boton.setAttribute("aria-label", etiqueta);
+      boton.setAttribute("title", etiqueta);
+    }
+
+    /**
      * Re-renderiza líneas y lista de Productos (p. ej. al cambiar los Parametros
      * externos, para que el selector y las unidades reflejen los vigentes).
      */
@@ -1190,6 +1315,22 @@
 
       const btnGuardar = $(IDS.btnGuardar);
       if (btnGuardar) btnGuardar.addEventListener("click", guardar);
+
+      // Cablear el Boton_De_Orden: alterna la Direccion_De_Orden entre
+      // 'ascendente' y 'descendente' (Req 1.3, 1.4), actualiza el
+      // Nombre_Accesible para reflejar la Direccion_De_Orden_Siguiente (Req 1.14)
+      // y re-renderiza la Lista_De_Productos con el nuevo orden (Req 1.5, 1.6).
+      const btnOrdenar = $(IDS.btnOrdenar);
+      if (btnOrdenar) {
+        btnOrdenar.addEventListener("click", () => {
+          direccionDeOrden =
+            direccionDeOrden === "ascendente" ? "descendente" : "ascendente";
+          actualizarNombreAccesibleOrden();
+          renderListaProductos();
+        });
+      }
+      // Nombre_Accesible inicial del Boton_De_Orden (Req 1.14).
+      actualizarNombreAccesibleOrden();
 
       render();
     }

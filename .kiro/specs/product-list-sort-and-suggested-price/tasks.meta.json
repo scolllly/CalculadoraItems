@@ -1,0 +1,293 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Verificar que fast-check está disponible como dependencia de desarrollo": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484212959
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484222348
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484591723
+      }
+    ],
+    "2.1 Agregar el Comparador_De_Nombres y `normalizarNombre` a nivel de módulo": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213061
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484225867
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484593156
+      }
+    ],
+    "3.1 Implementar `ordenarProductos(productos, direccion)`": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213159
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484604909
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484697437
+      }
+    ],
+    "4.1 Implementar `DIVISOR_DE_SUGERIDO` y `calcularPrecioSugerido(precioTotal)`": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213264
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484227273
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484594567
+      }
+    ],
+    "5. Checkpoint - Funciones puras verificadas": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213349
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484710091
+      }
+    ],
+    "6.1 Agregar `IDS.btnOrdenar`, el estado `direccionDeOrden` y `actualizarNombreAccesibleOrden()`": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213417
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484724007
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484824323
+      }
+    ],
+    "7.1 Cablear el click del Boton_De_Orden y fijar el Nombre_Accesible inicial": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213486
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484829612
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484919181
+      }
+    ],
+    "8.1 Renderizar desde una copia ordenada preservando el estado vacío": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213572
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484925172
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485072810
+      }
+    ],
+    "9.1 Insertar el Badge_Sugerido a la derecha del badge del Precio_Total": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213648
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485076764
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485128714
+      }
+    ],
+    "10.1 Añadir la clase `.lp-producto-sugerido` en styles/app.css": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213717
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484228664
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484596011
+      }
+    ],
+    "11.1 Añadir el Boton_De_Orden junto al encabezado \"Productos guardados\"": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213773
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484229650
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484597016
+      }
+    ],
+    "13.1 Revisar y ampliar tests/lista.productos.test.js": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213853
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485132954
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485255185
+      }
+    ],
+    "14. Checkpoint final - Ensure all tests pass": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484213942
+      },
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485280690
+      }
+    ],
+    "1. Preparar el entorno de pruebas": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484591827
+      }
+    ],
+    "2. Comparador_De_Nombres: collator en español y normalización de nombres": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484593225
+      }
+    ],
+    "4. calcularPrecioSugerido: cálculo protegido del Precio_Sugerido": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484594622
+      }
+    ],
+    "10. Estilo del Badge_Sugerido": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484596075
+      }
+    ],
+    "11. Botón estático en index.html": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484597078
+      }
+    ],
+    "3. ordenarProductos: ordenamiento no mutante por Nombre_Mostrado": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484697494
+      }
+    ],
+    "6. actualizarNombreAccesibleOrden y estado de dirección": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484824376
+      }
+    ],
+    "7. Cableado del Boton_De_Orden en init()": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789484919232
+      }
+    ],
+    "8. Ordenar la Lista_De_Productos en renderListaProductos()": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485072870
+      }
+    ],
+    "9. Badge_Sugerido en renderListaProductos()": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485128769
+      }
+    ],
+    "13. Actualizar la suite existente de la Lista_De_Productos": [
+      {
+        "executionId": "78f8b7b2-c4c1-4534-9526-5d0eff4c68d5",
+        "chatSessionId": "sess_a5d6be1f-b1be-461f-ad4a-a1a07cc6abdd",
+        "timestamp": 1789485255247
+      }
+    ]
+  }
+}

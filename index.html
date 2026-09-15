@@ -68,7 +68,13 @@
 
         <!-- Columna derecha (escritorio) / abajo (movil): Lista de Productos guardados - Req 8.7 -->
         <div class="col-12 col-lg-6">
-          <h2 class="h5">Productos guardados</h2>
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Productos guardados</h2>
+            <button type="button" id="btn-ordenar-productos"
+                    class="btn btn-outline-secondary btn-sm">
+              Ordenar por nombre
+            </button>
+          </div>
           <div id="lista-productos"></div>
         </div>
       </div>

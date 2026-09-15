@@ -89,6 +89,26 @@ function contenedorLista() {
   return document.getElementById("lista-productos");
 }
 
+/**
+ * Réplica del Precio_Sugerido tal como lo calcula el Controlador_De_Productos:
+ * `redondear2(precioTotal / Divisor_De_Sugerido)` con Divisor_De_Sugerido = 0.60
+ * (Req 2.2), protegiendo la entrada no finita/negativa como 0 (Req 2.7, 2.8).
+ *
+ * La función interna `calcularPrecioSugerido` del controlador no se expone en
+ * `window.LP`, por lo que aquí se reconstruye a partir de las mismas primitivas
+ * expuestas (`LP.calculo.redondear2`) para poder afirmar el valor esperado.
+ *
+ * @param {number} precioTotal Precio_Total del Producto.
+ * @returns {number} Precio_Sugerido finito (>= 0).
+ */
+function precioSugeridoEsperado(precioTotal) {
+  const DIVISOR_DE_SUGERIDO = 0.6;
+  const base =
+    Number.isFinite(precioTotal) && precioTotal >= 0 ? precioTotal : 0;
+  const sugerido = LP.calculo.redondear2(base / DIVISOR_DE_SUGERIDO);
+  return Number.isFinite(sugerido) ? sugerido : 0;
+}
+
 // ---------------------------------------------------------------------------
 // Datos de ejemplo
 // ---------------------------------------------------------------------------
@@ -130,8 +150,41 @@ describe("Lista_De_Productos — lista no vacía (Req 1.1)", () => {
     const items = contenedorLista().querySelectorAll("li.lp-producto");
     expect(items).toHaveLength(PRODUCTOS.length);
 
+    // NOTA (Req 1.5): el orden observado de `data-id` es consecuencia del
+    // ordenamiento ascendente por Nombre_Mostrado que aplica el Controlador_De_
+    // Productos al renderizar (Direccion_De_Orden inicial = `ascendente`), NO del
+    // orden de inserción del arreglo de entrada. Con estos datos de ejemplo el
+    // orden alfabético ("Servicio básico" < "Servicio completo") coincide con el
+    // orden de inserción, de modo que ambos producen ["prod-1","prod-2"]. Para
+    // evitar una falsa sensación de cobertura, la prueba siguiente usa un orden
+    // de inserción distinto del alfabético.
     const ids = Array.from(items).map((li) => li.getAttribute("data-id"));
     expect(ids).toEqual(["prod-1", "prod-2"]);
+  });
+
+  it("ordena los <li> por Nombre_Mostrado ascendente aunque el orden de inserción difiera (Req 1.5)", () => {
+    // Orden de inserción deliberadamente NO alfabético: "Zapato" antes que
+    // "Abrigo" antes que "Mesa". El render ascendente debe reordenar por nombre
+    // (Abrigo < Mesa < Zapato), demostrando que el orden observado proviene del
+    // ordenamiento y no de la posición en el arreglo.
+    const productosDesordenados = [
+      { id: "z", nombre: "Zapato", lineas: [], precioTotal: 30 },
+      { id: "a", nombre: "Abrigo", lineas: [], precioTotal: 10 },
+      { id: "m", nombre: "Mesa", lineas: [], precioTotal: 20 },
+    ];
+    crearControlador(productosDesordenados, PARAMETROS);
+
+    const items = contenedorLista().querySelectorAll("li.lp-producto");
+    expect(items).toHaveLength(3);
+
+    const ids = Array.from(items).map((li) => li.getAttribute("data-id"));
+    // Ascendente por nombre: Abrigo (a) -> Mesa (m) -> Zapato (z).
+    expect(ids).toEqual(["a", "m", "z"]);
+
+    const nombres = Array.from(
+      contenedorLista().querySelectorAll(".lp-producto-nombre")
+    ).map((el) => el.textContent);
+    expect(nombres).toEqual(["Abrigo", "Mesa", "Zapato"]);
   });
 
   it("muestra el nombre de cada Producto", () => {
@@ -158,6 +211,26 @@ describe("Lista_De_Productos — lista no vacía (Req 1.1)", () => {
     // Coherencia con el formato PEN (prefijo S/ y 2 decimales).
     precios.forEach((texto) => {
       expect(texto).toMatch(/^S\/ \d+\.\d{2}$/);
+    });
+  });
+
+  it("muestra el Precio_Sugerido en PEN junto al Precio_Total (Req 2.1, 2.3)", () => {
+    crearControlador(PRODUCTOS, PARAMETROS);
+
+    const sugeridos = Array.from(
+      contenedorLista().querySelectorAll(".lp-producto-sugerido")
+    ).map((el) => el.textContent);
+
+    // Valor esperado = formatearPEN(redondear2(precioTotal / 0.60)) (Req 2.2, 2.3).
+    expect(sugeridos).toEqual([
+      LP.currency.formatearPEN(precioSugeridoEsperado(20)),
+      LP.currency.formatearPEN(precioSugeridoEsperado(50)),
+    ]);
+    // Coherencia con el formato PEN (prefijo S/ y 2 decimales), análoga a la del
+    // Precio_Total; se admite signo negativo en el patrón por robustez del
+    // formateo, aunque el Precio_Sugerido nunca es negativo (Req 2.8).
+    sugeridos.forEach((texto) => {
+      expect(texto).toMatch(/^S\/ -?\d+\.\d{2}$/);
     });
   });
 
