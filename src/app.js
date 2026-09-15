@@ -144,6 +144,16 @@
     if (!bootstrapCargado()) {
       revelarAvisoEstilos();
     }
+
+    // ---------------------------------------------------------------------------
+    // 7) Detección oportunista de los iconos de Bootstrap (Req 5.4, 5.5, 1.8).
+    //    Si la hoja de iconos no parece aplicada, marcar el <body> con
+    //    `lp-sin-iconos` para revelar las etiquetas de texto de fallback. NO
+    //    suprime `revelarAvisoEstilos()`: ambos avisos son independientes.
+    // ---------------------------------------------------------------------------
+    if (!iconosCargados() && document && document.body && document.body.classList) {
+      document.body.classList.add("lp-sin-iconos");
+    }
   }
 
   /**
@@ -208,6 +218,65 @@
 
       const display = window.getComputedStyle(sonda).display;
       return display === "none";
+    } catch {
+      // Ante cualquier fallo de medición, asumimos cargado para no molestar.
+      return true;
+    } finally {
+      if (sonda && typeof sonda.remove === "function") {
+        try {
+          sonda.remove();
+        } catch {
+          // Sin acción: la sonda ya no está en el DOM.
+        }
+      }
+    }
+  }
+
+  /**
+   * ¿Se aplicó la hoja de estilos de Bootstrap Icons? (opcional / best-effort).
+   *
+   * Reutiliza el mismo enfoque de sonda que `bootstrapCargado()`: crea un
+   * elemento con una clase `bi`, lo añade fuera de pantalla y comprueba si la
+   * regla `font-family` de `bootstrap-icons.css` se aplicó a su pseudo-elemento
+   * `::before` (debe contener "bootstrap-icons"). Ante duda o error se asume
+   * cargado, para no mostrar un fallback incorrecto.
+   *
+   * Limitación documentada: esta sonda detecta si la HOJA DE ESTILOS se aplicó
+   * (la regla `font-family`), no si el archivo de fuente `.woff2` se decodificó
+   * realmente bajo `file://` (poco fiable de verificar). Por eso la accesibilidad
+   * no depende de esta detección: se satisface por construcción (aria-label/title
+   * y una etiqueta de texto oculta siempre presentes en cada Boton_De_Icono).
+   * Marcar `lp-sin-iconos` es solo una mejora oportunista para el caso en que
+   * falte la hoja de estilos.
+   *
+   * @returns {boolean} `true` si los iconos parecen cargados; `false` si no.
+   */
+  function iconosCargados() {
+    if (
+      typeof document === "undefined" ||
+      document === null ||
+      !document.body ||
+      typeof window === "undefined" ||
+      typeof window.getComputedStyle !== "function"
+    ) {
+      // Sin DOM/estilos computables no podemos afirmar el fallo; asumimos cargado
+      // para no mostrar un fallback incorrecto.
+      return true;
+    }
+
+    let sonda = null;
+    try {
+      sonda = document.createElement("i");
+      sonda.className = "bi bi-eye";
+      // Fuera del flujo visible mientras medimos.
+      sonda.setAttribute("aria-hidden", "true");
+      sonda.style.position = "absolute";
+      document.body.appendChild(sonda);
+
+      // bootstrap-icons.css fija font-family: "bootstrap-icons" en .bi::before.
+      const antes = window.getComputedStyle(sonda, "::before");
+      const familia = antes && antes.fontFamily ? antes.fontFamily : "";
+      return /bootstrap-icons/i.test(familia);
     } catch {
       // Ante cualquier fallo de medición, asumimos cargado para no molestar.
       return true;

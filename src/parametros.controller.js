@@ -380,18 +380,16 @@
 
         const acciones = crearElemento("div", { className: "btn-group btn-group-sm" });
 
-        const btnEditar = crearElemento("button", {
-          className: "btn btn-outline-secondary",
-          textContent: "Editar",
-        });
+        // Crear el botón con crearElemento (para conservar className) y luego
+        // decorarlo como Boton_De_Icono (glifo + nombre accesible).
+        const btnEditar = crearElemento("button", { className: "btn btn-outline-secondary" });
         btnEditar.type = "button";
+        convertirEnBotonDeIcono(btnEditar, "bi-pencil", "Editar");
         btnEditar.addEventListener("click", () => iniciarEdicion(parametro.id));
 
-        const btnEliminar = crearElemento("button", {
-          className: "btn btn-outline-danger",
-          textContent: "Eliminar",
-        });
+        const btnEliminar = crearElemento("button", { className: "btn btn-outline-danger" });
         btnEliminar.type = "button";
+        convertirEnBotonDeIcono(btnEliminar, "bi-trash", "Eliminar");
         btnEliminar.addEventListener("click", () => eliminar(parametro.id));
 
         acciones.appendChild(btnEditar);
@@ -403,6 +401,36 @@
       }
 
       lista.appendChild(grupo);
+    }
+
+    /**
+     * Convierte un botón en un Boton_De_Icono: le añade un glifo <i> de Bootstrap
+     * Icons (aria-hidden) y una etiqueta de texto visualmente oculta, y fija el
+     * Nombre_Accesible exacto en aria-label y title (Req 3, 4, 5). Helper local a
+     * este IIFE (los controladores son independientes; no se comparte estado).
+     * @param {HTMLButtonElement} boton  Botón ya con sus clases/colores aplicados.
+     * @param {string} claseIcono        Clase del glifo, p. ej. "bi-pencil".
+     * @param {string} accion            Nombre exacto de la acción, p. ej. "Editar".
+     */
+    function convertirEnBotonDeIcono(boton, claseIcono, accion) {
+      boton.textContent = ""; // sin texto directo (evita nombre duplicado)
+      boton.setAttribute("aria-label", accion); // Nombre_Accesible (Req 4.6)
+      boton.setAttribute("title", accion); // idéntico a aria-label (Req 4.6)
+
+      const doc =
+        raiz.ownerDocument ||
+        (typeof raiz.createElement === "function" ? raiz : document);
+
+      const glifo = doc.createElement("i");
+      glifo.className = "bi " + claseIcono; // p. ej. "bi bi-pencil" (Req 3.1)
+      glifo.setAttribute("aria-hidden", "true"); // el glifo no aporta nombre (Req 4.7)
+
+      const etiqueta = doc.createElement("span");
+      etiqueta.className = "lp-accion-texto visually-hidden"; // fallback (Req 5.4)
+      etiqueta.textContent = accion;
+
+      boton.appendChild(glifo);
+      boton.appendChild(etiqueta);
     }
 
     /**

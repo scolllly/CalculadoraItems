@@ -1,0 +1,159 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Colocar los archivos de Bootstrap Icons bajo `vendor/bootstrap-icons/`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424366732
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424375955
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428012330
+      }
+    ],
+    "1.2 Enlazar la hoja de iconos en el `<head>` de `index.html`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424366814
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428019562
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428505358
+      }
+    ],
+    "2.1 Añadir el helper `convertirEnBotonDeIcono` y aplicarlo a los tres botones": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424366867
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428021013
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428506250
+      }
+    ],
+    "3.1 Decorar los dos botones de parámetros con glifo + nombre accesible": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424366934
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428021877
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428507533
+      }
+    ],
+    "4. Checkpoint - Ejecutar la suite y asegurar que todo pasa": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424366988
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428527972
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428604469
+      }
+    ],
+    "5.1 Añadir `.lp-accion-texto` y las reglas de fallback `.lp-sin-iconos`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424367044
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424379804
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428012568
+      }
+    ],
+    "6.1 Añadir `iconosCargados()` y aplicar `lp-sin-iconos` (best-effort)": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424367090
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789424380953
+      },
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428013584
+      }
+    ],
+    "5. Estilos de utilidad y fallback en `styles/app.css`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428012671
+      }
+    ],
+    "6. Sonda opcional de disponibilidad de iconos en `src/app.js`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428013643
+      }
+    ],
+    "1. Vendorizar Bootstrap Icons localmente y enlazarlo en `index.html`": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428505436
+      }
+    ],
+    "2. Botones de icono en la Lista_De_Productos (`src/productos.controller.js`)": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428506305
+      }
+    ],
+    "3. Botones de icono en la Lista_De_Parametros (`src/parametros.controller.js`)": [
+      {
+        "executionId": "439d0b99-02b3-4013-a952-3b542e4b9ba0",
+        "chatSessionId": "sess_17a5cfd9-f839-45e9-98b0-756c0df85b1c",
+        "timestamp": 1789428507640
+      }
+    ]
+  }
+}

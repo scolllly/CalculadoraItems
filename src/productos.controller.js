@@ -148,6 +148,37 @@
     "¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.";
 
   /**
+   * Convierte un botón en un Boton_De_Icono: vacía su texto directo, fija el
+   * Nombre_Accesible exacto en `aria-label` y `title`, y le añade un glifo `<i>`
+   * de Bootstrap Icons (marcado `aria-hidden="true"`) más una etiqueta de texto
+   * visualmente oculta que sirve de fallback para lectores de pantalla y para el
+   * caso en que la fuente de iconos no cargue (Req 2, 4, 5).
+   *
+   * Se preservan intactos las clases y el cableado del botón: este helper solo
+   * modifica el contenido interno y los atributos accesibles.
+   *
+   * @param {HTMLButtonElement} boton  Botón ya con sus clases/colores aplicados.
+   * @param {string} claseIcono        Clase del glifo, p. ej. "bi-eye".
+   * @param {string} accion            Nombre exacto de la acción, p. ej. "Ver detalle".
+   */
+  function convertirEnBotonDeIcono(boton, claseIcono, accion) {
+    boton.textContent = ""; // sin texto directo (evita nombre accesible duplicado)
+    boton.setAttribute("aria-label", accion); // Nombre_Accesible (Req 4.6)
+    boton.setAttribute("title", accion); // idéntico a aria-label (Req 4.6)
+
+    const glifo = document.createElement("i");
+    glifo.className = "bi " + claseIcono; // p. ej. "bi bi-eye" (Req 2.1)
+    glifo.setAttribute("aria-hidden", "true"); // el glifo no aporta nombre (Req 4.7)
+
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "lp-accion-texto visually-hidden"; // fallback (Req 5.4)
+    etiqueta.textContent = accion;
+
+    boton.appendChild(glifo);
+    boton.appendChild(etiqueta);
+  }
+
+  /**
    * Referencia al controlador activo (el último inicializado), usado por las
    * funciones de módulo `contarLineasQueReferencian`/`desreferenciarParametro`.
    * @type {ProductosController | null}
@@ -777,17 +808,17 @@
         const btnDetalle = document.createElement("button");
         btnDetalle.type = "button";
         btnDetalle.className = "btn btn-outline-secondary btn-sm lp-producto-detalle";
-        btnDetalle.textContent = "Ver detalle";
+        convertirEnBotonDeIcono(btnDetalle, "bi-eye", "Ver detalle");
 
         const btnEditar = document.createElement("button");
         btnEditar.type = "button";
         btnEditar.className = "btn btn-outline-primary btn-sm lp-producto-editar";
-        btnEditar.textContent = "Editar";
+        convertirEnBotonDeIcono(btnEditar, "bi-pencil", "Editar");
 
         const btnEliminar = document.createElement("button");
         btnEliminar.type = "button";
         btnEliminar.className = "btn btn-outline-danger btn-sm lp-producto-eliminar";
-        btnEliminar.textContent = "Eliminar";
+        convertirEnBotonDeIcono(btnEliminar, "bi-trash", "Eliminar");
 
         // Cablear cada botón usando el id leído del atributo data-id del <li>
         // (Req 1.3, 1.4, 1.5).

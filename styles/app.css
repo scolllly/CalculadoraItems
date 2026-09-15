@@ -22,3 +22,27 @@ body {
   padding: 0.5rem 1rem;
   margin: 0.5rem 0;
 }
+/* Etiqueta de texto de cada accion: separacion respecto al glifo. Oculta por
+   defecto mediante `visually-hidden` (los iconos la sustituyen visualmente),
+   pero disponible para lectores de pantalla. Fallback visible cuando los
+   iconos no estan disponibles (Requisito 5.4). */
+.lp-accion-texto {
+  margin-left: 0.25rem;
+}
+
+/* Si los iconos de Bootstrap no se cargan, el <body> lleva la clase
+   `lp-sin-iconos` (fijada por app.js). En ese caso mostramos la etiqueta de
+   texto (anulando `visually-hidden`) y ocultamos el glifo vacio para no dejar
+   un recuadro sin significado (Requisito 5.4). */
+.lp-sin-iconos .lp-accion-texto {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+.lp-sin-iconos .bi {
+  display: none;
+}
