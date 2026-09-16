@@ -277,13 +277,31 @@
    * @returns {void}
    */
   function aplicarReemplazo(parametros, productos, deps) {
-    const resultado = window.LP.repository.replaceAll(parametros, productos);
+    // Retrocompatibilidad: aplicar el Normalizador_De_Producto a cada Producto
+    // importado para completar el Flag_Compuesto ausente antes de persistirlo y
+    // mostrarlo (Req 4.5). Se normaliza ANTES de `replaceAll`/`setProductos` para
+    // que el flag quede también guardado en el Almacenamiento_Local. Se aplica de
+    // forma defensiva: solo si `LP.models.normalizarProducto` está disponible, y
+    // sin lanzar si no lo está (degradación segura bajo file://).
+    let productosNormalizados = productos;
+    if (
+      Array.isArray(productos) &&
+      window.LP.models &&
+      typeof window.LP.models.normalizarProducto === "function"
+    ) {
+      productosNormalizados = productos.map(window.LP.models.normalizarProducto);
+    }
+
+    const resultado = window.LP.repository.replaceAll(
+      parametros,
+      productosNormalizados
+    );
 
     if (typeof deps.setParametros === "function") {
       deps.setParametros(parametros);
     }
     if (typeof deps.setProductos === "function") {
-      deps.setProductos(productos);
+      deps.setProductos(productosNormalizados);
     }
     if (typeof deps.refrescarVistas === "function") {
       deps.refrescarVistas();

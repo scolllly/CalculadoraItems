@@ -202,3 +202,72 @@ describe("backup — round-trip de la lista de Productos", () => {
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// Property 8 (Tarea 6.4): el Flag_Compuesto sobrevive el round-trip del
+// respaldo. Se amplían los generadores para incluir un `compuesto` booleano
+// arbitrario (independiente de las líneas, según la nota de generadores del
+// diseño para las Propiedades 7 y 8) en cada Producto, y se afirma que
+// parsearRespaldo(serializarRespaldo(parametros, productos)) es `ok` y preserva
+// el valor de `compuesto` de cada Producto en el mismo orden.
+// Validates: Requisitos 5.2, 5.3
+// ---------------------------------------------------------------------------
+
+// Producto arbitrario CON `compuesto` booleano (id asignado por la lista). El
+// valor de `compuesto` es arbitrario e independiente de las líneas, para
+// verificar que el round-trip preserva el valor tal cual.
+function arbProductoConFlagSinId() {
+  return fc
+    .array(arbLineaProducto, { minLength: 0, maxLength: 6 })
+    .chain((lineas) =>
+      fc.record({
+        nombre: fc.string({ minLength: 1, maxLength: 100 }),
+        lineas: fc.constant(lineas),
+        precioTotal: fc.constant(
+          redondear2Local(lineas.reduce((a, l) => a + l.subtotal, 0))
+        ),
+        compuesto: fc.boolean(),
+      })
+    );
+}
+
+// Lista de Productos con `compuesto` booleano e ids únicos (puede ser vacía).
+const arbListaProductosConFlag = fc
+  .array(arbProductoConFlagSinId(), { minLength: 0, maxLength: 6 })
+  .map((parciales) => parciales.map((p, i) => ({ id: "prod-" + i, ...p })));
+
+// Caso: parámetros + lista de Productos con Flag_Compuesto.
+const arbCasoRoundTripFlag = arbListaParametros.chain((parametros) =>
+  arbListaProductosConFlag.map((productos) => ({ parametros, productos }))
+);
+
+describe("backup — round-trip del Flag_Compuesto", () => {
+  // Feature: producto-simple-vs-compuesto-tabs, Property 8: El flag sobrevive el
+  // roundtrip del respaldo: parsearRespaldo(serializarRespaldo(parametros,
+  // productos)) devuelve un resultado ok cuya lista de Productos preserva el
+  // valor de `compuesto` de cada Producto en el mismo orden.
+  it("Property 8", () => {
+    fc.assert(
+      fc.property(arbCasoRoundTripFlag, ({ parametros, productos }) => {
+        const texto = LP.backup.serializarRespaldo(parametros, productos);
+        const resultado = LP.backup.parsearRespaldo(texto);
+
+        // El round-trip produce un resultado ok.
+        expect(resultado.status).toBe("ok");
+
+        const restaurados = resultado.productos;
+
+        // Mismo número de Productos y en el mismo orden.
+        expect(restaurados).toHaveLength(productos.length);
+
+        productos.forEach((original, i) => {
+          const restaurado = restaurados[i];
+          // El Flag_Compuesto se preserva con el mismo valor y en la misma
+          // posición (orden preservado).
+          expect(restaurado.compuesto).toBe(original.compuesto);
+        });
+      }),
+      { numRuns: 100 }
+    );
+  });
+});

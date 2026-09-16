@@ -4,6 +4,12 @@
 // explícitos y tipados. Este módulo NUNCA propaga excepciones hacia la UI:
 // toda operación devuelve un `ReadResult` o un `WriteResult`.
 //
+// Serialización agnóstica del contenido (Requisito 5.1): `writeJSON` y `readJSON`
+// operan sobre valores JSON genéricos mediante `JSON.stringify` / `JSON.parse`,
+// sin conocer la forma del Producto. Por ello, el campo `compuesto` del Producto
+// —al ser un campo plano booleano— se serializa y se recupera sin cambios en el
+// recorrido de ida y vuelta, sin necesidad de tratamiento especial en esta capa.
+//
 // Tipos (notación TypeScript por claridad; la implementación es JS vanilla):
 //   type ReadResult<T> =
 //     | { status: "ok"; value: T }
@@ -73,6 +79,9 @@
     }
 
     try {
+      // `JSON.parse` restaura el valor completo tal cual se guardó, incluidos los
+      // campos planos del Producto como `compuesto` (Requisito 5.1). No hay
+      // pérdida ni transformación de campos en esta lectura.
       const value = JSON.parse(raw);
       return { status: "ok", value };
     } catch {

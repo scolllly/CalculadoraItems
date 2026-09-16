@@ -9,6 +9,15 @@
 // de advertencias, y las funciones de guardado devuelven el `WriteResult` para
 // que el controlador muestre un mensaje si la escritura falla.
 //
+// Nota sobre el campo `compuesto` (Requisito 5.1): el repositorio persiste y
+// carga los Productos como objetos opacos, sin inspeccionar ni transformar sus
+// campos. El Flag_Compuesto (`compuesto`) es un campo plano más del Producto,
+// por lo que se conserva sin cambios en el recorrido de ida y vuelta por el
+// Almacenamiento_Local (guardado vía `JSON.stringify` y lectura vía
+// `JSON.parse` en `storage.js`). No se requiere lógica especial aquí para
+// preservarlo; su clasificación se asigna en el dominio (`models`/`productosOps`)
+// y su normalización retrocompatible ocurre al cargar (Requisito 4).
+//
 // Tipos (notación TypeScript por claridad; la implementación es JS vanilla):
 //   interface LoadResult {
 //     parametros: Parametro[];

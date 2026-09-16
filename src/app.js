@@ -60,6 +60,18 @@
     let parametros = Array.isArray(cargado.parametros) ? cargado.parametros : [];
     let productos = Array.isArray(cargado.productos) ? cargado.productos : [];
 
+    // Retrocompatibilidad: aplicar el Normalizador_De_Producto a cada Producto
+    // cargado desde el Almacenamiento_Local para completar el Flag_Compuesto
+    // ausente antes de fijarlos en el estado en memoria (Req 4.4). Se aplica de
+    // forma defensiva: solo si `LP.models.normalizarProducto` está disponible, y
+    // sin lanzar si no lo está (degradación segura bajo file://).
+    if (
+      window.LP.models &&
+      typeof window.LP.models.normalizarProducto === "function"
+    ) {
+      productos = productos.map(window.LP.models.normalizarProducto);
+    }
+
     // Ante JSON corrupto (o forma inválida) se inician listas vacías y se avisa
     // que los datos guardados no se pudieron cargar (Req 6.5). Las listas vacías
     // por ausencia de datos simplemente arrancan vacías, sin aviso (Req 6.4).

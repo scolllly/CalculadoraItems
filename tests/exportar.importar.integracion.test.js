@@ -510,3 +510,141 @@ describe("Importación inválida (Req 6.4)", () => {
     expect(contenedorLista().querySelectorAll("li.lp-producto")).toHaveLength(3);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Normalización al IMPORTAR un Archivo_De_Respaldo (Req 4.5)
+// Tarea 12.1 del spec `producto-simple-vs-compuesto-tabs`.
+//
+// Escenario retrocompatible: se importa un respaldo cuyos Productos fueron
+// guardados ANTES de esta funcionalidad, es decir, SIN el Flag_Compuesto
+// (`compuesto` ausente). Al aplicar el reemplazo (`aplicarReemplazo`), el
+// Normalizador_De_Producto se aplica a cada Producto importado ANTES de fijarlo
+// en el estado y de persistirlo (Req 4.5), de modo que quedan CLASIFICADOS (su
+// `compuesto` deriva de las líneas mediante `LP.models.esCompuesto`) y su
+// clasificación queda PERSISTIDA en el Almacenamiento_Local (visible al recargar
+// con `LP.repository.load`).
+//
+// Se ejercita el flujo real de importación (input de archivo -> FileReader ->
+// parsearRespaldo -> confirmar -> aplicarReemplazo -> repository.replaceAll) sobre
+// el `localStorage` de jsdom.
+// ---------------------------------------------------------------------------
+
+// Productos "antiguos" SIN `compuesto` dentro del respaldo: uno con una
+// Linea_De_Producto (debe quedar COMPUESTO) y dos solo con Lineas_De_Parametro
+// (una con `fuenteDeComponente: "Parámetro"` y otra SIN la propiedad,
+// retrocompatibilidad Req 3.4) que deben quedar SIMPLES.
+function productosRespaldoSinFlag() {
+  return [
+    {
+      id: "imp-compuesto",
+      nombre: "Con sub-producto",
+      lineas: [
+        { parametroId: "p1", cantidad: 2, subtotal: 20 },
+        {
+          parametroId: null,
+          cantidad: 1,
+          subtotal: 15,
+          fuenteDeComponente: "Producto",
+          productoComponenteId: "imp-simple-param",
+        },
+      ],
+      precioTotal: 35,
+      // Sin `compuesto`.
+    },
+    {
+      id: "imp-simple-param",
+      nombre: "Solo parámetros (con fuente)",
+      lineas: [
+        { parametroId: "p1", cantidad: 1, subtotal: 10, fuenteDeComponente: "Parámetro" },
+      ],
+      precioTotal: 10,
+      // Sin `compuesto`.
+    },
+    {
+      id: "imp-simple-legacy",
+      nombre: "Solo parámetros (línea legada sin fuente)",
+      lineas: [{ parametroId: "p2", cantidad: 2, subtotal: 10 }],
+      precioTotal: 10,
+      // Sin `compuesto` y con una línea SIN `fuenteDeComponente` (Req 3.4).
+    },
+  ];
+}
+
+describe("Normalización al importar (Req 4.5)", () => {
+  beforeEach(() => {
+    // Aislar el Almacenamiento_Local real para verificar la persistencia.
+    try {
+      window.localStorage.clear();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  it("clasifica los Productos importados SIN `compuesto` derivando el flag de sus líneas", () => {
+    const { estado } = crearEntorno([]);
+    fijarConfirmacion(true);
+
+    const texto = LP.backup.serializarRespaldo(
+      PARAMETROS,
+      productosRespaldoSinFlag()
+    );
+    importarTexto(texto);
+
+    // El estado compartido quedó con los Productos importados YA clasificados.
+    expect(estado.productos.map((p) => p.id)).toEqual([
+      "imp-compuesto",
+      "imp-simple-param",
+      "imp-simple-legacy",
+    ]);
+    estado.productos.forEach((p) => {
+      expect(typeof p.compuesto).toBe("boolean");
+      expect(p.compuesto).toBe(LP.models.esCompuesto(p.lineas));
+    });
+
+    const porId = Object.fromEntries(estado.productos.map((p) => [p.id, p]));
+    // El Producto con una Linea_De_Producto queda COMPUESTO.
+    expect(porId["imp-compuesto"].compuesto).toBe(true);
+    // Los Productos con solo Lineas_De_Parametro (incluida una línea legada sin
+    // `fuenteDeComponente`) quedan SIMPLES (Req 3.4).
+    expect(porId["imp-simple-param"].compuesto).toBe(false);
+    expect(porId["imp-simple-legacy"].compuesto).toBe(false);
+
+    // Se conservan los demás campos del Producto (Req 4.3).
+    expect(porId["imp-compuesto"]).toMatchObject({
+      id: "imp-compuesto",
+      nombre: "Con sub-producto",
+      precioTotal: 35,
+    });
+    expect(porId["imp-compuesto"].lineas).toHaveLength(2);
+  });
+
+  it("persiste la clasificación derivada en el Almacenamiento_Local al importar (round-trip)", () => {
+    crearEntorno([]);
+    fijarConfirmacion(true);
+
+    const texto = LP.backup.serializarRespaldo(
+      PARAMETROS,
+      productosRespaldoSinFlag()
+    );
+    importarTexto(texto);
+
+    // Recargar desde el Almacenamiento_Local REAL: la clasificación quedó guardada.
+    const cargada = LP.repository.load();
+    expect(cargada.warnings).not.toContain("productos corruptos");
+    expect(cargada.productos.map((p) => p.id)).toEqual([
+      "imp-compuesto",
+      "imp-simple-param",
+      "imp-simple-legacy",
+    ]);
+
+    const porId = Object.fromEntries(cargada.productos.map((p) => [p.id, p]));
+    expect(porId["imp-compuesto"].compuesto).toBe(true);
+    expect(porId["imp-simple-param"].compuesto).toBe(false);
+    expect(porId["imp-simple-legacy"].compuesto).toBe(false);
+
+    // Coherencia final: cada flag persistido coincide con el Clasificador.
+    cargada.productos.forEach((p) => {
+      expect(p.compuesto).toBe(LP.models.esCompuesto(p.lineas));
+    });
+  });
+});

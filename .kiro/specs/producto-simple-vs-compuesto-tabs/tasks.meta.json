@@ -1,0 +1,392 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "5. Checkpoint - Núcleo puro": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507570653
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513693138
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514312791
+      }
+    ],
+    "6.1 Actualizar comentarios de persistencia (localStorage)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507570721
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512892513
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513123749
+      }
+    ],
+    "6.2 Actualizar comentarios de respaldo (backup)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507570789
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512893551
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513124755
+      }
+    ],
+    "7.1 Extraer/crear el helper puro de partición": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507570900
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513134232
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513684116
+      }
+    ],
+    "8.1 Extraer el helper de tarjeta `construirItemProducto(producto)`": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507570965
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514324918
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515208370
+      }
+    ],
+    "8.2 Construir dinámicamente la estructura de pestañas y paneles": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571019
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515218039
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515671704
+      }
+    ],
+    "8.3 Aplicar selección por defecto, rótulos e iconos": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571070
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515679868
+      }
+    ],
+    "8.4 Implementar estados vacíos por pestaña": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571120
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515681205
+      }
+    ],
+    "8.5 Implementar la conmutación de pestañas con fallback manual": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571171
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515682054
+      }
+    ],
+    "9. Checkpoint - Render de pestañas": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571223
+      }
+    ],
+    "11. Aplicar el Normalizador al cargar (`app.js`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571285
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513134983
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513685279
+      }
+    ],
+    "13.1 Ajustar comparaciones `toEqual` de Productos completos": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571335
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515219431
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515673465
+      }
+    ],
+    "14. Checkpoint final - Ensure all tests pass": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507571385
+      }
+    ],
+    "1. Implementar el Clasificador_De_Producto (`models.esCompuesto`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507587183
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507658178
+      }
+    ],
+    "1.1 Escribir prueba de propiedad de la regla del Clasificador": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507662587
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512793505
+      }
+    ],
+    "1.2 Escribir prueba de propiedad de determinismo e inmutabilidad del Clasificador": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507664014
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512881048
+      }
+    ],
+    "2. Derivar el Flag_Compuesto al crear un Producto (`models.crearProducto`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507665449
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512792745
+      }
+    ],
+    "4. Implementar el Normalizador_De_Producto (`models.normalizarProducto`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789507666363
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512881893
+      }
+    ],
+    "2.1 Escribir prueba de propiedad de creación (deriva y preserva)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512888303
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513120957
+      }
+    ],
+    "3. Recalcular el Flag_Compuesto al editar (`productosOps.editarProducto`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512889700
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513122380
+      }
+    ],
+    "4.1 Escribir prueba de propiedad del Normalizador (deriva ausente, conserva booleano, idempotente)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789512891110
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513680364
+      }
+    ],
+    "6. Confirmar y documentar la persistencia y el respaldo del Flag_Compuesto": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513124856
+      }
+    ],
+    "6.3 Escribir prueba de propiedad de roundtrip en Almacenamiento_Local": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513131464
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513681760
+      }
+    ],
+    "6.4 Ampliar prueba de propiedad de roundtrip del respaldo para el flag": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513132784
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513683188
+      }
+    ],
+    "7. Implementar el helper de partición por flag para el render": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789513684179
+      }
+    ],
+    "3.1 Escribir prueba de propiedad de edición (recalcula desde líneas resultantes)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514319612
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515203599
+      }
+    ],
+    "3.2 Escribir prueba de propiedad de no-alteración de los demás Productos ni del orden": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514321029
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515204528
+      }
+    ],
+    "7.2 Escribir prueba de propiedad de la partición": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514322429
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515205915
+      }
+    ],
+    "12. Aplicar el Normalizador al importar (`basedatos.controller.js`)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789514323815
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515207266
+      }
+    ],
+    "12.1 Escribir pruebas de integración de normalización al cargar/importar (jsdom)": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515220705
+      },
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515672426
+      }
+    ],
+    "13. Actualizar pruebas de regresión existentes por el nuevo campo `compuesto`": [
+      {
+        "executionId": "d79d964c-3a40-42db-8d63-24706dbeca88",
+        "chatSessionId": "sess_5f1401f1-860b-4e1d-a47e-0c9a2b6c0b47",
+        "timestamp": 1789515673540
+      }
+    ]
+  }
+}

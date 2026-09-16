@@ -409,3 +409,152 @@ describe("eliminarProducto — quita uno, conserva el resto", () => {
     );
   });
 });
+
+// ===========================================================================
+// Feature: producto-simple-vs-compuesto-tabs
+// Pruebas de propiedad del recálculo del Flag_Compuesto al editar y de la
+// no-alteración de los demás Productos ni del orden (Tareas 3.1 y 3.2).
+//
+// Generadores propios que producen Lineas_De_Calculo con `fuenteDeComponente`
+// en { "Parámetro", "Producto", ausente } para cubrir el tratamiento
+// retrocompatible (una línea sin fuente se interpreta como Linea_De_Parametro,
+// Req 3.4) y para ejercitar ambas ramas del Clasificador_De_Producto
+// (`LP.models.esCompuesto`).
+// ===========================================================================
+
+// Línea de edición con Fuente_De_Componente explícita/ausente, para ejercitar
+// tanto Lineas_De_Parametro como Lineas_De_Producto (y líneas sin fuente).
+// subtotal = redondear2(cantidad * precioUnitario) para mantener el cálculo
+// del dominio estable e idempotente, como el resto de los generadores.
+const arbLineaConFuente = fc
+  .record({
+    fuente: fc.constantFrom("Parámetro", "Producto", undefined),
+    parametroId: fc.oneof(
+      fc.constant(null),
+      fc.string({ minLength: 1, maxLength: 12 })
+    ),
+    productoComponenteId: fc.oneof(
+      fc.constant(null),
+      fc.string({ minLength: 1, maxLength: 12 })
+    ),
+    cantidad: arbCantidadEdicion,
+    precioUnitario: arbPrecioUnitario,
+  })
+  .map(({ fuente, parametroId, productoComponenteId, cantidad, precioUnitario }) => {
+    const linea = {
+      parametroId,
+      cantidad,
+      subtotal: redondear2Local(cantidad * precioUnitario),
+    };
+    // Solo se añade `fuenteDeComponente` cuando está presente, para cubrir el
+    // caso retrocompatible de líneas antiguas sin fuente (Req 3.4).
+    if (fuente !== undefined) {
+      linea.fuenteDeComponente = fuente;
+      // La referencia al Producto_Componente solo aplica a las Lineas_De_Producto.
+      if (fuente === "Producto") {
+        linea.productoComponenteId = productoComponenteId;
+      }
+    }
+    return linea;
+  });
+
+// Producto arbitrario con `compuesto` y `unidad`, para verificar la conservación
+// de campos y del orden tras la edición (id asignado por arbListaProductosFuente).
+function arbProductoSinIdFuente() {
+  return fc.record({
+    nombre: fc.string({ minLength: 1, maxLength: 100 }),
+    lineas: fc.array(arbLineaConFuente, { minLength: 0, maxLength: 6 }),
+    precioTotal: fc.integer({ min: 0, max: 99999999999 }).map((c) => c / 100),
+    unidad: fc.string({ minLength: 0, maxLength: 20 }),
+    compuesto: fc.boolean(),
+  });
+}
+
+// Lista de Productos con ids únicos y no vacía.
+const arbListaProductosFuente = fc
+  .array(arbProductoSinIdFuente(), { minLength: 1, maxLength: 6 })
+  .map((parciales) => parciales.map((p, i) => ({ id: "prodf-" + i, ...p })));
+
+// Caso: lista + id existente + nuevas líneas de edición (con fuentes variadas).
+const arbCasoEdicionFuente = arbListaProductosFuente.chain((productos) =>
+  fc.record({
+    productos: fc.constant(productos),
+    id: fc.constantFrom(...productos.map((p) => p.id)),
+    lineasProducto: fc.array(arbLineaConFuente, { minLength: 0, maxLength: 6 }),
+  })
+);
+
+// ---------------------------------------------------------------------------
+// Property 4 (Tarea 3.1): editarProducto recalcula el Flag_Compuesto desde las
+// líneas resultantes y conserva id, nombre y unidad.
+// Validates: Requisitos 2.1, 2.2, 2.3, 2.4
+// ---------------------------------------------------------------------------
+describe("editarProducto — recalcula el Flag_Compuesto desde las líneas resultantes", () => {
+  // Feature: producto-simple-vs-compuesto-tabs, Property 4: Editar recalcula el
+  // flag desde las líneas resultantes.
+  it("Property 4", () => {
+    fc.assert(
+      fc.property(arbCasoEdicionFuente, ({ productos, id, lineasProducto }) => {
+        const original = productos.find((p) => p.id === id);
+        const nueva = LP.productosOps.editarProducto(
+          productos,
+          id,
+          lineasProducto
+        );
+        const editado = nueva.find((p) => p.id === id);
+        expect(editado).toBeTruthy();
+
+        // El Flag_Compuesto se recalcula desde las líneas RESULTANTES con el
+        // Clasificador_De_Producto único (Req 2.1, 2.2, 2.3).
+        expect(editado.compuesto).toBe(LP.models.esCompuesto(editado.lineas));
+
+        // Conservación de id, nombre y unidad del Producto editado (Req 2.4).
+        expect(editado.id).toBe(original.id);
+        expect(editado.nombre).toBe(original.nombre);
+        expect(editado.unidad).toBe(original.unidad);
+      }),
+      { numRuns: 100 }
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Property 5 (Tarea 3.2): editarProducto no altera los demás Productos ni el
+// orden, y el nuevo campo `compuesto` de los no editados permanece intacto.
+// Validates: Requisitos 2.5
+// ---------------------------------------------------------------------------
+describe("editarProducto — no altera los demás Productos ni el orden", () => {
+  // Feature: producto-simple-vs-compuesto-tabs, Property 5: Editar no altera los
+  // demás Productos ni el orden.
+  it("Property 5", () => {
+    fc.assert(
+      fc.property(arbCasoEdicionFuente, ({ productos, id, lineasProducto }) => {
+        // Copia profunda previa para comparar la lista resultante.
+        const snapshot = JSON.parse(JSON.stringify(productos));
+        const nueva = LP.productosOps.editarProducto(
+          productos,
+          id,
+          lineasProducto
+        );
+
+        // Mismo tamaño de lista.
+        expect(nueva).toHaveLength(productos.length);
+
+        nueva.forEach((p, i) => {
+          // Mismo orden de ids (mismas posiciones).
+          expect(p.id).toBe(snapshot[i].id);
+          if (p.id !== id) {
+            // Los demás Productos permanecen sin cambios, incluido el campo
+            // `compuesto` presente y con su valor original.
+            expect(p).toEqual(snapshot[i]);
+            expect(p.compuesto).toBe(snapshot[i].compuesto);
+          }
+        });
+
+        // No muta la entrada original.
+        expect(productos).toEqual(snapshot);
+      }),
+      { numRuns: 100 }
+    );
+  });
+});

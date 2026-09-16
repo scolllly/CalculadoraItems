@@ -13,7 +13,10 @@
 // son objetos planos, `JSON.stringify` conserva íntegros todos sus campos en el
 // round-trip, incluidos los nuevos `fuenteDeComponente` y `productoComponenteId`
 // de cada línea, la `unidad` del Producto y los `parametroId`, `cantidad` y
-// `subtotal` existentes (Req 7.1, 8.3, 8.7, 9.2, 9.3, 9.4). La firma de
+// `subtotal` existentes (Req 7.1, 8.3, 8.7, 9.2, 9.3, 9.4). El Flag_Compuesto
+// (`compuesto`) también es un campo plano del Producto, de modo que se incluye
+// en el respaldo serializado y se recupera con el mismo valor al parsear,
+// garantizando la propiedad de ida y vuelta (Req 5.2, 5.3). La firma de
 // `serializarRespaldo`/`parsearRespaldo` y la versión "1" del formato no cambian.
 //
 // `parsearRespaldo` devuelve la lista de Productos TAL CUAL, sin normalizar. La
@@ -49,9 +52,10 @@
    * Produce la cadena JSON del Archivo_De_Respaldo con la forma
    * `{ version, parametros, productos }` (Requisitos 9.1, 9.2). Al ser objetos
    * planos, `JSON.stringify` preserva todos los campos de cada Producto y línea
-   * (incluidos `unidad`, `fuenteDeComponente`, `productoComponenteId`, `cantidad`
-   * y `subtotal`), garantizando el round-trip sin pérdidas (Req 7.1, 8.3, 8.7,
-   * 9.3, 9.4).
+   * (incluidos `unidad`, el Flag_Compuesto `compuesto`, `fuenteDeComponente`,
+   * `productoComponenteId`, `cantidad` y `subtotal`), garantizando el round-trip
+   * sin pérdidas (Req 7.1, 8.3, 8.7, 9.3, 9.4). En particular, el `compuesto` de
+   * cada Producto queda incluido en el contenido serializado (Req 5.2).
    *
    * @param {unknown[]} parametros Lista de Parametros a respaldar.
    * @param {unknown[]} productos Lista de Productos a respaldar.
@@ -75,7 +79,9 @@
    * `{ status: "ok", parametros, productos }` con la lista de Productos TAL CUAL:
    * la normalización de compatibilidad (fuente ausente => "Parámetro", `unidad`
    * no inventada) la aplica el importador con `models.normalizarLinea`, no esta
-   * función (Req 7.4, 7.7).
+   * función (Req 7.4, 7.7). Como el Flag_Compuesto `compuesto` es un campo plano
+   * del Producto, `JSON.parse` lo recupera con el mismo valor que tenía al
+   * serializar, cumpliendo la propiedad de ida y vuelta del respaldo (Req 5.3).
    *
    * @param {string} texto Contenido textual del archivo a importar.
    * @returns {{ status: "ok", parametros: unknown[], productos: unknown[] } | { status: "invalid", reason: string }}

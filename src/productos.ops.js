@@ -334,6 +334,14 @@
     const lineasEntrada = Array.isArray(lineasProducto) ? lineasProducto : [];
     const listaParametros = Array.isArray(parametros) ? parametros : [];
     const calculo = LP.calculo;
+    // Acceso a `LP.models.FUENTE_COMPONENTE` en tiempo de llamada con fallback
+    // seguro (mismo patrón que el resto del archivo), usado por el clasificador
+    // de respaldo del Flag_Compuesto más abajo.
+    const fuentes =
+      (LP.models && LP.models.FUENTE_COMPONENTE) || {
+        PARAMETRO: "Parámetro",
+        PRODUCTO: "Producto",
+      };
 
     // Resolver cada línea a { cantidad, precioUnitario } para que el cálculo del
     // producto fluya por `calculo.calcularProducto`. El Precio_Unitario se
@@ -397,11 +405,30 @@
         return nuevaLinea;
       });
 
+      // Recalcular el Flag_Compuesto del Producto editado a partir de sus
+      // líneas resultantes con el Clasificador_De_Producto único
+      // (`LP.models.esCompuesto`): true si tiene al menos una Linea_De_Producto,
+      // false en caso contrario (Req 2.1, 2.2, 2.3). Se accede a `LP.models` en
+      // tiempo de llamada con un fallback seguro (mismo patrón que
+      // `FUENTE_COMPONENTE` en este archivo), para no depender del orden de
+      // evaluación de los IIFE; si no estuviera disponible, se cae a un
+      // clasificador local equivalente.
+      const clasificar =
+        (LP.models && typeof LP.models.esCompuesto === "function"
+          ? LP.models.esCompuesto
+          : function (ls) {
+              const arr = Array.isArray(ls) ? ls : [];
+              return arr.some(
+                (l) => l != null && l.fuenteDeComponente === fuentes.PRODUCTO
+              );
+            });
+
       const editado = {
         id: producto.id,
         nombre: producto.nombre,
         lineas,
         precioTotal: calculo.redondear2(total),
+        compuesto: clasificar(lineas),
       };
       // Conservar la Unidad_De_Producto previa sin inventar un valor cuando el
       // Producto original no la tiene definida (Req 7.7, 9.5).

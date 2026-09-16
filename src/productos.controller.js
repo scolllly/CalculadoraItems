@@ -119,6 +119,11 @@
     listaProductos: "lista-productos",
     // Boton_De_Orden de la Lista_De_Productos (Req 1.1).
     btnOrdenar: "btn-ordenar-productos",
+    // Contenedor_De_Tabs: pestañas y paneles de la Lista_De_Productos (Req 6, 7).
+    tabCompuestos: "tab-productos-compuestos",
+    tabSimples: "tab-productos-simples",
+    panelCompuestos: "panel-productos-compuestos",
+    panelSimples: "panel-productos-simples",
     // Ventana_Detalle (Req 2.x)
     modalDetalle: "modal-detalle",
     modalDetalleTitulo: "modal-detalle-titulo",
@@ -297,6 +302,44 @@
       : vaciosProductos.concat(ordenados);
   }
 
+  // ─────────────────── Partición por Flag_Compuesto (Req 6.2, 6.3, 6.6) ───────────────────
+
+  /**
+   * Función pura que separa una lista de Productos en dos grupos según el
+   * Flag_Compuesto, para alimentar el Contenedor_De_Tabs del render (Req 6.2,
+   * 6.3). El criterio de compuesto es estricto (`compuesto === true`) y el de
+   * simple es `!producto.compuesto`, robusto ante un flag ausente (un Producto
+   * no normalizado se trata como simple en el peor caso).
+   *
+   * Garantías:
+   *  - Cada Producto de la entrada aparece en EXACTAMENTE uno de los dos grupos,
+   *    sin perderse ni duplicarse (partición total).
+   *  - Se preserva el orden relativo de entrada dentro de cada grupo, de modo que
+   *    aplicar la Direccion_De_Orden vigente a cada grupo produzca el orden
+   *    mostrado en cada pestaña (Req 6.6).
+   *
+   * No muta la lista de entrada ni sus Productos. Trata `null`/`undefined`/no-array
+   * como lista vacía (degradación segura bajo `file://`).
+   *
+   * @param {Array<{ compuesto?: boolean }>|null|undefined} productos
+   * @returns {{ compuestos: Array, simples: Array }}
+   */
+  function particionarPorCompuesto(productos) {
+    const lista = Array.isArray(productos) ? productos : [];
+    const compuestos = [];
+    const simples = [];
+    for (const producto of lista) {
+      // Compuesto solo si el Flag_Compuesto es estrictamente true (Req 6.2);
+      // el resto (incluido el flag ausente) se clasifica como simple (Req 6.3).
+      if (producto && producto.compuesto === true) {
+        compuestos.push(producto);
+      } else {
+        simples.push(producto);
+      }
+    }
+    return { compuestos, simples };
+  }
+
   /**
    * Referencia al controlador activo (el último inicializado), usado por las
    * funciones de módulo `contarLineasQueReferencian`/`desreferenciarParametro`.
@@ -324,6 +367,19 @@
       typeof window !== "undefined" &&
       typeof window.bootstrap !== "undefined" &&
       !!window.bootstrap.Modal
+    );
+  }
+
+  /**
+   * Indica si la API de Bootstrap Tab está disponible en el entorno actual.
+   * Espeja `hayBootstrapModal` para la conmutación de pestañas (Req 7.4).
+   * @returns {boolean}
+   */
+  function hayBootstrapTab() {
+    return (
+      typeof window !== "undefined" &&
+      typeof window.bootstrap !== "undefined" &&
+      !!window.bootstrap.Tab
     );
   }
 
@@ -881,12 +937,141 @@
     // ─────────────────────── Lista de Productos guardados ───────────────────────
 
     /**
-     * Renderiza la lista de Productos guardados. Por cada Producto muestra el
-     * nombre, el Precio_Total en PEN (2 decimales) y tres botones: Ver detalle,
-     * Editar y Eliminar. Cada `<li>` lleva `data-id` con el id del Producto y los
-     * botones se cablean para invocar `abrirDetalle`, `abrirEdicion` y
-     * `confirmarYEliminar` con ese id (Req 1.1, 1.3, 1.4, 1.5). Muestra la
-     * indicación de estado vacío, sin botones, si no hay Productos (Req 1.2).
+     * Construye el `<li>` de un Producto para la Lista_De_Productos, con la MISMA
+     * tarjeta y cableado que hoy: nombre, badge de Precio_Total en PEN, el
+     * Badge_Sugerido (Precio_Sugerido -> Precio_Redondeado) y los tres botones de
+     * acción (Ver detalle, Editar, Eliminar) cableados por el `data-id` del `<li>`
+     * (Req 1.1, 1.3, 1.4, 1.5). Helper reutilizable extraído del render para poder
+     * compartir la construcción de tarjetas entre paneles sin duplicar la lógica
+     * (Req 6.4). No muta el Producto recibido.
+     *
+     * @param {{ id: string, nombre: string, precioTotal: number }} producto
+     * @returns {HTMLLIElement} `<li>` ya cableado listo para insertar en la lista.
+     */
+    function construirItemProducto(producto) {
+      const item = document.createElement("li");
+      item.className =
+        "list-group-item d-flex justify-content-between align-items-center lp-producto";
+      item.setAttribute("data-id", producto.id);
+
+      // Bloque de información: nombre + Precio_Total (Req 1.1).
+      const info = document.createElement("div");
+      info.className = "d-flex align-items-center gap-2";
+      const nombreEl = document.createElement("span");
+      nombreEl.className = "lp-producto-nombre";
+      nombreEl.textContent = producto.nombre;
+      const precioEl = document.createElement("span");
+      precioEl.className = "badge bg-success rounded-pill lp-producto-precio";
+      precioEl.textContent = formatearPEN(producto.precioTotal);
+      // Badge_Sugerido: Precio_Sugerido a la derecha del badge verde (Req 2.1, 2.3, 2.4, 2.5, 2.7, 2.8).
+      const sugeridoEl = document.createElement("span");
+      sugeridoEl.className = "badge rounded-pill lp-producto-sugerido";
+      const precioSugerido = calcularPrecioSugerido(producto.precioTotal);
+      const precioRedondeado = calcularPrecioRedondeado(precioSugerido);
+      sugeridoEl.textContent =
+        formatearPEN(precioSugerido) + " -> " + formatearPEN(precioRedondeado);
+      info.appendChild(nombreEl);
+      info.appendChild(precioEl);
+      info.appendChild(sugeridoEl);
+
+      // Bloque de acciones: Ver detalle / Editar / Eliminar (Req 1.1).
+      const acciones = document.createElement("div");
+      acciones.className = "btn-group";
+      acciones.setAttribute("role", "group");
+
+      const btnDetalle = document.createElement("button");
+      btnDetalle.type = "button";
+      btnDetalle.className = "btn btn-outline-secondary btn-sm lp-producto-detalle";
+      convertirEnBotonDeIcono(btnDetalle, "bi-eye", "Ver detalle");
+
+      const btnEditar = document.createElement("button");
+      btnEditar.type = "button";
+      btnEditar.className = "btn btn-outline-primary btn-sm lp-producto-editar";
+      convertirEnBotonDeIcono(btnEditar, "bi-pencil", "Editar");
+
+      const btnEliminar = document.createElement("button");
+      btnEliminar.type = "button";
+      btnEliminar.className = "btn btn-outline-danger btn-sm lp-producto-eliminar";
+      convertirEnBotonDeIcono(btnEliminar, "bi-trash", "Eliminar");
+
+      // Cablear cada botón usando el id leído del atributo data-id del <li>
+      // (Req 1.3, 1.4, 1.5).
+      btnDetalle.addEventListener("click", () => {
+        abrirDetalle(item.getAttribute("data-id"));
+      });
+      btnEditar.addEventListener("click", () => {
+        abrirEdicion(item.getAttribute("data-id"));
+      });
+      btnEliminar.addEventListener("click", () => {
+        confirmarYEliminar(item.getAttribute("data-id"));
+      });
+
+      acciones.appendChild(btnDetalle);
+      acciones.appendChild(btnEditar);
+      acciones.appendChild(btnEliminar);
+
+      item.appendChild(info);
+      item.appendChild(acciones);
+      return item;
+    }
+
+    /**
+     * Construye el `<ul.list-group>` de un panel a partir de una lista de
+     * Productos ya ordenada, reutilizando el helper de tarjeta
+     * `construirItemProducto` para cada uno (Req 6.4). Devuelve el `<ul>` listo
+     * para insertar en el `tab-pane` correspondiente. No muta la lista recibida.
+     * @param {Array<{ id: string, nombre: string, precioTotal: number }>} productos
+     * @returns {HTMLUListElement}
+     */
+    function construirListaDeProductos(productos) {
+      const lista = document.createElement("ul");
+      lista.className = "list-group";
+      (productos || []).forEach((producto) => {
+        if (!producto) return;
+        // Cada Producto usa el helper de tarjeta reutilizable (Req 1.1, 6.4).
+        lista.appendChild(construirItemProducto(producto));
+      });
+      return lista;
+    }
+
+    /**
+     * Rellena un `tab-pane` con la lista de Productos de esa pestaña o, si está
+     * vacía teniendo Productos guardados en otras pestañas, con la indicación de
+     * estado vacío por panel (Req 8.2, 8.3). El mensaje y la clase del estado
+     * vacío se reciben por parámetro para diferenciar compuestos de simples.
+     * @param {HTMLElement} panel        `div.tab-pane` destino.
+     * @param {Array} productos          Productos ya ordenados de esa pestaña.
+     * @param {string} mensajeVacio      Texto del estado vacío del panel.
+     * @param {string} claseVacio        Clase CSS del estado vacío del panel.
+     */
+    function rellenarPanel(panel, productos, mensajeVacio, claseVacio) {
+      if (!panel) return;
+      if (!productos || productos.length === 0) {
+        const vacio = document.createElement("p");
+        vacio.className = "text-muted " + claseVacio;
+        vacio.textContent = mensajeVacio;
+        panel.appendChild(vacio);
+        return;
+      }
+      panel.appendChild(construirListaDeProductos(productos));
+    }
+
+    /**
+     * Renderiza la Lista_De_Productos guardados dentro del Contenedor_De_Tabs
+     * (Req 6.1). El markup se construye dinámicamente dentro de #lista-productos
+     * (vaciado en cada render): un `ul.nav.nav-tabs` (role=tablist) con el
+     * Tab_Compuestos y el Tab_Simples, y un `div.tab-content` con sus dos
+     * `tab-pane`. Los Productos se separan por Flag_Compuesto con
+     * `particionarPorCompuesto` (Req 6.2, 6.3) y cada grupo se ordena con
+     * `ordenarProductos` según la Direccion_De_Orden vigente (Req 6.6); cada
+     * Producto se renderiza con `construirItemProducto`, conservando la misma
+     * tarjeta y acciones que la lista actual (Req 6.4).
+     *
+     * Antes de construir los tabs se conserva el chequeo de estado vacío GLOBAL:
+     * si no hay ningún Producto guardado, se muestra la indicación
+     * "No hay productos guardados." (clase `lp-productos-vacios`) sin tabs
+     * (Req 8.1). Al reconstruir todo desde cero en cada render, la clasificación
+     * mostrada siempre refleja el estado actual (Req 6.5).
      */
     function renderListaProductos() {
       const contenedor = $(IDS.listaProductos);
@@ -894,8 +1079,8 @@
 
       contenedor.textContent = "";
 
-      // Estado vacío evaluado ANTES de ordenar, sobre la lista original
-      // (Req 1.13); conserva el marcado existente sin invocar el ordenamiento.
+      // Estado vacío GLOBAL evaluado ANTES de construir los tabs, sobre la lista
+      // original (Req 1.13, 8.1); conserva el marcado existente sin tabs.
       const productosOriginales = getProductos() || [];
       if (productosOriginales.length === 0) {
         const vacio = document.createElement("p");
@@ -905,81 +1090,210 @@
         return;
       }
 
-      // Renderizar desde una copia ordenada por Nombre_Mostrado según la
-      // Direccion_De_Orden actual, sin mutar el arreglo devuelto por
-      // getProductos() (Req 1.5, 1.6).
-      const productos = ordenarProductos(getProductos().slice(), direccionDeOrden);
+      // Partición por Flag_Compuesto preservando el orden relativo de entrada
+      // (Req 6.2, 6.3), y ordenación de cada grupo por Nombre_Mostrado según la
+      // Direccion_De_Orden vigente, sin mutar el arreglo de getProductos()
+      // (Req 6.6).
+      const { compuestos, simples } = particionarPorCompuesto(
+        getProductos().slice()
+      );
+      const compuestosOrdenados = ordenarProductos(compuestos, direccionDeOrden);
+      const simplesOrdenados = ordenarProductos(simples, direccionDeOrden);
 
-      const lista = document.createElement("ul");
-      lista.className = "list-group";
-      productos.forEach((producto) => {
-        if (!producto) return;
-        const item = document.createElement("li");
-        item.className =
-          "list-group-item d-flex justify-content-between align-items-center lp-producto";
-        item.setAttribute("data-id", producto.id);
+      // ── Barra de pestañas: ul.nav.nav-tabs (role=tablist) ──
+      // Tab_Compuestos primero y activo por defecto; Tab_Simples segundo
+      // (Req 7.1, 7.5). Los rótulos e iconos definitivos se afinan en 8.3.
+      const nav = document.createElement("ul");
+      nav.className = "nav nav-tabs lp-productos-tabs";
+      nav.setAttribute("role", "tablist");
 
-        // Bloque de información: nombre + Precio_Total (Req 1.1).
-        const info = document.createElement("div");
-        info.className = "d-flex align-items-center gap-2";
-        const nombreEl = document.createElement("span");
-        nombreEl.className = "lp-producto-nombre";
-        nombreEl.textContent = producto.nombre;
-        const precioEl = document.createElement("span");
-        precioEl.className = "badge bg-success rounded-pill lp-producto-precio";
-        precioEl.textContent = formatearPEN(producto.precioTotal);
-        // Badge_Sugerido: Precio_Sugerido a la derecha del badge verde (Req 2.1, 2.3, 2.4, 2.5, 2.7, 2.8).
-        const sugeridoEl = document.createElement("span");
-        sugeridoEl.className = "badge rounded-pill lp-producto-sugerido";
-        const precioSugerido = calcularPrecioSugerido(producto.precioTotal);
-        const precioRedondeado = calcularPrecioRedondeado(precioSugerido);
-        sugeridoEl.textContent =
-          formatearPEN(precioSugerido) + " -> " + formatearPEN(precioRedondeado);
-        info.appendChild(nombreEl);
-        info.appendChild(precioEl);
-        info.appendChild(sugeridoEl);
+      const contenido = document.createElement("div");
+      contenido.className = "tab-content lp-productos-tab-content";
 
-        // Bloque de acciones: Ver detalle / Editar / Eliminar (Req 1.1).
-        const acciones = document.createElement("div");
-        acciones.className = "btn-group";
-        acciones.setAttribute("role", "group");
-
-        const btnDetalle = document.createElement("button");
-        btnDetalle.type = "button";
-        btnDetalle.className = "btn btn-outline-secondary btn-sm lp-producto-detalle";
-        convertirEnBotonDeIcono(btnDetalle, "bi-eye", "Ver detalle");
-
-        const btnEditar = document.createElement("button");
-        btnEditar.type = "button";
-        btnEditar.className = "btn btn-outline-primary btn-sm lp-producto-editar";
-        convertirEnBotonDeIcono(btnEditar, "bi-pencil", "Editar");
-
-        const btnEliminar = document.createElement("button");
-        btnEliminar.type = "button";
-        btnEliminar.className = "btn btn-outline-danger btn-sm lp-producto-eliminar";
-        convertirEnBotonDeIcono(btnEliminar, "bi-trash", "Eliminar");
-
-        // Cablear cada botón usando el id leído del atributo data-id del <li>
-        // (Req 1.3, 1.4, 1.5).
-        btnDetalle.addEventListener("click", () => {
-          abrirDetalle(item.getAttribute("data-id"));
-        });
-        btnEditar.addEventListener("click", () => {
-          abrirEdicion(item.getAttribute("data-id"));
-        });
-        btnEliminar.addEventListener("click", () => {
-          confirmarYEliminar(item.getAttribute("data-id"));
-        });
-
-        acciones.appendChild(btnDetalle);
-        acciones.appendChild(btnEditar);
-        acciones.appendChild(btnEliminar);
-
-        item.appendChild(info);
-        item.appendChild(acciones);
-        lista.appendChild(item);
+      // Tab_Compuestos (activo por defecto) + su panel (Req 7.1, 7.2, 8.2).
+      const tabCompuestos = crearPestana({
+        id: IDS.tabCompuestos,
+        panelId: IDS.panelCompuestos,
+        rotulo: "Productos compuestos",
+        icono: "bi-boxes",
+        activo: true,
       });
-      contenedor.appendChild(lista);
+      const panelCompuestos = crearPanel({
+        id: IDS.panelCompuestos,
+        etiquetadoPor: IDS.tabCompuestos,
+        activo: true,
+      });
+      rellenarPanel(
+        panelCompuestos,
+        compuestosOrdenados,
+        "No hay productos compuestos.",
+        "lp-compuestos-vacios"
+      );
+
+      // Tab_Simples (no activo) + su panel (Req 7.1, 7.3, 8.3).
+      const tabSimples = crearPestana({
+        id: IDS.tabSimples,
+        panelId: IDS.panelSimples,
+        rotulo: "Productos simples",
+        icono: "bi-box",
+        activo: false,
+      });
+      const panelSimples = crearPanel({
+        id: IDS.panelSimples,
+        etiquetadoPor: IDS.tabSimples,
+        activo: false,
+      });
+      rellenarPanel(
+        panelSimples,
+        simplesOrdenados,
+        "No hay productos simples.",
+        "lp-simples-vacios"
+      );
+
+      nav.appendChild(tabCompuestos.item);
+      nav.appendChild(tabSimples.item);
+      contenido.appendChild(panelCompuestos);
+      contenido.appendChild(panelSimples);
+
+      contenedor.appendChild(nav);
+      contenedor.appendChild(contenido);
+
+      // Cablear la conmutación de pestañas con fallback manual (Req 7.4). Los
+      // botones y paneles recién creados se pasan emparejados; como se reconstruye
+      // todo en cada render sobre nodos nuevos, no se acumulan listeners sobre
+      // nodos viejos (los anteriores se descartaron al vaciar #lista-productos).
+      cablearConmutacionTabs([
+        { boton: tabCompuestos.boton, panel: panelCompuestos },
+        { boton: tabSimples.boton, panel: panelSimples },
+      ]);
+    }
+
+    /**
+     * Activa una pestaña alternando su estado y el de su panel, funcionando con y
+     * sin la API de Bootstrap JS (patrón de fallback de los modales, Req 7.4).
+     *
+     * Sobre los BOTONES del grupo: quita `active` y fija `aria-selected="false"`
+     * en todos, y agrega `active` con `aria-selected="true"` al botón pulsado.
+     * Sobre los PANELES del grupo: quita `show`/`active` y agrega `d-none` a
+     * todos, y agrega `show active` (quitando `d-none`) al panel correspondiente.
+     * La clase `d-none` es un respaldo adicional para entornos sin el CSS de
+     * Bootstrap aplicado, igual que en el fallback de modales.
+     *
+     * @param {HTMLButtonElement} boton   Botón de la pestaña a activar.
+     * @param {HTMLElement} panel         Panel asociado a esa pestaña.
+     * @param {Array<{ boton: HTMLButtonElement, panel: HTMLElement }>} grupo
+     *   Todas las pestañas del grupo (para desactivar las demás).
+     */
+    function activarTab(boton, panel, grupo) {
+      if (!boton || !panel || !Array.isArray(grupo)) return;
+
+      grupo.forEach(({ boton: b, panel: p }) => {
+        const activa = b === boton;
+        if (b) {
+          b.classList.toggle("active", activa);
+          b.setAttribute("aria-selected", activa ? "true" : "false");
+        }
+        if (p) {
+          p.classList.toggle("show", activa);
+          p.classList.toggle("active", activa);
+          // Respaldo sin CSS de Bootstrap: ocultar el panel inactivo (Req 7.4).
+          p.classList.toggle("d-none", !activa);
+        }
+      });
+    }
+
+    /**
+     * Cablea un listener de `click` por cada botón de pestaña que conmuta las
+     * pestañas del grupo vía `activarTab`. El manejador manual funciona tanto con
+     * la API de Bootstrap Tab presente como ausente (Req 7.4). Cuando Bootstrap JS
+     * está disponible, sus atributos `data-bs-toggle="tab"` también gestionan la
+     * conmutación nativa; el manejador propio es idempotente y deja el DOM en el
+     * mismo estado, evitando además depender del binding automático sobre nodos
+     * creados dinámicamente.
+     *
+     * @param {Array<{ boton: HTMLButtonElement, panel: HTMLElement }>} grupo
+     */
+    function cablearConmutacionTabs(grupo) {
+      if (!Array.isArray(grupo)) return;
+      grupo.forEach(({ boton, panel }) => {
+        if (!boton) return;
+        boton.addEventListener("click", (evento) => {
+          // Prevenir el salto de ancla por defecto; la API de Bootstrap (si está
+          // presente) ya no lo necesita, y sin ella evitamos scroll indeseado.
+          if (evento && typeof evento.preventDefault === "function") {
+            evento.preventDefault();
+          }
+          // Con Bootstrap JS disponible, delegar además en su API para mantener su
+          // estado interno coherente; el fallback manual se aplica siempre.
+          if (hayBootstrapTab()) {
+            const instancia = window.bootstrap.Tab.getOrCreateInstance
+              ? window.bootstrap.Tab.getOrCreateInstance(boton)
+              : new window.bootstrap.Tab(boton);
+            if (instancia && typeof instancia.show === "function") {
+              instancia.show();
+            }
+          }
+          activarTab(boton, panel, grupo);
+        });
+      });
+    }
+
+    /**
+     * Construye una pestaña Bootstrap (`<li.nav-item>` con su `<button.nav-link>`)
+     * cableada al panel indicado por `data-bs-toggle`/`data-bs-target` y los
+     * atributos ARIA de tablist (Req 7.1–7.3, 7.5). El botón muestra un icono de
+     * Bootstrap Icons (`aria-hidden`) seguido del rótulo textual. La conmutación
+     * manual (con y sin Bootstrap JS) la cablea `cablearConmutacionTabs` sobre el
+     * botón devuelto, invocada desde `renderListaProductos` (Req 7.4).
+     * @param {{ id: string, panelId: string, rotulo: string, icono: string, activo: boolean }} cfg
+     * @returns {{ item: HTMLLIElement, boton: HTMLButtonElement }}
+     */
+    function crearPestana({ id, panelId, rotulo, icono, activo }) {
+      const item = document.createElement("li");
+      item.className = "nav-item";
+      item.setAttribute("role", "presentation");
+
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.id = id;
+      boton.className = "nav-link" + (activo ? " active" : "");
+      // Markup de tabs de Bootstrap (Req 7): el botón conmuta su panel destino.
+      boton.setAttribute("data-bs-toggle", "tab");
+      boton.setAttribute("data-bs-target", "#" + panelId);
+      boton.setAttribute("role", "tab");
+      boton.setAttribute("aria-controls", panelId);
+      boton.setAttribute("aria-selected", activo ? "true" : "false");
+
+      const glifo = document.createElement("i");
+      glifo.className = "bi " + icono + " me-1";
+      glifo.setAttribute("aria-hidden", "true");
+
+      const texto = document.createElement("span");
+      texto.className = "lp-tab-texto";
+      texto.textContent = rotulo;
+
+      boton.appendChild(glifo);
+      boton.appendChild(texto);
+      item.appendChild(boton);
+      return { item, boton };
+    }
+
+    /**
+     * Construye un `div.tab-pane` de Bootstrap con los atributos ARIA de tabpanel
+     * y las clases de visibilidad (`show active` cuando es el panel activo por
+     * defecto) (Req 7.1, 7.4). El contenido (lista o estado vacío) lo añade el
+     * llamador vía `rellenarPanel`.
+     * @param {{ id: string, etiquetadoPor: string, activo: boolean }} cfg
+     * @returns {HTMLDivElement}
+     */
+    function crearPanel({ id, etiquetadoPor, activo }) {
+      const panel = document.createElement("div");
+      panel.id = id;
+      panel.className = "tab-pane fade" + (activo ? " show active" : "");
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", etiquetadoPor);
+      panel.setAttribute("tabindex", "0");
+      return panel;
     }
 
     // ─────────────── Acciones por Producto (Ver detalle / Editar / Eliminar) ───────────────
@@ -1414,5 +1728,8 @@
       desreferenciarParametro,
       mostrarModal,
       ocultarModal,
+      // Helper puro de partición por Flag_Compuesto (reutilizable por el render
+      // y verificable de forma aislada) (Req 6.2, 6.3, 6.6).
+      particionarPorCompuesto,
     };
 })(window);
