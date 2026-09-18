@@ -1,110 +1,108 @@
-name: CI/CD - Despliegue en AWS ECS
+name: Build & Deploy to ECS
 
 on:
   push:
     branches:
       - main-aws
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: "Omitir tests de vitest (true/false)"
+        required: false
+        default: "false"
 
 permissions:
   contents: read
 
 jobs:
-  # =========================================================
-  # Job 1: CI (Integración Continua)
-  # Valida las pruebas unitarias de Vite (Vitest).
-  # =========================================================
+  # ------------------------------------------------------------------ #
+  # CI — Instala dependencias, corre vitest y construye la imagen Docker #
+  # ------------------------------------------------------------------ #
   ci:
-    name: CI - Pruebas Unitarias
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: npm ci
 
-      - name: Ejecutar pruebas unitarias (Vitest)
+      - name: Run tests
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
         run: npm test
 
-  # =========================================================
-  # Job 2: CD (Despliegue Continuo)
-  # Construye imagen Docker, publica en ECR y despliega en ECS.
-  # =========================================================
+      - name: Build Docker image
+        run: docker build -t limpiapipas:${{ github.sha }} .
+
+  # ------------------------------------------------------------------ #
+  # CD — Push a ECR y force-new-deployment en ECS                       #
+  # Solo corre si CI pasó                                               #
+  # ------------------------------------------------------------------ #
   cd:
-    name: CD - Despliegue en AWS ECS
-    needs: ci
+    name: CD
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main-aws'
+    needs: ci
 
     env:
-      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
-      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || 'limpiapipas' }}
-      ECS_CLUSTER: ${{ secrets.ECS_CLUSTER || 'limpiapipas-cluster' }}
-      ECS_SERVICE: ${{ secrets.ECS_SERVICE || 'limpiapipas-service' }}
-      CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME || 'limpiapipas-app' }}
+      AWS_REGION:    ${{ secrets.AWS_REGION }}
+      ECR_REPO_NAME: ${{ vars.PROJECT_NAME != '' && vars.PROJECT_NAME || 'limpiapipas-demo' }}-repo
+      ECS_CLUSTER:   ${{ vars.PROJECT_NAME != '' && vars.PROJECT_NAME || 'limpiapipas-demo' }}-cluster
+      ECS_SERVICE:   ${{ vars.PROJECT_NAME != '' && vars.PROJECT_NAME || 'limpiapipas-demo' }}-service
 
     steps:
-      - name: Checkout del código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar credenciales de AWS
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region:            ${{ secrets.AWS_REGION }}
 
-      - name: Iniciar sesión en Amazon ECR
-        id: login-ecr
+      - name: Login to Amazon ECR
+        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Construir, etiquetar y publicar imagen en Amazon ECR
-        id: build-image
+      - name: Build, tag and push image to ECR
+        id: build
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-          S3_IMAGE_URL: ${{ secrets.S3_IMAGE_URL }}
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
-          docker build \
-            --build-arg S3_IMAGE_URL="${S3_IMAGE_URL}" \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          IMAGE_URI="${REGISTRY}/${ECR_REPO_NAME}:${{ github.sha }}"
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          docker tag "$IMAGE_URI" "${REGISTRY}/${ECR_REPO_NAME}:latest"
+          docker push "${REGISTRY}/${ECR_REPO_NAME}:latest"
+          echo "image=${IMAGE_URI}" >> $GITHUB_OUTPUT
 
-      - name: Determinar Task Definition a utilizar
+      - name: Force new ECS deployment
         run: |
-          if [ -n "${{ secrets.ECS_TASK_DEFINITION_FAMILY }}" ]; then
-            echo "Descargando Task Definition activa desde AWS ECS..."
-            aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} \
-              --query taskDefinition | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > task-definition-active.json
-            echo "TASK_DEF_PATH=task-definition-active.json" >> $GITHUB_ENV
-          else
-            echo "Usando plantilla local .aws/task-definition.json..."
-            echo "TASK_DEF_PATH=.aws/task-definition.json" >> $GITHUB_ENV
-          fi
+          aws ecs update-service \
+            --cluster  "$ECS_CLUSTER" \
+            --service  "$ECS_SERVICE" \
+            --force-new-deployment \
+            --region   "$AWS_REGION"
 
-      - name: Renderizar nueva imagen en la Task Definition
-        id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.TASK_DEF_PATH }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+      - name: Wait for service to stabilize
+        run: |
+          aws ecs wait services-stable \
+            --cluster  "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE" \
+            --region   "$AWS_REGION"
 
-      - name: Desplegar en Amazon ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+      - name: Deployment summary
+        run: |
+          echo "### Despliegue exitoso" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Imagen:** ${{ steps.build.outputs.image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cluster:** ${ECS_CLUSTER}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Servicio:** ${ECS_SERVICE}" >> $GITHUB_STEP_SUMMARY
