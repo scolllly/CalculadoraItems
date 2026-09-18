@@ -84,13 +84,36 @@ jobs:
           docker push "${REGISTRY}/${ECR_REPO_NAME}:latest"
           echo "image=${IMAGE_URI}" >> $GITHUB_OUTPUT
 
+      - name: Register new task definition revision
+        id: task-def
+        env:
+          IMAGE_URI: ${{ steps.build.outputs.image }}
+        run: |
+          # Obtener la task definition activa y reemplazar solo el campo image
+          TASK_FAMILY="${ECS_CLUSTER%-cluster}-task"
+          NEW_TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_FAMILY" \
+            --region "$AWS_REGION" \
+            --query 'taskDefinition' \
+            --output json \
+          | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+               | .containerDefinitions[0].image = $image' \
+            --arg image "$IMAGE_URI")
+          NEW_ARN=$(aws ecs register-task-definition \
+            --region "$AWS_REGION" \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "arn=${NEW_ARN}" >> $GITHUB_OUTPUT
+
       - name: Force new ECS deployment
         run: |
           aws ecs update-service \
-            --cluster  "$ECS_CLUSTER" \
-            --service  "$ECS_SERVICE" \
+            --cluster        "$ECS_CLUSTER" \
+            --service        "$ECS_SERVICE" \
+            --task-definition "${{ steps.task-def.outputs.arn }}" \
             --force-new-deployment \
-            --region   "$AWS_REGION"
+            --region         "$AWS_REGION"
 
       - name: Wait for service to stabilize
         run: |

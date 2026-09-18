@@ -72,19 +72,48 @@ El usuario o rol IAM usado en este repositorio solo necesita permisos para inter
       "Resource": "arn:aws:ecr:<region>:<account-id>:repository/<PROJECT_NAME>-repo"
     },
     {
+      "Sid": "ECSDescribe",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DescribeServices",
+        "ecs:DescribeTaskDefinition"
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "ECSDeployment",
       "Effect": "Allow",
       "Action": [
         "ecs:UpdateService",
-        "ecs:DescribeServices"
+        "ecs:RegisterTaskDefinition"
       ],
-      "Resource": "arn:aws:ecs:<region>:<account-id>:service/<PROJECT_NAME>-cluster/<PROJECT_NAME>-service"
+      "Resource": [
+        "arn:aws:ecs:<region>:<account-id>:service/<PROJECT_NAME>-cluster/<PROJECT_NAME>-service",
+        "arn:aws:ecs:<region>:<account-id>:task-definition/<PROJECT_NAME>-task:*"
+      ]
+    },
+    {
+      "Sid": "IAMPassRole",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::<account-id>:role/<PROJECT_NAME>-task-execution-role",
+        "arn:aws:iam::<account-id>:role/<PROJECT_NAME>-task-role"
+      ],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": "ecs-tasks.amazonaws.com"
+        }
+      }
     }
   ]
 }
 ```
 
-Reemplazar `<region>`, `<account-id>` y `<PROJECT_NAME>` con los valores reales. `ecr:GetAuthorizationToken` necesita `Resource: *` porque opera a nivel de cuenta, no de repositorio.
+Reemplazar `<region>`, `<account-id>` y `<PROJECT_NAME>` con los valores reales.
+
+- `ecr:GetAuthorizationToken`, `ecs:DescribeServices` y `ecs:DescribeTaskDefinition` necesitan `Resource: *` porque operan a nivel de cuenta o no aceptan ARN de recurso específico.
+- `iam:PassRole` es necesario para registrar una nueva revisión de la task definition: ECS requiere que el usuario pueda "pasar" los roles de ejecución y tarea al servicio `ecs-tasks.amazonaws.com`. Los nombres de los roles deben coincidir con los definidos en `iam.tf` del repositorio de terraform.
 
 ---
 
