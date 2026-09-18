@@ -1,0 +1,12 @@
+.git
+.github
+.kiro
+node_modules
+tests
+terraform
+result.log
+vitest.config.js
+package.json
+package-lock.json
+*.md
+*.log

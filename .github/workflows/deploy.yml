@@ -1,0 +1,110 @@
+name: CI/CD - Despliegue en AWS ECS
+
+on:
+  push:
+    branches:
+      - main-aws
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # =========================================================
+  # Job 1: CI (Integración Continua)
+  # Valida las pruebas unitarias de Vite (Vitest).
+  # =========================================================
+  ci:
+    name: CI - Pruebas Unitarias
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar pruebas unitarias (Vitest)
+        run: npm test
+
+  # =========================================================
+  # Job 2: CD (Despliegue Continuo)
+  # Construye imagen Docker, publica en ECR y despliega en ECS.
+  # =========================================================
+  cd:
+    name: CD - Despliegue en AWS ECS
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main-aws'
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || 'limpiapipas' }}
+      ECS_CLUSTER: ${{ secrets.ECS_CLUSTER || 'limpiapipas-cluster' }}
+      ECS_SERVICE: ${{ secrets.ECS_SERVICE || 'limpiapipas-service' }}
+      CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME || 'limpiapipas-app' }}
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construir, etiquetar y publicar imagen en Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          S3_IMAGE_URL: ${{ secrets.S3_IMAGE_URL }}
+        run: |
+          docker build \
+            --build-arg S3_IMAGE_URL="${S3_IMAGE_URL}" \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Determinar Task Definition a utilizar
+        run: |
+          if [ -n "${{ secrets.ECS_TASK_DEFINITION_FAMILY }}" ]; then
+            echo "Descargando Task Definition activa desde AWS ECS..."
+            aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} \
+              --query taskDefinition | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > task-definition-active.json
+            echo "TASK_DEF_PATH=task-definition-active.json" >> $GITHUB_ENV
+          else
+            echo "Usando plantilla local .aws/task-definition.json..."
+            echo "TASK_DEF_PATH=.aws/task-definition.json" >> $GITHUB_ENV
+          fi
+
+      - name: Renderizar nueva imagen en la Task Definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.TASK_DEF_PATH }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Desplegar en Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

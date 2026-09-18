@@ -15,7 +15,16 @@
   <!-- Barra de navegacion superior - Req 8.1 -->
   <nav class="navbar navbar-expand navbar-dark bg-dark" aria-label="Barra de navegacion principal">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Limpiapipas</span>
+      <span class="navbar-brand mb-0 h1 d-flex align-items-center gap-2">
+        <img id="img-s3-logo"
+             src="https://TU-BUCKET-S3.s3.amazonaws.com/logo.png"
+             alt="Logo S3"
+             width="32"
+             height="32"
+             class="d-inline-block align-text-top rounded"
+             onerror="this.style.display='none'">
+        Limpiapipas
+      </span>
       <div class="navbar-nav" role="group" aria-label="Navegacion de paginas">
         <button type="button" id="nav-productos" data-vista="productos" class="btn btn-outline-light me-2">Productos</button>
         <button type="button" id="nav-parametros" data-vista="parametros" class="btn btn-outline-light me-2">Par&aacute;metros</button>
