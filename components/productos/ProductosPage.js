@@ -11,7 +11,12 @@ import Calculadora from "./Calculadora.js";
 import ListaProductos from "./ListaProductos.js";
 import VentanaDetalle from "./VentanaDetalle.js";
 import VentanaEdicion from "./VentanaEdicion.js";
-import { calcularContenedor, editarProducto, eliminarProducto } from "../../lib/productos.ops.js";
+import {
+  calcularContenedor,
+  editarProducto,
+  eliminarProducto,
+  eliminarProductoSimpleEnCascada,
+} from "../../lib/productos.ops.js";
 import { crearProducto } from "../../lib/models.js";
 
 const CONFIRMAR_ELIMINAR =
@@ -60,7 +65,14 @@ export function ProductosPage() {
     if (typeof window !== "undefined" && !window.confirm(CONFIRMAR_ELIMINAR)) {
       return;
     }
-    const actualizados = eliminarProducto(productos, productoId);
+    // Si el producto es simple, aplicar Desreferenciación_En_Cascada: eliminar
+    // las líneas que lo referencian en los demás productos (Req 7.6.1). Si es
+    // compuesto, conservar el comportamiento previo (anular la referencia).
+    const objetivo = productos.find((p) => p && p.id === productoId);
+    const esSimple = !objetivo || objetivo.compuesto !== true;
+    const actualizados = esSimple
+      ? eliminarProductoSimpleEnCascada(productos, productoId)
+      : eliminarProducto(productos, productoId);
     const ok = await saveAll({ parametros, productos: actualizados });
     notificar(
       ok ? "info" : "error",

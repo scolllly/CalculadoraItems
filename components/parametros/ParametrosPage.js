@@ -14,6 +14,7 @@ import {
 } from "../../lib/validation.js";
 import { crearParametro } from "../../lib/models.js";
 import { formatearPEN } from "../../lib/currency.js";
+import { eliminarParametroEnCascada } from "../../lib/productos.ops.js";
 
 export function ParametrosPage() {
   const ctx = useContext(AppContext);
@@ -122,7 +123,16 @@ export function ParametrosPage() {
     }
 
     const nuevos = parametros.filter((p) => p.id !== parametroId);
-    const ok = await saveAll({ parametros: nuevos, productos });
+    // Desreferenciación_En_Cascada: eliminar las líneas de los productos que
+    // referenciaban este parámetro y recalcular su precioTotal/compuesto.
+    const productosActualizados = eliminarParametroEnCascada(
+      productos,
+      parametroId
+    );
+    const ok = await saveAll({
+      parametros: nuevos,
+      productos: productosActualizados,
+    });
     notificar(
       ok ? "info" : "error",
       ok ? "Parámetro eliminado correctamente." : "No se pudo eliminar el parámetro."

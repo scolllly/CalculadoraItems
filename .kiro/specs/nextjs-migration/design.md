@@ -280,6 +280,39 @@ Pure async functions wrapping Supabase calls. Used by both API routes and the ba
 //     - after upsert completes, caller re-reads via getData (no Realtime dependency)
 ```
 
+#### Orden_De_Persistencia and Validación_De_Linea_Por_Fuente in `putData` (Req 3.4.1, 3.4.2)
+
+`putData` writes a full snapshot in a fixed order so that foreign keys in
+`product_rows` (`parametro_id → params.id`, `producto_componente_id → products.id`)
+always resolve to rows that already exist:
+
+```js
+// putData(supabaseClient, { parametros, productos }):
+//   1. Upsert ALL parametros into `params`.
+//   2. Partition productos by compuesto flag:
+//        simples   = productos.filter(p => p.compuesto !== true)
+//        compuestos = productos.filter(p => p.compuesto === true)
+//   3. Persist simples first (upsert product + DELETE/INSERT product_rows),
+//      then compuestos. A compuesto's product-component lines can only
+//      reference a simple (or another compuesto already written), so by the
+//      time compuestos are written every referenced product exists.
+//   4. Before inserting the product_rows of a product, filter its lineas with
+//      Validación_De_Linea_Por_Fuente:
+//        - fuenteDeComponente === 'Parámetro'  → keep only if parametroId != null
+//        - fuenteDeComponente === 'Producto'   → keep only if productoComponenteId != null
+//      Discard any line that fails its rule (e.g. a dangling product-component
+//      line with productoComponenteId === null). This prevents a corrupt backup
+//      line from aborting the whole import with a FK violation.
+```
+
+A pure helper `ordenarProductosParaPersistir(productos)` returns
+`[...simples, ...compuestos]`, and a pure helper
+`filtrarLineasValidas(lineas)` applies Validación_De_Linea_Por_Fuente. Both are
+exported from `lib/db.js` so they can be unit-tested without Supabase.
+
+> Note: `importBackup` delegates to `putData`, so the import flow inherits the
+> ordering and the per-line validation automatically.
+
 ### `components/AppProvider.js`
 
 `"use client"` component. Root React Context provider. Owns the global state (`parametros`, `productos`) and manages Realtime subscriptions.
@@ -486,6 +519,8 @@ Pure async functions wrapping Supabase calls. Used by both API routes and the ba
 
 > **Design note on desreferenciación**: In the original app, `parametros.controller` called `productosController.contarLineasQueReferencian` to warn the user before deleting a param that is in use in the current Calculadora editing session. In the React version, the `lineas` state of `Calculadora` is lifted to `ProductosPage`. `ParametrosPage` cannot directly access it. Two options: (a) lift Calculadora state further up to `AppProvider`, or (b) use a React ref/callback registered at mount time. **Chosen approach**: expose the current Calculadora `lineas` via a shared atom in `AppContext` (`calculadoraLineas`, `setCalculadoraLineas`). This is a small addition to the context that preserves the original UX without complex prop drilling. When a param is deleted from `ParametrosPage`, any `calculadoraLineas` entries with that `parametroId` have it set to `null` before the delete is persisted.
 
+> **Design note on Desreferenciación_En_Cascada (Req 5.12)**: Beyond the active Calculadora session, deleting a Parámetro must also clean up the persisted Productos. `ParametrosPage.handleEliminar` calls a pure helper `eliminarParametroEnCascada(productos, parametroId)` (exported from `lib/productos.ops.js`) that returns a new `productos` list where every Linea_De_Parametro referencing the deleted `parametroId` is removed, and each affected Producto has its `precioTotal` and `compuesto` recomputed from its remaining lines. The resulting `productos` plus the filtered `parametros` are persisted together via `saveAll`, so no dangling `parametro_id` reaches `product_rows`.
+
 ### `components/base-datos/BaseDatosPage.js`
 
 `"use client"` component. Port of `basedatos.controller.js`.
@@ -689,9 +724,26 @@ export function resolverPrecioUnitario(linea, parametros, productos) { ... }
 export function calcularContenedor(lineas, parametros, productos) { ... }
 export function editarProducto(productos, id, lineasProducto, parametros) { ... }
 export function eliminarProducto(productos, id) { ... }
+export function eliminarParametroEnCascada(productos, parametroId) { ... }
+export function eliminarProductoSimpleEnCascada(productos, id) { ... }
 export function validarLineasProducto(lineas, productos, idEnEdicion) { ... }
 export function detectarCicloComposicion(idContenedor, lineas, productos) { ... }
 ```
+
+**Cascade deletion helpers (Req 5.12, 7.6.1)**
+
+- `eliminarParametroEnCascada(productos, parametroId)` → returns a new `productos`
+  list where every Linea_De_Parametro with `parametroId === parametroId` is
+  **removed** from each Producto's `lineas`; affected Productos get `precioTotal`
+  (sum of remaining subtotales) and `compuesto` recomputed. Does not mutate input.
+- `eliminarProductoSimpleEnCascada(productos, id)` → first removes the Producto
+  with that `id`, then **removes** (not merely null-outs) every Linea_De_Producto
+  referencing it via `productoComponenteId` from the remaining Productos,
+  recomputing `precioTotal` and `compuesto` for each affected Producto. This
+  differs from the existing `eliminarProducto`, which only sets
+  `productoComponenteId = null` to preserve a dangling-reference marker. The
+  cascade variant is used when the deleted Producto is simple (`compuesto !== true`),
+  per Req 7.6.1.
 
 #### `lib/backup.js`
 ```js

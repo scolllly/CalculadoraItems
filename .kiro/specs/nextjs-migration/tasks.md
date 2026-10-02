@@ -536,6 +536,45 @@ Migration of the Limpiapipas vanilla-JS SPA (IIFE modules, `localStorage`, `file
 
 ---
 
+### 16. Orden de persistencia, validación de líneas y desreferenciación en cascada
+
+- [ ] 16.1 Agregar en `lib/db.js` los helpers puros `ordenarProductosParaPersistir(productos)` y `filtrarLineasValidas(lineas)`
+  - `ordenarProductosParaPersistir`: devuelve `[...simples, ...compuestos]` separando por `compuesto === true` (simples primero), sin mutar la entrada
+  - `filtrarLineasValidas`: aplica la Validación_De_Linea_Por_Fuente — conserva las Lineas_De_Parametro (`fuenteDeComponente === 'Parámetro'`, incluida la ausencia interpretada como Parámetro) solo si `parametroId != null`, y las Lineas_De_Producto (`fuenteDeComponente === 'Producto'`) solo si `productoComponenteId != null`; descarta el resto
+  - Exportar ambos helpers con `export function`
+  - _Requirements: 3.4.1, 3.4.2_
+
+- [ ] 16.2 Aplicar el Orden_De_Persistencia y la Validación_De_Linea_Por_Fuente en `putData`
+  - Upsert de todos los Parametros primero
+  - Recorrer los Productos usando `ordenarProductosParaPersistir(productos)` (simples antes que compuestos)
+  - Antes de insertar las filas de `product_rows` de cada Producto, aplicar `filtrarLineasValidas(producto.lineas)`
+  - _Requirements: 3.4, 3.4.1, 3.4.2, 8.4_
+
+- [ ] 16.3 Agregar en `lib/productos.ops.js` el helper `eliminarParametroEnCascada(productos, parametroId)`
+  - Devuelve una nueva lista de Productos donde se eliminan las Lineas_De_Parametro cuyo `parametroId` coincide; recalcula `precioTotal` (suma de subtotales restantes) y `compuesto` de cada Producto afectado; no muta la entrada
+  - _Requirements: 5.12_
+
+- [ ] 16.4 Agregar en `lib/productos.ops.js` el helper `eliminarProductoSimpleEnCascada(productos, id)`
+  - Elimina el Producto con ese `id` y además elimina (no anula) toda Linea_De_Producto que lo referencie por `productoComponenteId` en los Productos restantes; recalcula `precioTotal` y `compuesto` de cada Producto afectado; no muta la entrada
+  - _Requirements: 7.6.1_
+
+- [ ] 16.5 Conectar la cascada al eliminar Parámetro en `ParametrosPage.handleEliminar`
+  - Tras la confirmación, construir `productos` desreferenciados con `eliminarParametroEnCascada(productos, parametroId)` y persistirlos junto con `parametros` filtrados vía `saveAll`
+  - Mantener la desreferenciación de `calculadoraLineas` existente
+  - _Requirements: 5.10, 5.12_
+
+- [ ] 16.6 Conectar la cascada al eliminar Producto en `ProductosPage.handleEliminar`
+  - Si el Producto a eliminar es simple (`compuesto !== true`), usar `eliminarProductoSimpleEnCascada(productos, id)`; en otro caso, mantener `eliminarProducto(productos, id)`
+  - Persistir el resultado vía `saveAll`
+  - _Requirements: 7.6, 7.6.1_
+
+- [ ] 16.7 Tests de los nuevos helpers
+  - `tests` para `ordenarProductosParaPersistir` (simples antes que compuestos, no muta), `filtrarLineasValidas` (descarta líneas con referencia nula a su fuente), `eliminarParametroEnCascada` y `eliminarProductoSimpleEnCascada` (eliminan líneas y recalculan `precioTotal`/`compuesto`)
+  - Test de integración: `putData` con un snapshot donde un compuesto aparece antes que sus componentes simples en el array no produce error de orden
+  - _Requirements: 3.4.1, 3.4.2, 5.12, 7.6.1_
+
+---
+
 ### 15. Verificación final
 
 - [x] 15.1 Ejecutar la suite completa de tests y verificar código de salida 0
