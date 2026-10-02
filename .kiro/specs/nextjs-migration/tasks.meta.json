@@ -1,0 +1,726 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Crear el directorio `old/` y mover `src/`, `styles/`, `tests/`, `vendor/`, `index.html`, `vitest.config.js` y el `package.json` original dentro de él": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962199807
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962211405
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962584064
+      }
+    ],
+    "1.2 Crear el `package.json` de Next.js en la raíz del repositorio con las dependencias exactas pinadas": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962199883
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962587201
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028398366
+      }
+    ],
+    "1.3 Crear `next.config.js` en la raíz del repositorio": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962199942
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962587766
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028398988
+      }
+    ],
+    "1.4 Crear `vitest.config.js` en la raíz del repositorio con entorno jsdom y soporte React": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200005
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962588385
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028399943
+      }
+    ],
+    "1.5 Crear `tests/setup.js` con `@testing-library/jest-dom` matchers": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200069
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962589032
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028400604
+      }
+    ],
+    "1.6 Crear el archivo de estilos propios en `styles/app.css` portando el CSS de `old/styles/`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200130
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962589651
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028401507
+      }
+    ],
+    "1.7 Crear la estructura de directorios vacíos del proyecto: `app/`, `app/api/data/`, `app/(pages)/productos/`, `app/(pages)/parametros/`, `app/(pages)/base-datos/`, `lib/`, `components/productos/`, `components/parametros/`, `components/base-datos/`, `tests/`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200197
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962592700
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028402443
+      }
+    ],
+    "1.8 Crear `.env.local.example` en la raíz del repositorio documentando las variables requeridas": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200254
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962593313
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028403105
+      }
+    ],
+    "1.9 Punto de verificación — confirmar estructura base": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200307
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034325104
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035851098
+      }
+    ],
+    "2.1 Crear `lib/calculo.js` portando `old/src/calculo.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200360
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028410451
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034319617
+      }
+    ],
+    "2.2 Crear `lib/currency.js` portando `old/src/currency.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200487
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028410989
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034320124
+      }
+    ],
+    "2.3 Crear `lib/validation.js` portando `old/src/validation.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200541
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028411717
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034320746
+      }
+    ],
+    "2.4 Crear `lib/models.js` portando `old/src/models.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200608
+      },
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1790028412062
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034321326
+      }
+    ],
+    "2.5 Crear `lib/productos.ops.js` portando `old/src/productos.ops.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200660
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034325819
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035852069
+      }
+    ],
+    "2.6 Crear `lib/backup.js` portando `old/src/backup.js` como ES module": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200725
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790034326248
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035852459
+      }
+    ],
+    "2.7 Punto de verificación — confirmar que los módulos `lib/` son importables sin errores": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200796
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035864629
+      }
+    ],
+    "3.1 Crear `tests/calculo.test.js` para los módulos de cálculo, portando las pruebas existentes que cubrían `calculo.js` desde tests de controllers/regresión": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200895
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035862298
+      }
+    ],
+    "3.2 Crear `tests/currency.test.js` migrando las pruebas de `formatearPEN`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962200958
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035862987
+      }
+    ],
+    "3.3 Crear `tests/validation.test.js` migrando las pruebas de validación": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201019
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035863591
+      }
+    ],
+    "3.4 Crear `tests/models.test.js` migrando las pruebas de modelos": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201073
+      },
+      {
+        "executionId": "a0bc5e12-cc40-42f7-937a-7d0f575499d9",
+        "chatSessionId": "sess_eec276f6-4297-463c-999a-8452352fa133",
+        "timestamp": 1790035864265
+      }
+    ],
+    "3.5 Migrar `old/tests/backup.roundtrip.property.test.js` a `tests/backup.roundtrip.property.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201143
+      }
+    ],
+    "3.6 Migrar `old/tests/normalizador.producto.property.test.js` a `tests/normalizador.producto.property.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201207
+      }
+    ],
+    "3.7 Migrar `old/tests/cantidad.linea.producto.unit.test.js` a `tests/cantidad.linea.producto.unit.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201271
+      }
+    ],
+    "3.8 Migrar los demás tests de dominio puro existentes en `old/tests/` que no dependan del DOM": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201326
+      }
+    ],
+    "3.9 Punto de verificación — todos los tests de dominio puro deben pasar": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201392
+      }
+    ],
+    "4.1 Crear `lib/supabase.js` con inicialización del cliente Supabase y validación de variables de entorno": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201459
+      }
+    ],
+    "4.2 Crear `lib/db.js` con la función `getData(supabaseClient)`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201526
+      }
+    ],
+    "4.3 Crear en `lib/db.js` la función `putData(supabaseClient, { parametros, productos })`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201587
+      }
+    ],
+    "4.4 Crear en `lib/db.js` la función `importBackup(supabaseClient, { parametros, productos })`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201643
+      }
+    ],
+    "4.5 Punto de verificación — confirmar que `lib/supabase.js` y `lib/db.js` se importan sin error en Node.js": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201704
+      }
+    ],
+    "5.1 Crear `app/api/data/route.js` con el handler `GET`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201777
+      }
+    ],
+    "5.2 Agregar el handler `PUT` en `app/api/data/route.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201829
+      }
+    ],
+    "5.3 Punto de verificación — confirmar que la ruta no tiene errores de compilación": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201894
+      }
+    ],
+    "6.1 Crear `components/AppProvider.js` con el `AppContext` de React y la carga inicial de datos": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962201955
+      }
+    ],
+    "6.2 Agregar `saveAll({ parametros, productos })` al `AppProvider`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202019
+      }
+    ],
+    "6.3 Agregar suscripciones al Canal_Realtime en `AppProvider`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202076
+      }
+    ],
+    "6.4 Exportar `AppProvider` como componente y `AppContext` como contexto; envolver la aplicación en `app/layout.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202144
+      }
+    ],
+    "6.5 Punto de verificación — confirmar que `AppProvider` se monta sin errores en jsdom": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202206
+      }
+    ],
+    "7.1 Crear `components/NotifierContext.js` con el contexto y reducer de notificaciones": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202301
+      }
+    ],
+    "7.2 Crear `components/Notifier.js` que renderiza las alertas de Bootstrap": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202396
+      }
+    ],
+    "7.3 Integrar `Notifier` en `app/layout.js` dentro del `AppProvider`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202445
+      }
+    ],
+    "8.1 Crear `components/NavBar.js` con los tres ítems de navegación": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202506
+      }
+    ],
+    "8.2 Crear `app/(pages)/productos/page.js`, `app/(pages)/parametros/page.js` y `app/(pages)/base-datos/page.js` como páginas vacías iniciales": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202560
+      }
+    ],
+    "8.3 Crear `app/page.js` que redirige a `/productos`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202636
+      }
+    ],
+    "9.1 Crear `components/productos/EditorDeLineas.js` — componente controlado de líneas de cálculo": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202692
+      }
+    ],
+    "9.2 Crear `components/productos/VentanaDetalle.js` — modal de solo lectura": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202757
+      }
+    ],
+    "9.3 Crear `components/productos/VentanaEdicion.js` — modal de edición de líneas": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202823
+      }
+    ],
+    "9.4 Crear `components/productos/Calculadora.js` — formulario de cálculo y guardado": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202886
+      }
+    ],
+    "9.5 Crear `components/productos/ListaProductos.js` — lista con pestañas compuestos/simples": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962202944
+      }
+    ],
+    "9.6 Crear `components/productos/ProductosPage.js` — página completa de Productos": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203041
+      }
+    ],
+    "9.7 Conectar `ProductosPage` con la página `app/(pages)/productos/page.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203111
+      }
+    ],
+    "10.1 Crear `components/parametros/ParametrosPage.js` — página completa de Parámetros": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203190
+      }
+    ],
+    "10.2 Conectar `ParametrosPage` con la página `app/(pages)/parametros/page.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203256
+      }
+    ],
+    "11.1 Crear `components/base-datos/BaseDatosPage.js` — página de exportar/importar": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203327
+      }
+    ],
+    "11.2 Conectar `BaseDatosPage` con la página `app/(pages)/base-datos/page.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203404
+      }
+    ],
+    "11.3 Punto de verificación — confirmación de diálogos (Requirement 10.4)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203477
+      }
+    ],
+    "12.1 Crear `tests/api.test.js` con los tests de `GET /api/data` con tablas vacías": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203557
+      }
+    ],
+    "12.2 Agregar en `tests/api.test.js` el test de `PUT /api/data` con cuerpo válido": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203627
+      }
+    ],
+    "12.3 Agregar en `tests/api.test.js` el test de `GET /api/data` con error de Supabase": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203691
+      }
+    ],
+    "12.4 Agregar en `tests/api.test.js` el test de `PUT /api/data` con cuerpo malformado": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203758
+      }
+    ],
+    "13.1 Crear `tests/backup.property.test.js` con Property 1 (round-trip backup completo)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203825
+      }
+    ],
+    "13.2 Crear `tests/models.property.test.js` con Property 2 (idempotencia de normalizadores)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203903
+      }
+    ],
+    "13.3 Crear `tests/partition.property.test.js` con Property 3 (partición total y exclusiva)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962203960
+      }
+    ],
+    "13.4 Crear `tests/currency.property.test.js` con Property 4 (formatearPEN 2 decimales siempre)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204105
+      }
+    ],
+    "13.5 Crear `tests/validation.property.test.js` con Property 5 (rango válido de validarCantidad)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204172
+      }
+    ],
+    "13.6 Punto de verificación — todos los tests de propiedad pasan": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204237
+      }
+    ],
+    "14.1 Crear `tests/integration.test.js` con el test de integración Realtime": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204306
+      }
+    ],
+    "14.2 Crear `tests/ParametrosPage.test.js` con tests de comportamiento del formulario": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204374
+      }
+    ],
+    "14.3 Crear `tests/Calculadora.test.js` con tests de comportamiento de la calculadora": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204440
+      }
+    ],
+    "14.4 Crear `tests/EditorDeLineas.test.js` con tests del editor de líneas React": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204507
+      }
+    ],
+    "14.5 Crear `tests/VentanaDetalle.test.js` migrando `old/tests/ventana.detalle.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204573
+      }
+    ],
+    "14.6 Crear `tests/VentanaEdicion.test.js` migrando `old/tests/ventana.edicion.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204642
+      }
+    ],
+    "14.7 Crear `tests/BaseDatosPage.test.js` migrando `old/tests/exportar.importar.integracion.test.js`": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204711
+      }
+    ],
+    "14.8 Punto de verificación — todos los tests de componentes y de integración pasan": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204775
+      }
+    ],
+    "15.1 Ejecutar la suite completa de tests y verificar código de salida 0": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204844
+      }
+    ],
+    "15.2 Verificar que `npm run dev` arranca correctamente": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204913
+      }
+    ],
+    "15.3 Verificar retrocompatibilidad de datos importados (Requirement 12)": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962204976
+      }
+    ],
+    "15.4 Punto de verificación final — confirmar que el directorio `old/` puede eliminarse sin romper la aplicación Next.js": [
+      {
+        "executionId": "596918a8-88f8-4b77-b4d7-199508cbb619",
+        "chatSessionId": "sess_a6ceb6c8-ee1d-4799-bb0f-f29392558eb9",
+        "timestamp": 1789962205046
+      }
+    ]
+  }
+}

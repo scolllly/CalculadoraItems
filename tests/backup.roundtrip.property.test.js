@@ -1,35 +1,18 @@
 // tests/backup.roundtrip.property.test.js — Prueba de propiedad (fast-check)
 // del round-trip del Archivo_De_Respaldo sobre la lista de Productos.
 //
-// Cubre la Tarea 12.1 del spec `product-detail-edit-delete`. Implementa
-// EXACTAMENTE un test de propiedad (Property 10), con `numRuns: 100`, sobre las
-// funciones puras `backup.serializarRespaldo` / `backup.parsearRespaldo`.
+// Migrada al entorno Next.js (ES modules). El único cambio respecto a la
+// versión en `old/tests/` es reemplazar `cargarModulos([...])` + `window.LP.*`
+// por imports ES directos de `../lib/backup.js` y `../lib/productos.ops.js`.
+// Los generadores `fc` y las propiedades (Property 10 round-trip, Property 8
+// Flag_Compuesto) permanecen idénticos.
 //
-// Las listas de Productos usadas en el round-trip son "resultantes" de aplicar
-// ediciones y/o eliminaciones (productosOps.editarProducto/eliminarProducto)
-// para reflejar el escenario del Requisito 6.1, donde el respaldo debe preservar
-// los Productos tras editar/eliminar.
-//
-// Los Scripts_Clasicos se cargan con el helper `cargarModulos`, que evalúa los
-// IIFE de src/ contra el `window` de jsdom y puebla `window.LP`.
+// Requisitos: 11.1, 11.2, 11.4, 11.7
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { cargarModulos } from "./helpers/cargarLP.js";
-
-/** @type {any} */
-let LP;
-
-beforeAll(() => {
-  LP = cargarModulos([
-    "currency.js",
-    "calculo.js",
-    "validation.js",
-    "models.js",
-    "productos.ops.js",
-    "backup.js",
-  ]);
-});
+import { serializarRespaldo, parsearRespaldo } from "../lib/backup.js";
+import { editarProducto, eliminarProducto } from "../lib/productos.ops.js";
 
 // ---------------------------------------------------------------------------
 // Redondeo half-up a 2 decimales, replicado del dominio para construir
@@ -47,9 +30,7 @@ function redondear2Local(n) {
 // Generadores reutilizables (arbitraries)
 // ---------------------------------------------------------------------------
 
-// Cantidad válida acotada: 0,01 .. 10.000 con <= 2 decimales. Se acota (igual
-// que en productos.ops.property.test.js) para mantener los subtotales/total
-// dentro del rango donde el recálculo con `redondear2` es determinista.
+// Cantidad válida acotada: 0,01 .. 10.000 con <= 2 decimales.
 const arbCantidad = fc
   .integer({ min: 1, max: 1000000 })
   .map((centesimas) => centesimas / 100);
@@ -77,9 +58,7 @@ const arbListaParametros = fc
   })
   .map((parciales) => parciales.map((p, i) => ({ id: "param-" + i, ...p })));
 
-// Línea de Producto ({parametroId, cantidad, subtotal}) con subtotal coherente
-// (redondear2(cantidad * precioUnitario)); parametroId puede ser null o un id
-// arbitrario (existente o no, no afecta al round-trip).
+// Línea de Producto ({parametroId, cantidad, subtotal}) con subtotal coherente.
 const arbLineaProducto = fc
   .record({
     parametroId: fc.oneof(
@@ -120,9 +99,7 @@ const arbListaProductos = fc
 // edición y/o una eliminación, para el escenario del Req 6.1.
 const arbCasoRoundTrip = arbListaParametros.chain((parametros) =>
   arbListaProductos.chain((productos) => {
-    // Operaciones opcionales sobre la lista para derivar la lista "resultante".
     const idsExistentes = productos.map((p) => p.id);
-    // Si no hay Productos, no aplicamos operaciones.
     const arbIdOpcional =
       idsExistentes.length > 0
         ? fc.oneof(fc.constant(null), fc.constantFrom(...idsExistentes))
@@ -139,56 +116,43 @@ const arbCasoRoundTrip = arbListaParametros.chain((parametros) =>
 );
 
 // Aplica las operaciones opcionales para producir la lista resultante.
-function derivarLista(LP, { productosBase, idEditar, lineasEdicion, idEliminar }) {
+function derivarLista({ productosBase, idEditar, lineasEdicion, idEliminar }) {
   let lista = productosBase;
   if (idEditar !== null) {
-    lista = LP.productosOps.editarProducto(lista, idEditar, lineasEdicion);
+    lista = editarProducto(lista, idEditar, lineasEdicion);
   }
   if (idEliminar !== null) {
-    lista = LP.productosOps.eliminarProducto(lista, idEliminar);
+    lista = eliminarProducto(lista, idEliminar);
   }
   return lista;
 }
 
 // ---------------------------------------------------------------------------
-// Property 10 (Tarea 12.1): el respaldo preserva la lista de Productos
-// (round-trip): parsearRespaldo(serializarRespaldo(parametros, productos))
-// devuelve un resultado `ok` cuya lista de productos es equivalente a la
-// original (mismos ids, nombres, líneas con parametroId/cantidad/subtotal y
-// precioTotal, en el mismo orden).
+// Property 10: el respaldo preserva la lista de Productos (round-trip).
 // Validates: Requisitos 6.1
 // ---------------------------------------------------------------------------
 describe("backup — round-trip de la lista de Productos", () => {
   // Feature: product-detail-edit-delete, Property 10: El respaldo preserva la
-  // lista de Productos (round-trip): parsearRespaldo(serializarRespaldo(
-  // parametros, productos)) devuelve un resultado ok cuya lista de productos es
-  // equivalente a la original (mismos ids, nombres, líneas con parametroId/
-  // cantidad/subtotal y precioTotal, en el mismo orden).
+  // lista de Productos (round-trip).
   it("Property 10", () => {
     fc.assert(
       fc.property(arbCasoRoundTrip, (caso) => {
         const { parametros } = caso;
-        const productos = derivarLista(LP, caso);
+        const productos = derivarLista(caso);
 
-        const texto = LP.backup.serializarRespaldo(parametros, productos);
-        const resultado = LP.backup.parsearRespaldo(texto);
+        const texto = serializarRespaldo(parametros, productos);
+        const resultado = parsearRespaldo(texto);
 
-        // El round-trip produce un resultado ok.
         expect(resultado.status).toBe("ok");
 
         const restaurados = resultado.productos;
-
-        // Mismo número de Productos y en el mismo orden.
         expect(restaurados).toHaveLength(productos.length);
 
         productos.forEach((original, i) => {
           const restaurado = restaurados[i];
-          // Mismos id y nombre, en la misma posición (orden preservado).
           expect(restaurado.id).toBe(original.id);
           expect(restaurado.nombre).toBe(original.nombre);
-          // Precio_Total preservado.
           expect(restaurado.precioTotal).toBe(original.precioTotal);
-          // Líneas equivalentes en orden (parametroId, cantidad, subtotal).
           expect(restaurado.lineas).toHaveLength(original.lineas.length);
           original.lineas.forEach((lineaOriginal, j) => {
             const lineaRestaurada = restaurado.lineas[j];
@@ -204,18 +168,10 @@ describe("backup — round-trip de la lista de Productos", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Property 8 (Tarea 6.4): el Flag_Compuesto sobrevive el round-trip del
-// respaldo. Se amplían los generadores para incluir un `compuesto` booleano
-// arbitrario (independiente de las líneas, según la nota de generadores del
-// diseño para las Propiedades 7 y 8) en cada Producto, y se afirma que
-// parsearRespaldo(serializarRespaldo(parametros, productos)) es `ok` y preserva
-// el valor de `compuesto` de cada Producto en el mismo orden.
+// Property 8: el Flag_Compuesto sobrevive el round-trip del respaldo.
 // Validates: Requisitos 5.2, 5.3
 // ---------------------------------------------------------------------------
 
-// Producto arbitrario CON `compuesto` booleano (id asignado por la lista). El
-// valor de `compuesto` es arbitrario e independiente de las líneas, para
-// verificar que el round-trip preserva el valor tal cual.
 function arbProductoConFlagSinId() {
   return fc
     .array(arbLineaProducto, { minLength: 0, maxLength: 6 })
@@ -231,39 +187,30 @@ function arbProductoConFlagSinId() {
     );
 }
 
-// Lista de Productos con `compuesto` booleano e ids únicos (puede ser vacía).
 const arbListaProductosConFlag = fc
   .array(arbProductoConFlagSinId(), { minLength: 0, maxLength: 6 })
   .map((parciales) => parciales.map((p, i) => ({ id: "prod-" + i, ...p })));
 
-// Caso: parámetros + lista de Productos con Flag_Compuesto.
 const arbCasoRoundTripFlag = arbListaParametros.chain((parametros) =>
   arbListaProductosConFlag.map((productos) => ({ parametros, productos }))
 );
 
 describe("backup — round-trip del Flag_Compuesto", () => {
   // Feature: producto-simple-vs-compuesto-tabs, Property 8: El flag sobrevive el
-  // roundtrip del respaldo: parsearRespaldo(serializarRespaldo(parametros,
-  // productos)) devuelve un resultado ok cuya lista de Productos preserva el
-  // valor de `compuesto` de cada Producto en el mismo orden.
+  // roundtrip del respaldo.
   it("Property 8", () => {
     fc.assert(
       fc.property(arbCasoRoundTripFlag, ({ parametros, productos }) => {
-        const texto = LP.backup.serializarRespaldo(parametros, productos);
-        const resultado = LP.backup.parsearRespaldo(texto);
+        const texto = serializarRespaldo(parametros, productos);
+        const resultado = parsearRespaldo(texto);
 
-        // El round-trip produce un resultado ok.
         expect(resultado.status).toBe("ok");
 
         const restaurados = resultado.productos;
-
-        // Mismo número de Productos y en el mismo orden.
         expect(restaurados).toHaveLength(productos.length);
 
         productos.forEach((original, i) => {
           const restaurado = restaurados[i];
-          // El Flag_Compuesto se preserva con el mismo valor y en la misma
-          // posición (orden preservado).
           expect(restaurado.compuesto).toBe(original.compuesto);
         });
       }),

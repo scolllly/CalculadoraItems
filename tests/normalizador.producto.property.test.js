@@ -1,29 +1,16 @@
 // tests/normalizador.producto.property.test.js — Prueba de propiedad
-// (fast-check) del Normalizador_De_Producto (`models.normalizarProducto`).
+// (fast-check) del Normalizador_De_Producto (`normalizarProducto`).
 //
-// Feature: producto-simple-vs-compuesto-tabs
+// Migrada al entorno Next.js (ES modules). El único cambio respecto a la
+// versión en `old/tests/` es reemplazar `cargarModulos([...])` + `window.LP.*`
+// por imports ES directos de `../lib/models.js`. La propiedad de idempotencia
+// y conservación se mantiene con `numRuns: 100`.
 //
-// La propiedad de diseño se implementa con EXACTAMENTE un test de propiedad,
-// con `numRuns` mínimo 100. Los Scripts_Clasicos se cargan con el helper
-// `cargarModulos`, que evalúa los IIFE de src/ contra el `window` de jsdom y
-// puebla `window.LP`.
+// Requisitos: 11.1, 11.2, 11.4, 12.1, 12.2, 12.3
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { cargarModulos } from "./helpers/cargarLP.js";
-
-/** @type {any} */
-let LP;
-
-beforeAll(() => {
-  LP = cargarModulos([
-    "currency.js",
-    "calculo.js",
-    "validation.js",
-    "models.js",
-    "productos.ops.js",
-  ]);
-});
+import { normalizarProducto, esCompuesto } from "../lib/models.js";
 
 // ---------------------------------------------------------------------------
 // Generadores reutilizables (arbitraries)
@@ -32,13 +19,9 @@ beforeAll(() => {
 const FUENTE_PARAMETRO = "Parámetro";
 const FUENTE_PRODUCTO = "Producto";
 
-// Marca simbólica para "campo ausente" en el generador: el campo se omite del
-// objeto resultante.
+// Marca simbólica para "campo ausente" en el generador.
 const AUSENTE = Symbol("ausente");
 
-// Genera una Linea_De_Calculo con `fuenteDeComponente` en
-// { "Parámetro", "Producto", ausente }. Cuando la fuente es ausente, el objeto
-// de línea NO incluye la propiedad `fuenteDeComponente` (Req 3.4).
 const arbLinea = fc
   .record({
     fuente: fc.constantFrom(FUENTE_PARAMETRO, FUENTE_PRODUCTO, AUSENTE),
@@ -57,11 +40,8 @@ const arbLinea = fc
     return linea;
   });
 
-// Lista de Lineas_De_Calculo (incluye listas vacías).
 const arbLineas = fc.array(arbLinea, { minLength: 0, maxLength: 8 });
 
-// Valor del Flag_Compuesto de entrada: booleano (true/false), ausente o null,
-// para cubrir tanto la conservación (Req 4.2) como la derivación (Req 4.1).
 const arbCompuestoEntrada = fc.constantFrom(true, false, AUSENTE, null);
 
 const arbNombre = fc.string({ minLength: 1, maxLength: 100 });
@@ -71,9 +51,6 @@ const arbPrecioTotal = fc
 const arbUnidad = fc.string({ minLength: 1, maxLength: 12 });
 const arbId = fc.string({ minLength: 1, maxLength: 24 });
 
-// Genera un Producto cuyo `compuesto` puede ser booleano, estar ausente o ser
-// null (independiente de las líneas), para ejercitar ambos caminos del
-// Normalizador_De_Producto.
 const arbProducto = fc
   .record({
     id: arbId,
@@ -92,57 +69,35 @@ const arbProducto = fc
   });
 
 // ---------------------------------------------------------------------------
-// Property 6: El Normalizador deriva el flag ausente y es idempotente
-//
-// Para todo Producto, `normalizarProducto` devuelve un Producto que:
-//  (a) si el `compuesto` de entrada no es booleano, cumple
-//      `compuesto === esCompuesto(lineas)`;
-//  (b) si el `compuesto` de entrada ya es booleano, conserva ese mismo valor; y
-//  en ambos casos conserva `id`, `nombre`, `lineas`, `precioTotal` y `unidad`.
-//  Además es idempotente: `normalizarProducto(normalizarProducto(p))` es
-//  equivalente a `normalizarProducto(p)`.
-//
+// Property 6: El Normalizador deriva el flag ausente y es idempotente.
 // Validates: Requirements 4.1, 4.2, 4.3
 // ---------------------------------------------------------------------------
 describe("normalizarProducto — Deriva el flag ausente y es idempotente", () => {
   // Feature: producto-simple-vs-compuesto-tabs, Property 6: El Normalizador
-  // deriva el flag ausente y es idempotente — cuando el `compuesto` de entrada
-  // no es booleano el resultado se deriva con `esCompuesto(lineas)`; cuando ya
-  // es booleano se conserva; se preservan `id`/`nombre`/`lineas`/`precioTotal`/
-  // `unidad`; y `normalizar(normalizar(p))` equivale a `normalizar(p)`.
+  // deriva el flag ausente y es idempotente.
   it("Property 6", () => {
     fc.assert(
       fc.property(arbProducto, (producto) => {
         const eraBooleano = typeof producto.compuesto === "boolean";
         const valorEntrada = producto.compuesto;
 
-        const resultado = LP.models.normalizarProducto(producto);
+        const resultado = normalizarProducto(producto);
 
         if (eraBooleano) {
-          // (b) Un flag booleano ya registrado se conserva sin recalcular
-          // (Req 4.2).
           expect(resultado.compuesto).toBe(valorEntrada);
         } else {
-          // (a) Un flag ausente/no booleano se deriva de las líneas mediante el
-          // Clasificador_De_Producto (Req 4.1).
-          expect(resultado.compuesto).toBe(
-            LP.models.esCompuesto(producto.lineas)
-          );
+          expect(resultado.compuesto).toBe(esCompuesto(producto.lineas));
         }
 
-        // El flag resultante siempre es booleano.
         expect(typeof resultado.compuesto).toBe("boolean");
 
-        // Conservación de los demás campos del Producto procesado (Req 4.3).
         expect(resultado.id).toBe(producto.id);
         expect(resultado.nombre).toBe(producto.nombre);
         expect(resultado.lineas).toBe(producto.lineas);
         expect(resultado.precioTotal).toBe(producto.precioTotal);
         expect(resultado.unidad).toBe(producto.unidad);
 
-        // Idempotencia: normalizar de nuevo el resultado produce un Producto
-        // profundamente igual (Req 4.2, estabilidad de la operación).
-        const doble = LP.models.normalizarProducto(resultado);
+        const doble = normalizarProducto(resultado);
         expect(doble).toEqual(resultado);
       }),
       { numRuns: 100 }

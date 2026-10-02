@@ -1,5 +1,5 @@
 /* Estilos propios de la Aplicacion Limpiapipas.
-   Bootstrap se carga localmente desde vendor/bootstrap/; aqui solo ajustes propios. */
+   Bootstrap se importa via npm; aqui solo ajustes propios. */
 
 :root {
   --lp-spacing: 1rem;
@@ -14,7 +14,7 @@ body {
   padding-top: var(--lp-spacing);
 }
 
-/* Aviso visible cuando los estilos de Bootstrap no se cargan (Requisito 7.4). */
+/* Aviso visible cuando los estilos de Bootstrap no se cargan. */
 .lp-bootstrap-warning {
   background: #fff3cd;
   color: #664d03;
@@ -22,18 +22,19 @@ body {
   padding: 0.5rem 1rem;
   margin: 0.5rem 0;
 }
+
 /* Etiqueta de texto de cada accion: separacion respecto al glifo. Oculta por
    defecto mediante `visually-hidden` (los iconos la sustituyen visualmente),
    pero disponible para lectores de pantalla. Fallback visible cuando los
-   iconos no estan disponibles (Requisito 5.4). */
+   iconos no estan disponibles. */
 .lp-accion-texto {
   margin-left: 0.25rem;
 }
 
 /* Si los iconos de Bootstrap no se cargan, el <body> lleva la clase
-   `lp-sin-iconos` (fijada por app.js). En ese caso mostramos la etiqueta de
-   texto (anulando `visually-hidden`) y ocultamos el glifo vacio para no dejar
-   un recuadro sin significado (Requisito 5.4). */
+   `lp-sin-iconos`. En ese caso mostramos la etiqueta de texto (anulando
+   `visually-hidden`) y ocultamos el glifo vacio para no dejar un recuadro
+   sin significado. */
 .lp-sin-iconos .lp-accion-texto {
   position: static;
   width: auto;
@@ -48,7 +49,7 @@ body {
 }
 
 /* Badge_Sugerido: badge lila con texto blanco para el Precio_Sugerido,
-   mostrado a la derecha del badge verde del Precio_Total (Req 2.4, 2.5). */
+   mostrado a la derecha del badge verde del Precio_Total. */
 .lp-producto-sugerido {
   background-color: #6f42c1;
   color: #fff;
