@@ -30,8 +30,13 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 - **Desreferenciación_En_Cascada**: cuando se elimina un Parametro o un Producto simple, THE Sistema elimina todas las Lineas_De_Calculo de cualquier Producto que lo referencie (por `parametroId` para un Parametro, por `productoComponenteId` para un Producto simple), de modo que no queden referencias colgantes en los datos persistidos.
 - **Calculadora**: sección de la UI donde el usuario compone un Producto nuevo con su nombre y sus líneas.
 - **Lista_De_Productos**: sección de la UI que muestra los Productos guardados con sus acciones.
+- **Lista_De_Parametros**: sección de la UI que muestra los Parametros guardados con sus acciones.
 - **Ventana_Detalle**: modal de solo lectura que muestra las líneas y el Precio_Total de un Producto.
 - **Ventana_Edicion**: modal de edición de las líneas de un Producto existente.
+- **Estado_Cargando**: estado de la UI de una lista o de un detalle MIENTRAS una consulta de datos está en curso; THE Sistema muestra en el espacio reservado para el contenido un indicador de carga (spinner de Bootstrap, p. ej. clase `.spinner-border`) acompañado del texto "Obteniendo datos" y no renderiza el contenido definitivo.
+- **Estado_Vacio**: estado de la UI de una lista TRAS finalizar una consulta cuando el resultado no contiene elementos; THE Sistema muestra en el espacio reservado para el contenido una etiqueta con un mensaje específico ("Aún no existen Productos" para la Lista_De_Productos, "Aún no existen parámetros" para la Lista_De_Parametros) en lugar de la lista.
+- **Carga_Diferida_De_Lineas**: estrategia por la cual THE Sistema NO carga las Lineas_De_Calculo (`product_rows`) de los Productos en la carga inicial de la Aplicacion, sino que las consulta bajo demanda por `id` de Producto únicamente cuando el usuario abre la Ventana_Detalle o la Ventana_Edicion de ese Producto, reduciendo así el volumen de datos de la carga inicial.
+- **Producto_Sin_Lineas_Cargadas**: Producto cuyo detalle (`lineas`) aún no ha sido consultado al servidor; su campo `lineas` es un arreglo vacío y su `precioTotal`, `unidad` y `compuesto` provienen de `Tabla_Products`. No debe confundirse con un Producto que efectivamente no tiene líneas.
 - **Tab_Compuestos**: pestaña de la Lista_De_Productos que muestra los Productos con `compuesto === true`.
 - **Tab_Simples**: pestaña de la Lista_De_Productos que muestra los Productos con `compuesto !== true`.
 - **Modulo_De_Dominio**: módulo ES (`export`/`import`) que contiene lógica pura sin dependencias de UI ni de servidor.
@@ -87,7 +92,9 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 
 2. IF las variables de entorno `NEXT_PUBLIC_SUPABASE_URL` o `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` no están definidas al iniciar el servidor, THEN THE Sistema SHALL lanzar un error descriptivo en tiempo de arranque que indique qué variable falta, impidiendo que la aplicación arranque con una configuración incompleta.
 
-3. WHEN el servidor reciba una petición `GET /api/data`, THE Sistema SHALL leer todos los registros de `Tabla_Params` y `Tabla_Products` mediante el Supabase_Client; para cada Producto, THE Sistema SHALL leer las filas de `Tabla_Product_Rows` cuyo `product_id` coincida con el `id` del Producto (join o consulta secundaria) y reunirlas como array `lineas`, aplicar el Normalizador_De_Producto (`normalizarProducto`), y responder con HTTP 200 y cuerpo `{ parametros: Parametro[], productos: Producto[] }` con `Content-Type: application/json`, mapeando `precio_unitario` → `precioUnitario`, `precio_total` → `precioTotal`, `parametro_id` → `parametroId`, `fuente_de_componente` → `fuenteDeComponente`, `producto_componente_id` → `productoComponenteId`.
+3. WHEN el servidor reciba una petición `GET /api/data`, THE Sistema SHALL leer todos los registros de `Tabla_Params` y `Tabla_Products` mediante el Supabase_Client y responder con HTTP 200 y cuerpo `{ parametros: Parametro[], productos: Producto[] }` con `Content-Type: application/json`, mapeando `precio_unitario` → `precioUnitario` y `precio_total` → `precioTotal`. Conforme a la Carga_Diferida_De_Lineas, THE Sistema NO SHALL leer `Tabla_Product_Rows` en esta petición: cada Producto devuelto SHALL ser un Producto_Sin_Lineas_Cargadas con `lineas: []`, conservando `nombre`, `precioTotal`, `unidad` y `compuesto` tomados de `Tabla_Products`. THE Sistema SHALL preservar el valor de `compuesto` almacenado en `Tabla_Products` sin recalcularlo a partir de las líneas (que no están disponibles en esta petición).
+
+3.1. WHEN el servidor reciba una petición `GET /api/data/producto/{id}` (o equivalente que identifique un Producto por `id`), THE Sistema SHALL leer las filas de `Tabla_Product_Rows` cuyo `product_id` coincida con el `id` solicitado, reunirlas como array `lineas` mapeando `parametro_id` → `parametroId`, `fuente_de_componente` → `fuenteDeComponente`, `producto_componente_id` → `productoComponenteId`, y responder con HTTP 200 y cuerpo `{ lineas: Linea_De_Calculo[] }` con `Content-Type: application/json`. IF el Producto no tiene filas en `Tabla_Product_Rows`, THEN THE Sistema SHALL responder HTTP 200 con `{ lineas: [] }`. IF la lectura en Supabase devuelve un error, THEN THE Sistema SHALL responder con HTTP 500, registrar el error en el log del servidor y no exponer detalles al cliente.
 
 4. WHEN el servidor reciba una petición `PUT /api/data` con cuerpo JSON válido que contenga `parametros` y `productos` como arreglos, THE Sistema SHALL hacer upsert de cada elemento en `Tabla_Params` usando `id` como clave de conflicto; para cada Producto, THE Sistema SHALL hacer upsert del registro en `Tabla_Products` y luego eliminar todas las filas existentes de `Tabla_Product_Rows` con ese `product_id` e insertar las nuevas filas, respondiendo con HTTP 200 tras la operación exitosa. THE Sistema SHALL aplicar el Orden_De_Persistencia definido en el criterio 4.1.
 
@@ -95,7 +102,7 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 
 4.2. WHEN THE Sistema prepare las filas de `Tabla_Product_Rows` de un Producto para insertarlas, THE Sistema SHALL aplicar la Validación_De_Linea_Por_Fuente a cada Linea_De_Calculo: (a) si la Fuente_De_Componente es `"Parámetro"`, la línea SHALL tener `parametroId` no nulo para ser persistida; (b) si la Fuente_De_Componente es `"Producto"`, la línea SHALL tener `productoComponenteId` no nulo para ser persistida. THE Sistema SHALL descartar (no insertar) toda Linea_De_Calculo que no cumpla la condición correspondiente a su Fuente_De_Componente, de modo que las líneas rotas de un respaldo (por ejemplo, una Linea_De_Producto cuyo `productoComponenteId` es nulo) no provoquen un fallo de persistencia.
 
-5. IF `Tabla_Params`, `Tabla_Products` o `Tabla_Product_Rows` están vacías al procesar una petición `GET /api/data`, THEN THE Sistema SHALL responder con HTTP 200 y colecciones vacías `{ parametros: [], productos: [] }` sin lanzar error.
+5. IF `Tabla_Params` o `Tabla_Products` están vacías al procesar una petición `GET /api/data`, THEN THE Sistema SHALL responder con HTTP 200 y colecciones vacías `{ parametros: [], productos: [] }` sin lanzar error.
 
 6. IF la operación de lectura en Supabase devuelve un error al procesar `GET /api/data`, THEN THE Sistema SHALL responder con HTTP 500 y un mensaje que indique fallo en la lectura, registrar el error en el log del servidor, y no exponer detalles del error al cliente.
 
@@ -103,9 +110,9 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 
 8. IF el cuerpo de una petición `PUT /api/data` no contiene `parametros` y `productos` como arreglos, THEN THE Sistema SHALL responder con HTTP 400 y un mensaje que indique los campos requeridos, sin intentar escribir en Supabase.
 
-9. WHEN la aplicación se monte en el cliente, THE Sistema SHALL establecer suscripciones al Canal_Realtime para `Tabla_Params`, `Tabla_Products` y `Tabla_Product_Rows`, escuchando eventos `INSERT`, `UPDATE` y `DELETE`; al recibir cualquier evento en cualquiera de las tres tablas, THE Sistema SHALL re-leer el estado completo de las tres tablas y reemplazar el estado global en memoria, de modo que la UI refleje los cambios sin recargar la página.
+9. WHEN la aplicación se monte en el cliente, THE Sistema SHALL establecer suscripciones al Canal_Realtime para `Tabla_Params`, `Tabla_Products` y `Tabla_Product_Rows`, escuchando eventos `INSERT`, `UPDATE` y `DELETE`; al recibir cualquier evento en cualquiera de las tres tablas, THE Sistema SHALL re-leer el estado mediante `GET /api/data` (Parametros y Productos como Productos_Sin_Lineas_Cargadas, conforme a la Carga_Diferida_De_Lineas) y reemplazar el estado global en memoria, de modo que la UI refleje los cambios sin recargar la página. THE Sistema NO SHALL re-leer las líneas de todos los Productos al recibir un evento Realtime; las líneas se mantienen bajo demanda según la Carga_Diferida_De_Lineas.
 
-10. WHEN el Canal_Realtime reciba eventos de `Tabla_Products`, THE Sistema SHALL aplicar el Normalizador_De_Producto a cada Producto antes de actualizar el estado global, de modo que el campo `compuesto` esté siempre derivado correctamente.
+10. WHEN el Canal_Realtime reciba eventos de `Tabla_Products`, THE Sistema SHALL conservar el valor de `compuesto` almacenado en `Tabla_Products` al actualizar el estado global, sin recalcularlo a partir de las líneas (que no se cargan en la re-lectura).
 
 11. IF la suscripción al Canal_Realtime se desconecta, THEN THE Sistema SHALL intentar reconectarse automáticamente usando el mecanismo de reconexión del Supabase_Client sin intervención del usuario.
 
@@ -178,10 +185,16 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 
 #### Acceptance Criteria
 
-1. WHEN el usuario pulse Ver detalle, THE Sistema SHALL abrir la Ventana_Detalle mostrando el nombre del Producto, sus líneas resueltas con los campos nombre del componente, cantidad, unidad y subtotal en PEN con 2 decimales, y el Precio_Total calculado como la suma de los subtotales de todas las líneas, expresado en PEN con 2 decimales.
+1. WHEN el usuario pulse Ver detalle, THE Sistema SHALL abrir la Ventana_Detalle y, conforme a la Carga_Diferida_De_Lineas, consultar las líneas del Producto mediante `GET /api/data/producto/{id}`; MIENTRAS la consulta esté en curso THE Sistema SHALL mostrar el Estado_Cargando dentro de la Ventana_Detalle (indicador de carga de Bootstrap y el texto "Obteniendo datos") sin renderizar las líneas. WHEN la consulta finalice con éxito, THE Sistema SHALL mostrar el nombre del Producto, sus líneas resueltas con los campos nombre del componente, cantidad, unidad y subtotal en PEN con 2 decimales, y el Precio_Total calculado como la suma de los subtotales de todas las líneas, expresado en PEN con 2 decimales.
+
+1.1. IF la consulta de líneas de `GET /api/data/producto/{id}` falla o devuelve un código de estado HTTP no 2xx, THEN THE Sistema SHALL detener el Estado_Cargando y mostrar dentro de la Ventana_Detalle un mensaje de error indicando que no se pudo cargar el detalle, sin cerrar el modal.
+
+1.2. WHEN la consulta de líneas finalice con éxito y el Producto no tenga líneas, THE Sistema SHALL mostrar dentro de la Ventana_Detalle el mensaje "Este producto no tiene líneas de cálculo." y un Precio_Total de `S/ 0.00`.
 2. WHEN una línea del Producto referencia un Parámetro que ya no existe, THE Sistema SHALL mostrar el texto `productosOps.NOMBRE_PARAMETRO_AUSENTE` en el campo nombre del componente de esa línea en la Ventana_Detalle, y mostrar 0.00 como subtotal de dicha línea.
 3. WHEN una Linea_De_Producto referencia un Producto que ya no existe, THE Sistema SHALL mostrar el texto `productosOps.NOMBRE_PRODUCTO_COMPONENTE_AUSENTE` en el campo nombre del componente de esa línea en la Ventana_Detalle, y mostrar 0.00 como subtotal de dicha línea.
-4. WHEN el usuario pulse Editar, THE Sistema SHALL abrir la Ventana_Edicion con el nombre del Producto visible en solo lectura y cada línea precargada con sus valores actuales de componente, cantidad y unidad disponibles para editar.
+4. WHEN el usuario pulse Editar, THE Sistema SHALL abrir la Ventana_Edicion con el nombre del Producto visible en solo lectura y, conforme a la Carga_Diferida_De_Lineas, consultar las líneas del Producto mediante `GET /api/data/producto/{id}`; MIENTRAS la consulta esté en curso THE Sistema SHALL mostrar el Estado_Cargando dentro de la Ventana_Edicion (indicador de carga de Bootstrap y el texto "Obteniendo datos") sin renderizar el editor de líneas. WHEN la consulta finalice con éxito, THE Sistema SHALL precargar cada línea con sus valores actuales de componente, cantidad y unidad disponibles para editar.
+
+4.1. IF la consulta de líneas de `GET /api/data/producto/{id}` falla o devuelve un código de estado HTTP no 2xx al abrir la Ventana_Edicion, THEN THE Sistema SHALL detener el Estado_Cargando y mostrar dentro de la Ventana_Edicion un mensaje de error indicando que no se pudo cargar el producto para editar, sin cerrar el modal.
 5. WHEN el usuario guarde cambios en la Ventana_Edicion con datos válidos, THE Sistema SHALL invocar `productosOps.editarProducto` con los datos actualizados, intentar la persistencia, cerrar el modal y reflejar los cambios en la Lista_De_Productos.
 6. WHEN el usuario pulse Eliminar y confirme la acción, THE Sistema SHALL invocar `productosOps.eliminarProducto`, intentar la persistencia y actualizar la Lista_De_Productos eliminando el Producto de la vista.
 6.1. WHEN el usuario confirme la eliminación de un Producto simple (`compuesto !== true`), THE Sistema SHALL aplicar la Desreferenciación_En_Cascada sobre los Productos restantes: para cada Producto que contenga una Linea_De_Producto cuyo `productoComponenteId` coincida con el id del Producto eliminado, THE Sistema SHALL eliminar esas líneas (no solo anular la referencia), conservando el resto de líneas y su orden, y recalcular el `precioTotal` y el Flag_Compuesto de cada Producto afectado a partir de sus líneas restantes.
@@ -245,7 +258,7 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 3. THE Sistema SHALL adaptar los tests de comportamiento de UI para que los componentes React sean testeables con `@testing-library/react` bajo jsdom, de modo que para los mismos inputs de usuario cada test produzca el mismo resultado de pasa/falla que el test original.
 4. WHEN se ejecute `npm test` en modo de ejecución única (sin modo watch), THE Sistema SHALL correr toda la suite de tests y finalizar con código de salida 0 y 0 tests fallidos.
 5. THE Sistema SHALL incluir al menos un test de integración que mockee el Supabase_Client para simular upserts exitosos en `Tabla_Params` y `Tabla_Products`, y verifique que el Canal_Realtime dispara la re-lectura del estado que refleja los datos insertados.
-6. THE Sistema SHALL incluir tests de las rutas de API que verifiquen: (a) `GET /api/data` con `Tabla_Params`, `Tabla_Products` y `Tabla_Product_Rows` vacías devuelve HTTP 200 y colecciones vacías; (b) `PUT /api/data` con cuerpo válido devuelve HTTP 200; (c) `GET /api/data` con error de lectura de Supabase devuelve HTTP 500; (d) `PUT /api/data` con cuerpo malformado (sin `parametros` o `productos` como arreglos) devuelve HTTP 400.
+6. THE Sistema SHALL incluir tests de las rutas de API que verifiquen: (a) `GET /api/data` con `Tabla_Params` y `Tabla_Products` vacías devuelve HTTP 200 y colecciones vacías; (b) `PUT /api/data` con cuerpo válido devuelve HTTP 200; (c) `GET /api/data` con error de lectura de Supabase devuelve HTTP 500; (d) `PUT /api/data` con cuerpo malformado (sin `parametros` o `productos` como arreglos) devuelve HTTP 400; (e) `GET /api/data` devuelve cada Producto como Producto_Sin_Lineas_Cargadas (`lineas: []`), sin leer `Tabla_Product_Rows`; (f) `GET /api/data/producto/{id}` devuelve `{ lineas: [...] }` para un Producto con filas y `{ lineas: [] }` para un Producto sin filas; (g) `GET /api/data/producto/{id}` con error de lectura de Supabase devuelve HTTP 500.
 7. THE Sistema SHALL incluir un test de propiedad que verifique que para todo par `(parametros, productos)` serializable, `parsearRespaldo(serializarRespaldo(parametros, productos))` devuelve un objeto con `status === "ok"`.
 
 ---
@@ -260,4 +273,46 @@ Migración completa de la aplicación web estática "Limpiapipas" (calculadora d
 2. THE Sistema SHALL aceptar Lineas_De_Calculo sin el campo `fuenteDeComponente` interpretándolas como Lineas_De_Parametro asignándoles el valor por defecto `"Parámetro"`.
 3. THE Sistema SHALL aceptar Lineas_De_Calculo sin el campo `productoComponenteId` asignándoles `null` por defecto.
 4. WHEN el usuario importe un Archivo_De_Respaldo generado por la versión estática, THE Sistema SHALL parsearlo, normalizarlo y persistirlo de modo que el recuento de Productos y Parámetros resultante sea igual al del archivo importado y todos los campos definidos en el archivo sean idénticos en el estado resultante tras aplicar los valores por defecto de los criterios 1 al 3.
+
+---
+
+### Requirement 13: Estados de Carga y Vacío en las Listas
+
+**User Story:** Como usuario, quiero ver un indicador de carga mientras se obtienen los datos de las listas de Productos y Parámetros, y un mensaje claro cuando aún no existen datos, para entender en todo momento el estado de la aplicación.
+
+#### Acceptance Criteria
+
+1. WHILE la consulta que alimenta la Lista_De_Productos esté en curso (carga inicial o re-lectura), THE Sistema SHALL mostrar en el espacio reservado para la lista el Estado_Cargando: un indicador de carga de Bootstrap (p. ej. `.spinner-border`) acompañado del texto "Obteniendo datos", y NO SHALL renderizar las tarjetas de Productos ni los mensajes de Estado_Vacio.
+
+2. WHILE la consulta que alimenta la Lista_De_Parametros esté en curso (carga inicial o re-lectura), THE Sistema SHALL mostrar en el espacio reservado para la lista el Estado_Cargando: un indicador de carga de Bootstrap acompañado del texto "Obteniendo datos", y NO SHALL renderizar los Parametros ni el mensaje de Estado_Vacio.
+
+3. WHEN la consulta que alimenta la Lista_De_Productos finalice con éxito y el resultado no contenga ningún Producto, THE Sistema SHALL mostrar en el espacio de la lista el Estado_Vacio con la etiqueta "Aún no existen Productos", sin indicador de carga.
+
+4. WHEN la consulta que alimenta la Lista_De_Parametros finalice con éxito y el resultado no contenga ningún Parametro, THE Sistema SHALL mostrar en el espacio de la lista el Estado_Vacio con la etiqueta "Aún no existen parámetros", sin indicador de carga.
+
+5. WHEN la consulta que alimenta una lista finalice con éxito y el resultado contenga al menos un elemento, THE Sistema SHALL renderizar la lista con el mismo formato y comportamiento que ya ofrece la Aplicacion (tarjetas, badges, pestañas, botones de acción y ordenación), sin indicador de carga ni mensaje de Estado_Vacio.
+
+6. THE Sistema SHALL mantener el Estado_Cargando, el Estado_Vacio y la lista renderizada como estados mutuamente excluyentes: en cualquier instante, el espacio de cada lista SHALL mostrar exactamente uno de los tres.
+
+7. THE indicador de carga del Estado_Cargando SHALL ser accesible, incluyendo texto alternativo (p. ej. `role="status"` con texto para lectores de pantalla) de modo que el estado de carga sea perceptible por tecnologías de asistencia.
+
+---
+
+### Requirement 14: Carga Diferida del Detalle del Producto
+
+**User Story:** Como usuario, quiero que la aplicación cargue inicialmente solo la información básica de los Productos y consulte el detalle (sus líneas) únicamente cuando lo solicito, para que el arranque de la aplicación sea más ligero y rápido.
+
+#### Acceptance Criteria
+
+1. WHEN la Aplicacion realice la carga inicial o una re-lectura por evento Realtime, THE Sistema SHALL obtener los Productos como Productos_Sin_Lineas_Cargadas (sin consultar `Tabla_Product_Rows`), de modo que el volumen de datos de la carga inicial no incluya las líneas de ningún Producto.
+
+2. WHEN el usuario abra la Ventana_Detalle o la Ventana_Edicion de un Producto, THE Sistema SHALL consultar las líneas de ese Producto bajo demanda mediante `GET /api/data/producto/{id}`, aplicando el Estado_Cargando mientras la consulta esté en curso conforme a los criterios 7.1 y 7.4.
+
+3. THE Sistema SHALL consultar las líneas de un Producto únicamente en respuesta a la apertura de su Ventana_Detalle o Ventana_Edicion, y NO SHALL consultarlas de forma anticipada para Productos cuyo detalle no haya sido solicitado por el usuario.
+
+4. WHEN THE Sistema reciba las líneas de un Producto bajo demanda, THE Sistema SHALL aplicar sobre ellas la misma resolución y cálculo que la Aplicacion usa actualmente (`resolverDetalle`, `calcularContenedor` según corresponda) para producir el detalle visible, de modo que el resultado mostrado sea idéntico al que se obtendría si las líneas se hubieran cargado al inicio.
+
+5. IF una operación que requiere las líneas completas de un Producto (editar, eliminar en cascada de un Producto simple) se ejecuta sin que esas líneas estén disponibles en memoria, THEN THE Sistema SHALL obtener las líneas necesarias mediante `GET /api/data/producto/{id}` antes de calcular y persistir el resultado, garantizando que la persistencia no sobrescriba las líneas de un Producto con un arreglo vacío por el solo hecho de no haberlas cargado.
+
+6. THE Sistema SHALL preservar el comportamiento de persistencia existente (`PUT /api/data` con el snapshot completo): cuando se guarde un Producto cuyo detalle fue cargado y editado, THE Sistema SHALL enviar sus líneas actualizadas; para los Productos_Sin_Lineas_Cargadas que no fueron modificados en la operación, THE Sistema SHALL evitar que la persistencia reemplace sus líneas en `Tabla_Product_Rows` por un arreglo vacío.
 

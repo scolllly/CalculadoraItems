@@ -575,6 +575,83 @@ Migration of the Limpiapipas vanilla-JS SPA (IIFE modules, `localStorage`, `file
 
 ---
 
+### 17. Estados de carga/vacío en listas y carga diferida del detalle de producto
+
+- [ ] 17.1 Añadir en `lib/db.js` la carga diferida en lectura y el helper de persistencia segura
+  - Modificar `getData` para que NO lea `product_rows`: cada Producto se devuelve como Producto_Sin_Lineas_Cargadas con `lineas: []` y `lineasCargadas: false`, tomando `nombre`, `precioTotal`, `unidad` y `compuesto` de `products` (sin recalcular `compuesto`)
+  - Añadir `export async function getProductoLineas(supabaseClient, id)` que lee `product_rows WHERE product_id = id` y mapea snake→camel (`parametro_id`→`parametroId`, `fuente_de_componente`→`fuenteDeComponente`, `producto_componente_id`→`productoComponenteId`), devolviendo `Linea_De_Calculo[]` (array vacío si no hay filas); lanza Error legible si Supabase falla
+  - Añadir `export function requierePersistirLineas(producto)` (puro) que devuelve `true` cuando `producto.lineasCargadas === true`
+  - Modificar `putData` para que, por cada Producto, solo haga DELETE+INSERT de `product_rows` si `requierePersistirLineas(producto)` es `true`; en caso contrario, hacer únicamente el upsert de la fila de `products` sin tocar `product_rows`
+  - _Requirements: 3.3, 3.1, 14.1, 14.5, 14.6_
+
+- [ ] 17.2 Crear la ruta `app/api/data/producto/[id]/route.js` con el handler `GET`
+  - Importar `createSupabaseClient` y `getProductoLineas`
+  - Responder `Response.json({ lineas }, { status: 200 })` (array vacío si no hay filas)
+  - En error de Supabase: registrar en el log del servidor y responder `{ error: "Error al leer el detalle del producto." }` con status 500 (sin exponer detalles)
+  - _Requirements: 3.1, 14.2_
+
+- [ ] 17.3 Crear `components/common/EstadoCargando.js` — indicador de carga reutilizable
+  - `"use client"`
+  - Props: `mensaje` (por defecto `"Obteniendo datos"`)
+  - Renderizar un spinner de Bootstrap (`.spinner-border`) junto al texto del mensaje, con `role="status"` y texto perceptible por lectores de pantalla
+  - _Requirements: 13.1, 13.2, 13.7, 7.1, 7.4_
+
+- [ ] 17.4 Exponer `cargarLineasProducto(id)` en `AppProvider` y mantener la carga diferida en el estado global
+  - Añadir `cargarLineasProducto(id)` al valor del contexto: hace `GET /api/data/producto/{id}` y devuelve las líneas; en fallo rechaza para que el modal muestre el estado de error
+  - Confirmar que la carga inicial y la re-lectura por Realtime dejan los Productos con `lineas: []` y `lineasCargadas: false` (sin pedir líneas de todos los Productos)
+  - _Requirements: 14.1, 14.2, 3.9, 3.10_
+
+- [ ] 17.5 Añadir Estado_Cargando y Estado_Vacio a `ListaProductos`
+  - Nueva prop `loading: boolean`
+  - Render de tres estados mutuamente excluyentes: `loading` → `<EstadoCargando />`; `!loading && productos.length === 0` → etiqueta "Aún no existen Productos"; `!loading && productos.length > 0` → lista habitual (pestañas, badges, botones, orden) sin cambios de comportamiento
+  - `ProductosPage` lee `loading` del `AppContext` y lo pasa a `ListaProductos`
+  - _Requirements: 13.1, 13.3, 13.5, 13.6_
+
+- [ ] 17.6 Añadir Estado_Cargando y Estado_Vacio a la lista de `ParametrosPage`
+  - Leer `loading` del `AppContext`
+  - Render de tres estados excluyentes: `loading` → `<EstadoCargando />`; `!loading && parametros.length === 0` → etiqueta "Aún no existen parámetros"; `!loading && parametros.length > 0` → lista habitual con Editar/Eliminar
+  - _Requirements: 13.2, 13.4, 13.5, 13.6_
+
+- [ ] 17.7 Carga diferida de líneas en `VentanaDetalle`
+  - Nueva prop `cargarLineasProducto`
+  - Estado local `estado: 'cargando'|'ok'|'error'` y `lineas`
+  - `useEffect([producto])`: al abrir, `estado='cargando'` y llamar `cargarLineasProducto(producto.id)`; éxito → fijar `lineas` y `estado='ok'`; fallo → `estado='error'`
+  - Render del cuerpo según estado: `cargando` → `<EstadoCargando />`; `error` → mensaje "No se pudo cargar el detalle." sin cerrar el modal; `ok` → `resolverDetalle({ ...producto, lineas }, ...)` como ahora; sin líneas → "Este producto no tiene líneas de cálculo." y Precio_Total `S/ 0.00`
+  - _Requirements: 7.1, 7.1.1, 7.1.2, 14.2, 14.4_
+
+- [ ] 17.8 Carga diferida de líneas en `VentanaEdicion`
+  - Nueva prop `cargarLineasProducto`
+  - Estado local `estado: 'cargando'|'ok'|'error'`
+  - `useEffect([producto])`: al abrir, `estado='cargando'` y llamar `cargarLineasProducto(producto.id)`; éxito → `lineas = deep-copy(lineas)` y `estado='ok'`; fallo → `estado='error'`
+  - Render del cuerpo según estado: `cargando` → `<EstadoCargando />`; `error` → mensaje "No se pudo cargar el producto para editar." sin cerrar el modal; `ok` → `<EditorDeLineas ... />`
+  - _Requirements: 7.4, 7.4.1, 14.2_
+
+- [ ] 17.9 Hidratar líneas antes de persistir en los handlers de `ProductosPage`
+  - En `handleGuardarEdicion`: construir el Producto editado con `lineasCargadas: true` (sus líneas vienen del editor) antes de `editarProducto` + `saveAll`
+  - En `handleEliminar`: si el Producto objetivo es simple y tiene `lineasCargadas !== true`, llamar `cargarLineasProducto(id)` para hidratarlo (`lineasCargadas: true`) antes de aplicar `eliminarProductoSimpleEnCascada` + `saveAll`, de modo que la cascada recomputo no pierda sus líneas
+  - En `handleGuardarProducto`: los Productos recién creados nacen con `lineasCargadas: true`
+  - Pasar `cargarLineasProducto` del contexto a `VentanaDetalle` y `VentanaEdicion`
+  - _Requirements: 14.5, 14.6, 7.5, 7.6_
+
+- [ ] 17.10 Tests de las nuevas rutas y helpers de datos
+  - En `tests/api.test.js`: `GET /api/data` devuelve cada Producto con `lineas: []` sin leer `product_rows`; `GET /api/data/producto/:id` devuelve `{ lineas: [...] }` con filas y `{ lineas: [] }` sin filas; `GET /api/data/producto/:id` con error de Supabase → HTTP 500
+  - Tests unitarios de `requierePersistirLineas` y de `putData` (con mock) verificando que un Producto_Sin_Lineas_Cargadas NO borra sus `product_rows`
+  - _Requirements: 11.6, 3.1, 14.1, 14.6_
+
+- [ ] 17.11 Tests de componentes de los estados de carga/vacío y carga diferida
+  - `tests/ListaProductos.test.js` (o ampliar el existente): `loading` → muestra "Obteniendo datos"; vacío → "Aún no existen Productos"; con datos → lista; exclusión mutua
+  - `tests/ParametrosPage.test.js`: `loading` → "Obteniendo datos"; vacío → "Aún no existen parámetros"
+  - `tests/VentanaDetalle.test.js`: muestra Estado_Cargando mientras `cargarLineasProducto` no resuelve; resuelve detalle tras cargar; muestra error si falla
+  - `tests/VentanaEdicion.test.js`: muestra Estado_Cargando; precarga líneas tras cargar; muestra error si falla
+  - `tests/EstadoCargando.test.js`: renderiza spinner, `role="status"` y texto "Obteniendo datos"
+  - _Requirements: 11.3, 13.1, 13.2, 13.3, 13.4, 7.1, 7.4_
+
+- [ ] 17.12 Punto de verificación — suite completa en verde
+  - Ejecutar `npm test` y confirmar código de salida 0 con 0 tests fallidos tras los cambios de carga diferida y estados de UI
+  - _Requirements: 11.4_
+
+---
+
 ### 15. Verificación final
 
 - [x] 15.1 Ejecutar la suite completa de tests y verificar código de salida 0
@@ -632,7 +709,12 @@ Migration of the Limpiapipas vanilla-JS SPA (IIFE modules, `localStorage`, `file
     { "id": 16, "tasks": ["12.1", "12.2", "12.3", "12.4"] },
     { "id": 17, "tasks": ["13.1", "13.2", "13.3", "13.4", "13.5"] },
     { "id": 18, "tasks": ["14.1", "14.2", "14.3", "14.4", "14.5", "14.6", "14.7"] },
-    { "id": 19, "tasks": ["15.1", "15.2", "15.3", "15.4"] }
+    { "id": 19, "tasks": ["16.1", "16.2", "16.3", "16.4", "16.5", "16.6", "16.7"] },
+    { "id": 20, "tasks": ["17.1", "17.2", "17.3"] },
+    { "id": 21, "tasks": ["17.4", "17.5", "17.6"] },
+    { "id": 22, "tasks": ["17.7", "17.8", "17.9"] },
+    { "id": 23, "tasks": ["17.10", "17.11", "17.12"] },
+    { "id": 24, "tasks": ["15.1", "15.2", "15.3", "15.4"] }
   ]
 }
 ```

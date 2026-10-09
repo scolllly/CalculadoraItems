@@ -134,11 +134,32 @@ sequenceDiagram
     AppProvider->>APIRoute: GET /api/data
     Note over AppProvider: show loading indicator
     APIRoute->>SupabaseDB: SELECT params
-    APIRoute->>SupabaseDB: SELECT products + product_rows
+    APIRoute->>SupabaseDB: SELECT products (SIN product_rows — carga diferida)
     SupabaseDB-->>APIRoute: rows
-    APIRoute-->>AppProvider: { parametros, productos }
+    APIRoute-->>AppProvider: { parametros, productos (lineas: []) }
     AppProvider->>Browser: set state, hide loading
     AppProvider->>Realtime: subscribe to params, products, product_rows channels
+```
+
+### Data Flow — On-Demand Detail Load (Carga_Diferida_De_Lineas)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Modal as VentanaDetalle / VentanaEdicion
+    participant AppProvider
+    participant APIRoute as /api/data/producto/:id
+    participant SupabaseDB as Supabase DB
+
+    User->>Modal: Ver detalle / Editar (producto sin líneas cargadas)
+    Modal->>AppProvider: cargarLineasProducto(id)
+    Note over Modal: muestra Estado_Cargando (spinner + "Obteniendo datos")
+    AppProvider->>APIRoute: GET /api/data/producto/:id
+    APIRoute->>SupabaseDB: SELECT product_rows WHERE product_id = id
+    SupabaseDB-->>APIRoute: rows
+    APIRoute-->>AppProvider: { lineas }
+    AppProvider-->>Modal: lineas
+    Modal->>User: render detalle / editor (o estado de error si falló)
 ```
 
 ---
@@ -153,7 +174,10 @@ app/
   page.js                     ← Redirect to /productos
   api/
     data/
-      route.js                ← GET and PUT handlers
+      route.js                ← GET (sin líneas) and PUT handlers
+      producto/
+        [id]/
+          route.js            ← GET líneas de un Producto bajo demanda
   (pages)/
     productos/
       page.js                 ← <ProductosPage />
@@ -169,7 +193,7 @@ lib/
   productos.ops.js
   backup.js
   supabase.js                 ← createClient initialization
-  db.js                       ← getData(), putData(), importBackup()
+  db.js                       ← getData(), getProductoLineas(), putData(), importBackup()
 components/
   NavBar.js
   AppProvider.js
@@ -182,6 +206,8 @@ components/
     ListaProductos.js
     VentanaDetalle.js
     VentanaEdicion.js
+  common/
+    EstadoCargando.js         ← spinner Bootstrap + "Obteniendo datos" (reutilizable)
   parametros/
     ParametrosPage.js
   base-datos/
@@ -229,23 +255,36 @@ export default function Home() { redirect('/productos'); }
 Handles `GET /api/data` and `PUT /api/data`. Uses the Supabase server client.
 
 ```js
-// GET /api/data
+// GET /api/data  (Carga_Diferida_De_Lineas — Req 3.3, 14.1)
 // - Read all rows from params → map to Parametro[]
-// - Read all rows from products → for each, read product_rows where product_id = product.id
+// - Read all rows from products → map to Producto[] con lineas: []
+//   (NO se lee product_rows; `compuesto` se toma de la columna de products)
 // - Map snake_case → camelCase (precio_unitario→precioUnitario, etc.)
-// - Apply normalizarProducto to each Producto
-// - Return HTTP 200 { parametros, productos }
+// - Return HTTP 200 { parametros, productos }   (cada producto es Producto_Sin_Lineas_Cargadas)
 // - On Supabase error: HTTP 500 { error: "..." }, log server-side
 
 // PUT /api/data
 // - Validate body: { parametros: Array, productos: Array } → HTTP 400 if invalid
 // - Upsert each Parametro into params (conflict on id)
-// - For each Producto:
+// - For each Producto (ver "Persistencia segura con carga diferida" más abajo):
 //   - Upsert record into products (conflict on id)
-//   - DELETE FROM product_rows WHERE product_id = producto.id
-//   - INSERT new rows into product_rows
+//   - Si el Producto trae `lineas` cargadas (array presente): DELETE + INSERT de product_rows
+//   - Si el Producto NO trae líneas (Producto_Sin_Lineas_Cargadas, marcado con
+//     `lineasCargadas === false`): upsert solo de la fila de products, SIN tocar product_rows
 // - Return HTTP 200 on success
 // - On Supabase error: HTTP 500 { error: "..." }
+```
+
+### `app/api/data/producto/[id]/route.js`
+
+Handles `GET /api/data/producto/{id}` — devuelve las líneas de un único Producto bajo demanda (Req 3.1, 14.2).
+
+```js
+// GET /api/data/producto/[id]
+// - Read product_rows WHERE product_id = id
+// - Map snake_case → camelCase (parametro_id→parametroId, etc.)
+// - Return HTTP 200 { lineas: Linea_De_Calculo[] }  (array vacío si no hay filas)
+// - On Supabase error: HTTP 500 { error: "..." }, log server-side
 ```
 
 **Column mapping** (`snake_case` DB ↔ `camelCase` JS):
@@ -274,11 +313,42 @@ Pure async functions wrapping Supabase calls. Used by both API routes and the ba
 ```js
 // Exports:
 //   getData(supabaseClient) → Promise<{ parametros: Parametro[], productos: Producto[] }>
+//     - Carga_Diferida_De_Lineas: NO lee product_rows; cada Producto se devuelve
+//       con lineas: [] y lineasCargadas: false (Req 3.3, 14.1)
+//   getProductoLineas(supabaseClient, id) → Promise<Linea_De_Calculo[]>
+//     - lee product_rows WHERE product_id = id y mapea snake→camel (Req 3.1, 14.2)
 //   putData(supabaseClient, { parametros, productos }) → Promise<void>
 //   importBackup(supabaseClient, { parametros, productos }) → Promise<void>
 //     - same as putData but called directly from BaseDatosPage
 //     - after upsert completes, caller re-reads via getData (no Realtime dependency)
 ```
+
+#### Persistencia segura con Carga_Diferida_De_Lineas (Req 14.5, 14.6)
+
+El `PUT /api/data` sigue enviando un snapshot completo, pero con carga diferida
+la mayoría de los Productos del estado global son Productos_Sin_Lineas_Cargadas
+(`lineas: []`). Si `putData` hiciera DELETE+INSERT de `product_rows` para todos
+ellos, **borraría las líneas reales** de cada Producto cuyo detalle nunca se
+abrió. Para evitarlo:
+
+- Cada Producto del estado global lleva una marca `lineasCargadas: boolean`.
+  `getData` la fija en `false`; cuando `getProductoLineas` resuelve y se
+  incorporan las líneas a un Producto (al abrir detalle/edición), pasa a `true`.
+  Un Producto recién creado en la Calculadora nace con `lineasCargadas: true`.
+- En `putData`, para cada Producto:
+  - Si `lineasCargadas === true` (o el Producto trae un array `lineas` no vacío
+    porque fue creado/editado): se hace el DELETE+INSERT habitual de
+    `product_rows` aplicando `filtrarLineasValidas`.
+  - Si `lineasCargadas === false`: se hace **solo** el upsert de la fila de
+    `products` (nombre, precio_total, unidad, compuesto) y **no se tocan** sus
+    `product_rows`, preservando las líneas persistidas.
+- Un helper puro `requierePersistirLineas(producto)` encapsula esta decisión y
+  se exporta desde `lib/db.js` para poder testearlo sin Supabase.
+
+> Operaciones que necesitan las líneas completas (editar un Producto, eliminar
+> en cascada un Producto simple) obtienen primero las líneas vía
+> `getProductoLineas` / `GET /api/data/producto/{id}` y marcan el Producto como
+> `lineasCargadas: true` antes de calcular y persistir (Req 14.5).
 
 #### Orden_De_Persistencia and Validación_De_Linea_Por_Fuente in `putData` (Req 3.4.1, 3.4.2)
 
@@ -296,6 +366,10 @@ always resolve to rows that already exist:
 //      then compuestos. A compuesto's product-component lines can only
 //      reference a simple (or another compuesto already written), so by the
 //      time compuestos are written every referenced product exists.
+//      Para cada Producto, DELETE/INSERT de product_rows SOLO si
+//      requierePersistirLineas(producto) es true (líneas cargadas/editadas);
+//      si es un Producto_Sin_Lineas_Cargadas, upsert solo de la fila de
+//      products (Req 14.6).
 //   4. Before inserting the product_rows of a product, filter its lineas with
 //      Validación_De_Linea_Por_Fuente:
 //        - fuenteDeComponente === 'Parámetro'  → keep only if parametroId != null
@@ -306,9 +380,11 @@ always resolve to rows that already exist:
 ```
 
 A pure helper `ordenarProductosParaPersistir(productos)` returns
-`[...simples, ...compuestos]`, and a pure helper
-`filtrarLineasValidas(lineas)` applies Validación_De_Linea_Por_Fuente. Both are
-exported from `lib/db.js` so they can be unit-tested without Supabase.
+`[...simples, ...compuestos]`, a pure helper `filtrarLineasValidas(lineas)`
+applies Validación_De_Linea_Por_Fuente, and a pure helper
+`requierePersistirLineas(producto)` decides whether to DELETE/INSERT a product's
+`product_rows` (true when `lineasCargadas === true`). All three are exported from
+`lib/db.js` so they can be unit-tested without Supabase.
 
 > Note: `importBackup` delegates to `putData`, so the import flow inherits the
 > ordering and the per-line validation automatically.
@@ -325,19 +401,28 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 //   error: string | null
 
 // On mount (useEffect):
-//   1. Call getData() → set loading=true, populate state, set loading=false
+//   1. GET /api/data → set loading=true, populate state (productos como
+//      Producto_Sin_Lineas_Cargadas, lineas: [], lineasCargadas: false),
+//      set loading=false (Req 14.1)
 //   2. Subscribe to Supabase Realtime channels for params, products, product_rows
-//      - On any INSERT/UPDATE/DELETE event: call getData() → update state
+//      - On any INSERT/UPDATE/DELETE event: GET /api/data → update state
+//        (sigue sin cargar líneas; Req 3.9, 14.1)
 
 // On unmount: unsubscribe all Realtime channels
 
 // Context value exposed:
 //   { parametros, setParametros, productos, setProductos, loading, error,
-//     saveAll }
+//     saveAll, cargarLineasProducto }
 //   saveAll({ parametros, productos }):
 //     - Optimistic update: setParametros / setProductos immediately
-//     - Call putData()
+//     - Call PUT /api/data
 //     - On failure: revert to previous state, notify error
+//   cargarLineasProducto(id) → Promise<Linea_De_Calculo[]> (Req 14.2, 14.5):
+//     - GET /api/data/producto/{id}
+//     - devuelve las líneas resueltas; el llamador (VentanaDetalle/VentanaEdicion)
+//       las usa para render y, cuando corresponda, para construir el Producto
+//       con lineasCargadas: true antes de editar/eliminar y persistir
+//     - en fallo: lanza/rechaza para que el modal muestre el estado de error
 
 // Exported: AppContext (React.createContext), AppProvider (component)
 ```
@@ -350,6 +435,23 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 //   - info alerts auto-dismiss after 5000ms
 //   - error alerts persist until user closes
 //   - Accessible: role="alert", aria-live="polite"
+```
+
+### `components/common/EstadoCargando.js`
+
+`"use client"` component. Indicador de carga reutilizable para el Estado_Cargando
+de las listas y de los modales (Req 13.1, 13.2, 13.7, 7.1, 7.4).
+
+```js
+// Props:
+//   mensaje?: string   ← por defecto "Obteniendo datos"
+// Renders:
+//   <div class="lp-estado-cargando d-flex align-items-center gap-2" role="status">
+//     <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+//     <span>{mensaje}</span>            // texto visible y perceptible por lectores
+//   </div>
+// Accesibilidad: role="status" con texto para que el estado de carga sea
+// anunciado por tecnologías de asistencia (Req 13.7).
 ```
 
 ### `components/NavBar.js`
@@ -369,7 +471,7 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 `"use client"` component. Two-column layout (≥1024px) or single-column (< 1024px) using Bootstrap grid.
 
 ```js
-// Reads from AppContext: parametros, productos, saveAll
+// Reads from AppContext: parametros, productos, loading, saveAll, cargarLineasProducto
 // Reads from NotifierContext: dispatch
 // Local state:
 //   nombreProducto: string
@@ -379,11 +481,20 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 //   modalDetalle: Producto | null
 //   modalEdicion: Producto | null
 
-// Renders:
+// handleEliminar(productoId) (Req 14.5): un Producto simple requiere la
+//   Desreferenciación_En_Cascada sobre otros productos y, para recomputar sin
+//   perder sus propias líneas, necesita las líneas del producto a eliminar.
+//   Si el producto objetivo tiene lineasCargadas === false, primero
+//   cargarLineasProducto(id) para hidratarlo (lineasCargadas: true) antes de
+//   aplicar eliminarProductoSimpleEnCascada y saveAll.
+
+// Pasa loading={loading} y cargarLineasProducto a los hijos:
 //   <div class="row">
 //     <div class="col-lg-6"> <Calculadora /> </div>
-//     <div class="col-lg-6"> <ListaProductos /> </div>
+//     <div class="col-lg-6"> <ListaProductos loading={loading} ... /> </div>
 //   </div>
+//   <VentanaDetalle cargarLineasProducto={cargarLineasProducto} ... />
+//   <VentanaEdicion cargarLineasProducto={cargarLineasProducto} ... />
 ```
 
 ### `components/productos/Calculadora.js`
@@ -437,37 +548,56 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 ```js
 // Props:
 //   productos: Producto[]
+//   loading: boolean                      ← Estado_Cargando de la lista (Req 13.1)
 //   direccionOrden: 'ascendente' | 'descendente'
 //   onToggleOrden: () => void
 //   onVerDetalle: (producto: Producto) => void
 //   onEditar: (producto: Producto) => void
 //   onEliminar: (productoId: string) => void
 
-// Renders:
-//   - Orden button (toggles direccionOrden)
-//   - Bootstrap tabs: Tab_Compuestos | Tab_Simples
-//   - Each tab panel: sorted list of productos filtered by compuesto flag
-//   - Each item: nombre, Precio_Total badge, Precio_Sugerido→Precio_Redondeado badge,
-//                three icon buttons (Ver detalle, Editar, Eliminar)
-//   - Empty state for whole list and per-tab
+// Render (tres estados mutuamente excluyentes, Req 13.6):
+//   - loading === true           → <EstadoCargando />  (spinner + "Obteniendo datos")
+//   - !loading && productos.length === 0
+//                                → Estado_Vacio: etiqueta "Aún no existen Productos" (Req 13.3)
+//   - !loading && productos.length > 0 → lista habitual:
+//       - Orden button (toggles direccionOrden)
+//       - Bootstrap tabs: Tab_Compuestos | Tab_Simples
+//       - Each tab panel: sorted list filtered by compuesto flag
+//       - Each item: nombre, Precio_Total badge, Precio_Sugerido→Precio_Redondeado badge,
+//                    three icon buttons (Ver detalle, Editar, Eliminar)
+//       - Empty state per-tab (sin cambios respecto al comportamiento actual)
 ```
 
 ### `components/productos/VentanaDetalle.js`
 
 ```js
 // Props:
-//   producto: Producto | null
+//   producto: Producto | null             ← Producto_Sin_Lineas_Cargadas (sin líneas)
 //   parametros: Parametro[]
 //   productos: Producto[]
+//   cargarLineasProducto: (id) => Promise<Linea_De_Calculo[]>   ← del AppContext
 //   onClose: () => void
+
+// Local state (Carga_Diferida_De_Lineas, Req 7.1, 14.2):
+//   lineas: Linea_De_Calculo[] | null
+//   estado: 'cargando' | 'ok' | 'error'
+
+// useEffect([producto]): cuando producto !== null →
+//   estado='cargando'; cargarLineasProducto(producto.id)
+//     .then(lineas → set lineas, estado='ok')
+//     .catch(estado='error')
 
 // Renders: Bootstrap modal (show when producto !== null)
 //   - Title: producto.nombre
-//   - Body: list of resolved lines (productosOps.resolverDetalle)
-//     - Each line: nombre componente, cantidad, unidad, subtotal en PEN
-//     - Absent parametro: NOMBRE_PARAMETRO_AUSENTE
-//     - Absent producto componente: NOMBRE_PRODUCTO_COMPONENTE_AUSENTE
-//   - Footer: Precio_Total en PEN, Cerrar button
+//   - Body según estado:
+//     - 'cargando' → <EstadoCargando />  (spinner + "Obteniendo datos", Req 7.1)
+//     - 'error'    → mensaje "No se pudo cargar el detalle." (Req 1.1 / 7.1.1), modal abierto
+//     - 'ok'       → resolverDetalle({ ...producto, lineas }, parametros, productos):
+//         - Each line: nombre componente, cantidad, unidad, subtotal en PEN
+//         - Absent parametro: NOMBRE_PARAMETRO_AUSENTE
+//         - Absent producto componente: NOMBRE_PRODUCTO_COMPONENTE_AUSENTE
+//         - Sin líneas: "Este producto no tiene líneas de cálculo." (Req 7.1.2)
+//   - Footer: Precio_Total en PEN (0.00 si sin líneas), Cerrar button
 // No edit controls
 ```
 
@@ -475,21 +605,33 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 
 ```js
 // Props:
-//   producto: Producto | null
+//   producto: Producto | null             ← Producto_Sin_Lineas_Cargadas (sin líneas)
 //   parametros: Parametro[]
 //   productos: Producto[]
+//   cargarLineasProducto: (id) => Promise<Linea_De_Calculo[]>   ← del AppContext
 //   onGuardar: (productoId, lineasActualizadas) => void
 //   onClose: () => void
 
-// Local state:
-//   lineas: LineaEnEdicion[]    ← deep-copy of producto.lineas on open, via useEffect
+// Local state (Carga_Diferida_De_Lineas, Req 7.4, 14.2):
+//   lineas: LineaEnEdicion[]
+//   estado: 'cargando' | 'ok' | 'error'
 //   saving: boolean
+
+// useEffect([producto]): cuando producto !== null →
+//   estado='cargando'; cargarLineasProducto(producto.id)
+//     .then(lineas → set lineas = deep-copy(lineas), estado='ok')
+//     .catch(estado='error')
 
 // Renders: Bootstrap modal (show when producto !== null)
 //   - Title: "Editar: {producto.nombre}" (nombre read-only)
-//   - Body: <EditorDeLineas lineas={lineas} onChange={setLineas} ... />
+//   - Body según estado:
+//     - 'cargando' → <EstadoCargando />  (spinner + "Obteniendo datos", Req 7.4)
+//     - 'error'    → mensaje "No se pudo cargar el producto para editar." (Req 7.4.1), modal abierto
+//     - 'ok'       → <EditorDeLineas lineas={lineas} onChange={setLineas} ... />
 //   - Footer: Guardar (validates, calls onGuardar), Cancelar
-// On Guardar: validates via validarLineasEnEdicion, calls productosOps.editarProducto
+// On Guardar: validates via validarLineasEnEdicion; onGuardar recibe las líneas
+//   editadas y el llamador construye el Producto con lineasCargadas: true antes de
+//   editarProducto + persistir (Req 14.5)
 ```
 
 ### `components/parametros/ParametrosPage.js`
@@ -497,7 +639,7 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 `"use client"` component. Direct port of `parametros.controller.js`.
 
 ```js
-// Reads from AppContext: parametros, setParametros, productos, saveAll
+// Reads from AppContext: parametros, setParametros, productos, loading, saveAll
 // Reads from NotifierContext: dispatch
 
 // Local state:
@@ -505,6 +647,11 @@ exported from `lib/db.js` so they can be unit-tested without Supabase.
 //   precioUnitario: string
 //   unidad: string
 //   idEnEdicion: string | null
+
+// Render de la Lista_De_Parametros (tres estados excluyentes, Req 13.2/13.4/13.6):
+//   - loading === true  → <EstadoCargando />  (spinner + "Obteniendo datos")
+//   - !loading && parametros.length === 0 → Estado_Vacio "Aún no existen parámetros"
+//   - !loading && parametros.length > 0   → lista habitual con Editar/Eliminar
 
 // Handlers:
 //   handleSubmit(): validate → crearParametro or update → saveAll → notify
@@ -597,7 +744,13 @@ ALTER TABLE product_rows REPLICA IDENTITY FULL;
 
 // Producto
 { id: string, nombre: string, lineas: LineaDeCalculo[],
-  precioTotal: number, unidad: string, compuesto: boolean }
+  precioTotal: number, unidad: string, compuesto: boolean,
+  lineasCargadas?: boolean }
+//   lineasCargadas marca si `lineas` refleja el detalle real del Producto.
+//   getData lo fija en false (Producto_Sin_Lineas_Cargadas, lineas: []);
+//   pasa a true tras cargar las líneas bajo demanda o al crear el Producto en
+//   la Calculadora. Es un campo de estado del cliente: NO se persiste como
+//   columna en Tabla_Products (ver Persistencia segura con Carga_Diferida_De_Lineas).
 
 // LineaDeCalculo
 { parametroId: string|null, cantidad: number, subtotal: number,
@@ -806,6 +959,7 @@ export function parsearRespaldo(texto) { ... }
 |---|---|
 | Missing/invalid `parametros` or `productos` in PUT body | HTTP 400 `{ error: "Se requieren los campos parametros y productos como arreglos." }` |
 | Supabase read error in GET | HTTP 500 `{ error: "Error al leer los datos." }` (details logged server-side, not exposed to client) |
+| Supabase read error in GET /api/data/producto/:id | HTTP 500 `{ error: "Error al leer el detalle del producto." }` (logged server-side) |
 | Supabase write error in PUT | HTTP 500 `{ error: "Error al guardar los datos." }` |
 | Missing env vars at startup | Throw at module load: `"Variable de entorno NEXT_PUBLIC_SUPABASE_URL no definida."` |
 
@@ -815,6 +969,7 @@ export function parsearRespaldo(texto) { ... }
 |---|---|
 | `GET /api/data` timeout (>10 s) or non-2xx | Stop loading spinner; show error notification; do not render data lists (Req 4.6) |
 | `PUT /api/data` failure | Revert optimistic state update; show persistent error notification (Req 4.5) |
+| `GET /api/data/producto/:id` failure (detalle/edición) | Detener Estado_Cargando; mostrar mensaje de error dentro del modal sin cerrarlo (Req 7.1.1, 7.4.1) |
 | Realtime disconnect | Supabase client auto-reconnects; no user intervention needed (Req 3.11) |
 | Backup import Supabase failure | Do NOT replace global state with imported data; show error toast "No se pudieron guardar los datos en Supabase." (Req 8.7) |
 | Backup parse error | Show error from `parsearRespaldo.reason`; do not modify state (Req 8.6) |
@@ -868,13 +1023,16 @@ Tag format in test comments: `Feature: nextjs-migration, Property {N}: {property
 
 ### API Route Tests (`tests/api.test.js`)
 
-Uses `vi.mock('../../lib/db.js')` to stub `getData` and `putData`.
+Uses `vi.mock('../../lib/db.js')` to stub `getData`, `getProductoLineas` and `putData`.
 
 Covers (per Requirement 11.6):
 - `GET /api/data` with empty tables → HTTP 200 `{ parametros: [], productos: [] }`
 - `PUT /api/data` with valid body → HTTP 200
 - `GET /api/data` with Supabase read error → HTTP 500
 - `PUT /api/data` with malformed body (missing `parametros` or `productos` as arrays) → HTTP 400
+- `GET /api/data` returns each Producto as Producto_Sin_Lineas_Cargadas (`lineas: []`), without reading `product_rows`
+- `GET /api/data/producto/:id` returns `{ lineas: [...] }` for a product with rows and `{ lineas: [] }` for one without
+- `GET /api/data/producto/:id` with Supabase read error → HTTP 500
 
 ### Integration Test (`tests/integration.test.js`)
 
@@ -882,12 +1040,15 @@ Uses `vi.mock` on the Supabase client to simulate successful upserts and verify 
 
 ### Component Tests
 
-- `ParametrosPage`: form validation feedback, create/edit/delete flows.
+- `ParametrosPage`: form validation feedback, create/edit/delete flows; Estado_Cargando (spinner + "Obteniendo datos") mientras `loading`; Estado_Vacio "Aún no existen parámetros" cuando no hay datos (Req 13.2, 13.4).
 - `Calculadora`: calcular/guardar validation messages, form reset after save.
 - `EditorDeLineas`: add/remove lines, fuente switching, selector content.
-- `VentanaDetalle`: resolves absent parametros/productos to fallback text.
-- `VentanaEdicion`: precarga lines, validates on save, keeps modal open on error.
+- `ListaProductos`: Estado_Cargando mientras `loading`; Estado_Vacio "Aún no existen Productos" cuando no hay productos; lista normal cuando hay datos; exclusión mutua de los tres estados (Req 13.1, 13.3, 13.5, 13.6).
+- `VentanaDetalle`: muestra Estado_Cargando mientras resuelve `cargarLineasProducto`; resuelve el detalle tras la carga; muestra mensaje de error si la carga falla; resolves absent parametros/productos to fallback text (Req 7.1, 7.1.1, 7.1.2, 14.2).
+- `VentanaEdicion`: muestra Estado_Cargando mientras carga las líneas bajo demanda; precarga lines tras la carga; mensaje de error si falla; validates on save, keeps modal open on error (Req 7.4, 7.4.1, 14.2).
+- `EstadoCargando`: renderiza spinner Bootstrap, `role="status"` y el texto por defecto "Obteniendo datos" (Req 13.7).
 - `BaseDatosPage`: export triggers download, import flow (valid/invalid file, confirm/cancel).
+- `AppProvider`: `cargarLineasProducto(id)` llama a `GET /api/data/producto/:id` y resuelve las líneas; `getData`/re-lectura Realtime dejan los Productos con `lineas: []` y `lineasCargadas: false` (Req 14.1, 14.2).
 
 ### Migration from Existing Tests
 
