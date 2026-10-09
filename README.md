@@ -1,5 +1,6 @@
 # Limpiapipas — Guía de despliegue
 
+## Version v1
 La aplicación es una SPA estática servida con nginx en AWS ECS (Fargate). El despliegue involucra dos repositorios y dos flujos diferenciados: uno para provisionar la infraestructura y otro para construir y publicar la imagen de la aplicación.
 
 ---
